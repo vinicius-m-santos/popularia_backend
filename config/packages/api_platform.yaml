@@ -1,0 +1,68 @@
+api_platform:
+    title: Popularia API
+    description: |
+        API do aplicativo Popularia. Versão 1, servida em /api/v1.
+
+        Autenticação: envie `Authorization: Bearer <accessToken>` (obtido em POST /api/v1/auth/login).
+        O access token dura poucos minutos; renove-o em POST /api/v1/auth/refresh com o refresh token.
+
+        Erros seguem o formato application/problem+json (RFC 9457). Erros de validação
+        respondem 422 com a lista `violations` (propertyPath, message).
+    version: 1.0.0
+    show_webby: false
+
+    # Somente os recursos declarados em src/Api: as entidades do Doctrine nunca são expostas diretamente.
+    mapping:
+        paths: ['%kernel.project_dir%/src/Api']
+
+    # JSON simples (sem JSON-LD/Hydra): é o formato mais direto para o app mobile.
+    formats:
+        json: ['application/json']
+    patch_formats:
+        json: ['application/merge-patch+json', 'application/json']
+    # OpenAPI em JSON em todos os ambientes (GET /api/v1/docs.jsonopenapi).
+    # A página HTML (Swagger UI) só existe em desenvolvimento: veja when@dev.
+    docs_formats:
+        jsonopenapi: ['application/vnd.openapi+json']
+        json: ['application/json']
+    error_formats:
+        jsonproblem: ['application/problem+json']
+        json: ['application/problem+json', 'application/json']
+
+    enable_swagger_ui: false
+    enable_re_doc: false
+    enable_entrypoint: false
+    enable_link_security: true
+
+    swagger:
+        api_keys:
+            bearer:
+                name: Authorization
+                type: header
+
+    defaults:
+        stateless: true
+        # Respostas com formato estável: campos nulos aparecem como null, não somem.
+        normalization_context:
+            skip_null_values: false
+        # O cliente nunca envia campos desconhecidos (como "id", "role" ou "authorId"): a API recusa.
+        denormalization_context:
+            allow_extra_attributes: false
+            # Toda escrita é desserializada num objeto de entrada novo (src/Api/**/…Input),
+            # nunca por cima de um objeto existente.
+            api_assign_object_to_populate: false
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+        pagination_enabled: false
+        extra_properties:
+            standard_put: true
+
+    exception_to_status:
+        Symfony\Component\Serializer\Exception\ExceptionInterface: 400
+        ApiPlatform\Validator\Exception\ValidationException: 422
+
+when@dev:
+    api_platform:
+        enable_swagger_ui: true
+        docs_formats:
+            html: ['text/html']

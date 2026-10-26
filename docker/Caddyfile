@@ -1,0 +1,26 @@
+{
+	# Sem painel de administração do Caddy e sem HTTPS automático: em produção o TLS
+	# termina no proxy/balanceador à frente deste contêiner (veja docs/seguranca.md).
+	admin off
+	auto_https off
+	frankenphp
+}
+
+{$SERVER_NAME::80} {
+	root * /app/public
+	encode zstd gzip
+
+	# Limite de tamanho do corpo das requisições (a API só recebe JSON pequeno).
+	request_body {
+		max_size 1MB
+	}
+
+	header {
+		-Server
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		X-Frame-Options DENY
+	}
+
+	php_server
+}

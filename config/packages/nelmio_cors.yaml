@@ -1,0 +1,12 @@
+# O app nativo não usa CORS. Isto só vale para navegadores (Swagger UI, versão web em desenvolvimento).
+# Em produção, CORS_ALLOW_ORIGIN deve listar apenas origens próprias.
+nelmio_cors:
+    defaults:
+        origin_regex: true
+        allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+        allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+        allow_headers: ['Content-Type', 'Authorization']
+        expose_headers: ['Retry-After', 'X-Request-Id']
+        max_age: 3600
+    paths:
+        '^/api/': null

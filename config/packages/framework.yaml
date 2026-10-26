@@ -1,0 +1,80 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+    default_locale: pt_BR
+
+    # API sem estado: nenhuma sessão PHP nem cookie.
+    session: false
+    http_method_override: false
+    handle_all_throwables: true
+
+    # IP do cliente: só confiamos em X-Forwarded-* vindos dos proxies listados em TRUSTED_PROXIES
+    # (por exemplo, o balanceador de carga em produção). Vazio = usar o IP da conexão (REMOTE_ADDR).
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-host']
+
+    php_errors:
+        log: true
+
+    # Limites de taxa guardados no PostgreSQL (tabela cache_items): sem Redis e
+    # compartilhados entre instâncias da API. Valores explicados em docs/seguranca.md.
+    rate_limiter:
+        login_ip:
+            policy: sliding_window
+            limit: 30
+            interval: '15 minutes'
+            cache_pool: cache.rate_limiter
+        login_account:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
+            cache_pool: cache.rate_limiter
+        register_ip:
+            policy: sliding_window
+            limit: 10
+            interval: '1 hour'
+            cache_pool: cache.rate_limiter
+        email_verification:
+            policy: sliding_window
+            limit: 10
+            interval: '15 minutes'
+            cache_pool: cache.rate_limiter
+        email_verification_resend:
+            policy: sliding_window
+            limit: 3
+            interval: '15 minutes'
+            cache_pool: cache.rate_limiter
+        password_reset_ip:
+            policy: sliding_window
+            limit: 10
+            interval: '1 hour'
+            cache_pool: cache.rate_limiter
+        password_reset_account:
+            policy: sliding_window
+            limit: 3
+            interval: '1 hour'
+            cache_pool: cache.rate_limiter
+        password_reset_confirm:
+            policy: sliding_window
+            limit: 20
+            interval: '15 minutes'
+            cache_pool: cache.rate_limiter
+        token_refresh:
+            policy: sliding_window
+            limit: 60
+            interval: '1 minute'
+            cache_pool: cache.rate_limiter
+        handle_check:
+            policy: sliding_window
+            limit: 60
+            interval: '1 minute'
+            cache_pool: cache.rate_limiter
+        content_creation:
+            policy: sliding_window
+            limit: 30
+            interval: '10 minutes'
+            cache_pool: cache.rate_limiter
+
+when@test:
+    framework:
+        test: true

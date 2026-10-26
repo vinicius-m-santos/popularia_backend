@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+parameters:
+    app.access_token_ttl: '%env(int:ACCESS_TOKEN_TTL)%'
+    app.refresh_token_ttl: '%env(int:REFRESH_TOKEN_TTL)%'
+    app.security_event_retention_days: '%env(int:SECURITY_EVENT_RETENTION_DAYS)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            int $accessTokenTtl: '%app.access_token_ttl%'
+            int $refreshTokenTtl: '%app.refresh_token_ttl%'
+            int $securityEventRetentionDays: '%app.security_event_retention_days%'
+            string $appSecret: '%kernel.secret%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/Entity/'
+            - '../src/Enum/'

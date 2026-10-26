@@ -1,0 +1,8 @@
+framework:
+    cache:
+        prefix_seed: popularia/api
+        default_doctrine_dbal_provider: doctrine.dbal.default_connection
+        pools:
+            # Estado dos limites de taxa. Fica no banco para valer entre instâncias e reinícios.
+            cache.rate_limiter:
+                adapter: cache.adapter.doctrine_dbal

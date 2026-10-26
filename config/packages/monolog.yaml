@@ -1,0 +1,68 @@
+# Logs operacionais (diagnóstico da aplicação), sempre em JSON.
+# Não são o registro de segurança: eventos de segurança vão para a tabela security_event
+# (veja docs/seguranca.md). Os processadores em src/Logging removem segredos e dados pessoais.
+monolog:
+    channels:
+        - deprecation
+        - security_audit
+
+when@dev:
+    monolog:
+        handlers:
+            main:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+                channels: ["!event"]
+                formatter: monolog.formatter.json
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine", "!console"]
+
+when@test:
+    monolog:
+        handlers:
+            main:
+                type: fingers_crossed
+                action_level: error
+                handler: nested
+                excluded_http_codes: [404, 405]
+                channels: ["!event"]
+            nested:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+                formatter: monolog.formatter.json
+
+when@prod:
+    monolog:
+        handlers:
+            main:
+                type: fingers_crossed
+                action_level: error
+                handler: nested
+                excluded_http_codes: [400, 401, 403, 404, 405, 409, 422, 429]
+                channels: ["!deprecation", "!security_audit"]
+                buffer_size: 50
+            nested:
+                type: stream
+                path: php://stderr
+                level: info
+                formatter: monolog.formatter.json
+            # Resumo dos eventos de segurança (sem IP nem e-mail) para alertas operacionais.
+            security_audit:
+                type: stream
+                path: php://stderr
+                level: info
+                channels: [security_audit]
+                formatter: monolog.formatter.json
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine"]
+            deprecation:
+                type: stream
+                channels: [deprecation]
+                path: php://stderr
+                formatter: monolog.formatter.json

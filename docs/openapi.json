@@ -1,0 +1,3510 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Popularia API",
+        "description": "API do aplicativo Popularia. Vers\u00e3o 1, servida em /api/v1.\n\nAutentica\u00e7\u00e3o: envie `Authorization: Bearer <accessToken>` (obtido em POST /api/v1/auth/login).\nO access token dura poucos minutos; renove-o em POST /api/v1/auth/refresh com o refresh token.\n\nErros seguem o formato application/problem+json (RFC 9457). Erros de valida\u00e7\u00e3o\nrespondem 422 com a lista `violations` (propertyPath, message).",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": ""
+        }
+    ],
+    "paths": {
+        "/api/v1/admin/evidence-holds": {
+            "get": {
+                "operationId": "api_adminevidence-holds_get_collection",
+                "tags": [
+                    "Administra\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "EvidenceHold collection",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/EvidenceHold"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Lista as preserva\u00e7\u00f5es de evid\u00eancias (as mais recentes primeiro).",
+                "description": "Lista as preserva\u00e7\u00f5es de evid\u00eancias (as mais recentes primeiro).",
+                "parameters": []
+            },
+            "post": {
+                "operationId": "api_adminevidence-holds_post",
+                "tags": [
+                    "Administra\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "EvidenceHold resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EvidenceHold"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Preserva os eventos de seguran\u00e7a de uma conta, com justificativa.",
+                "description": "Preserva os eventos de seguran\u00e7a de uma conta, com justificativa.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new EvidenceHold resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EvidenceHold.EvidenceHoldInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/admin/evidence-holds/{id}/release": {
+            "post": {
+                "operationId": "api_adminevidence-holds_idrelease_post",
+                "tags": [
+                    "Administra\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "EvidenceHold resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EvidenceHold"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Encerra uma preserva\u00e7\u00e3o; os eventos voltam \u00e0 reten\u00e7\u00e3o normal.",
+                "description": "Encerra uma preserva\u00e7\u00e3o; os eventos voltam \u00e0 reten\u00e7\u00e3o normal.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "EvidenceHold identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new EvidenceHold resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EvidenceHold.EvidenceHoldRelease"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/admin/security-events": {
+            "get": {
+                "operationId": "api_adminsecurity-events_get_collection",
+                "tags": [
+                    "Administra\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SecurityEvent collection",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SecurityEvent"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Eventos de seguran\u00e7a de uma conta (com IP). Consulta auditada.",
+                "description": "Eventos de seguran\u00e7a de uma conta (com IP). Consulta auditada.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "query",
+                        "description": "ID (UUID) da conta investigada.",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "reason",
+                        "in": "query",
+                        "description": "Motivo da consulta (m\u00ednimo de 10 caracteres). Fica na auditoria.",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/topics": {
+            "get": {
+                "operationId": "api_topics_get_collection",
+                "tags": [
+                    "Assuntos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Topic collection",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Topic"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Lista os assuntos, na ordem e nos grupos das telas.",
+                "description": "Lista os assuntos, na ordem e nos grupos das telas.",
+                "parameters": []
+            }
+        },
+        "/api/v1/auth/login": {
+            "post": {
+                "operationId": "api_authlogin_post",
+                "tags": [
+                    "Autentica\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Login.Tokens"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Entra com e-mail e senha e cria uma sess\u00e3o.",
+                "description": "O erro \u00e9 o mesmo (401 /errors/invalid-credentials) para e-mail inexistente e senha errada. Limite de taxa por IP e por IP+e-mail (429 com Retry-After). Contas com e-mail ainda n\u00e3o confirmado podem entrar; publicar exige a confirma\u00e7\u00e3o.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Login resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Login"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "operationId": "api_authlogout_post",
+                "tags": [
+                    "Autentica\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Logout resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Sai deste aparelho: encerra a sess\u00e3o atual.",
+                "description": "O access token e o refresh token desta sess\u00e3o deixam de valer imediatamente.",
+                "parameters": []
+            }
+        },
+        "/api/v1/auth/logout-all": {
+            "post": {
+                "operationId": "api_authlogout-all_post",
+                "tags": [
+                    "Autentica\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Logout resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Sai de todos os aparelhos: encerra todas as sess\u00f5es da conta.",
+                "description": "Sai de todos os aparelhos: encerra todas as sess\u00f5es da conta.",
+                "parameters": []
+            }
+        },
+        "/api/v1/auth/password-reset/confirm": {
+            "post": {
+                "operationId": "api_authpassword-resetconfirm_post",
+                "tags": [
+                    "Autentica\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "PasswordResetConfirmation resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Define uma nova senha com o c\u00f3digo de recupera\u00e7\u00e3o.",
+                "description": "Encerra todas as sess\u00f5es existentes (recupera\u00e7\u00e3o de conta comprometida). C\u00f3digo inv\u00e1lido, usado, vencido ou de outro e-mail: 400 /errors/invalid-code. Depois de 5 erros o c\u00f3digo deixa de valer.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new PasswordResetConfirmation resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordResetConfirmation"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/auth/password-reset/request": {
+            "post": {
+                "operationId": "api_authpassword-resetrequest_post",
+                "tags": [
+                    "Autentica\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "202": {
+                        "description": "PasswordResetRequest resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PasswordResetRequest.Accepted"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Envia um c\u00f3digo de recupera\u00e7\u00e3o de senha, se houver conta com o e-mail.",
+                "description": "Sempre 202 com a mesma mensagem, para n\u00e3o revelar quais e-mails t\u00eam conta. O c\u00f3digo vale 30 minutos e \u00e9 de uso \u00fanico.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new PasswordResetRequest resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordResetRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/auth/refresh": {
+            "post": {
+                "operationId": "api_authrefresh_post",
+                "tags": [
+                    "Autentica\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "TokenRefresh resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenRefresh.Tokens"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Renova a sess\u00e3o: devolve um novo access token e um novo refresh token.",
+                "description": "O refresh token enviado deixa de valer. Se um refresh token j\u00e1 usado for apresentado de novo, a sess\u00e3o inteira \u00e9 encerrada (poss\u00edvel roubo do token) e a resposta \u00e9 401 /errors/invalid-refresh-token.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new TokenRefresh resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TokenRefresh"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "operationId": "api_authregister_post",
+                "tags": [
+                    "Autentica\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Registration resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Registration.Accepted"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Cria uma conta e envia um c\u00f3digo de confirma\u00e7\u00e3o por e-mail.",
+                "description": "Sempre 202 quando os dados s\u00e3o v\u00e1lidos, para n\u00e3o revelar quais e-mails t\u00eam conta. 422 se os dados forem inv\u00e1lidos ou o @ j\u00e1 estiver em uso. Limite de taxa por IP.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Registration resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Registration"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/posts/{id}/comments": {
+            "get": {
+                "operationId": "api_posts_idcomments_get",
+                "tags": [
+                    "Coment\u00e1rios"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "CommentPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommentPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Coment\u00e1rios de uma publica\u00e7\u00e3o (lista plana com parentId).",
+                "description": "Coment\u00e1rios de uma publica\u00e7\u00e3o (lista plana com parentId).",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "PostView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "api_posts_idcomments_post",
+                "tags": [
+                    "Coment\u00e1rios"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Comment resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Comment"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Comenta numa publica\u00e7\u00e3o ou responde a um coment\u00e1rio (parentId).",
+                "description": "Mesmas regras de publicar: e-mail confirmado e participar da comuna. O coment\u00e1rio pai precisa ser da mesma publica\u00e7\u00e3o.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "PostView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new Comment resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Comment.CommentInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/comunas": {
+            "get": {
+                "operationId": "api_comunas_get",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ComunaPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ComunaPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Lista as comunas, com pagina\u00e7\u00e3o por cursor.",
+                "description": "Lista as comunas, com pagina\u00e7\u00e3o por cursor.",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}": {
+            "get": {
+                "operationId": "api_comunas_slug_get",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comuna resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Comuna"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Detalhes de uma comuna pelo endere\u00e7o (slug).",
+                "description": "Detalhes de uma comuna pelo endere\u00e7o (slug).",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Comuna identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}/membership": {
+            "put": {
+                "operationId": "api_comunas_slugmembership_put",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Membership resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Membership"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Entra na comuna (sem corpo).",
+                "description": "Comunas privadas exigem aprova\u00e7\u00e3o: 403 /errors/comuna-requires-approval (fluxo de convite numa pr\u00f3xima etapa).",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Membership identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Membership resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Membership"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            },
+            "delete": {
+                "operationId": "api_comunas_slugmembership_delete",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Membership resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Sai da comuna.",
+                "description": "Quem fundou a comuna n\u00e3o sai por aqui (409), para ela n\u00e3o ficar sem respons\u00e1vel.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Membership identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}/posts": {
+            "get": {
+                "operationId": "api_comunas_slugposts_get",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PostPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Publica\u00e7\u00f5es de uma comuna.",
+                "description": "Comuna privada sem participa\u00e7\u00e3o: 403 /errors/comuna-private.",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/me": {
+            "get": {
+                "operationId": "api_me_get",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Me resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Me"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Dados da conta autenticada.",
+                "description": "Dados da conta autenticada.",
+                "parameters": []
+            },
+            "patch": {
+                "operationId": "api_me_patch",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Me resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Me"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Atualiza nome, bio, cidade e interesses da conta autenticada.",
+                "description": "Campos ausentes ou nulos n\u00e3o mudam. Campos desconhecidos (como id, handle, email ou papel) s\u00e3o recusados com 400.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The updated Me resource",
+                    "content": {
+                        "application/merge-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Me.MeUpdate.jsonMergePatch"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Me.MeUpdate.jsonMergePatch"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/me/blocks": {
+            "get": {
+                "operationId": "api_meblocks_get_collection",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Block collection",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Block"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Pessoas que voc\u00ea bloqueou.",
+                "description": "Pessoas que voc\u00ea bloqueou.",
+                "parameters": []
+            }
+        },
+        "/api/v1/me/blocks/{handle}": {
+            "put": {
+                "operationId": "api_meblocks_handle_put",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Block resource updated",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Bloqueia uma pessoa pelo @ (sem corpo; repetir n\u00e3o muda nada).",
+                "description": "Bloqueia uma pessoa pelo @ (sem corpo; repetir n\u00e3o muda nada).",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "Block identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Block resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Block"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            },
+            "delete": {
+                "operationId": "api_meblocks_handle_delete",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Block resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Desfaz o bloqueio.",
+                "description": "Desfaz o bloqueio.",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "Block identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/me/email-verification": {
+            "post": {
+                "operationId": "api_meemail-verification_post",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "EmailVerification resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Confirma o e-mail da conta com o c\u00f3digo recebido.",
+                "description": "C\u00f3digo errado, usado ou vencido: 400 /errors/invalid-code. Depois de 5 erros o c\u00f3digo deixa de valer e \u00e9 preciso pedir outro. Se o e-mail j\u00e1 estiver confirmado, responde 204.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new EmailVerification resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailVerification"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/me/email-verification/resend": {
+            "post": {
+                "operationId": "api_meemail-verificationresend_post",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "202": {
+                        "description": "EmailVerification resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailVerification.Accepted"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Envia um novo c\u00f3digo de confirma\u00e7\u00e3o (o anterior deixa de valer).",
+                "description": "Envia um novo c\u00f3digo de confirma\u00e7\u00e3o (o anterior deixa de valer).",
+                "parameters": []
+            }
+        },
+        "/api/v1/me/password": {
+            "post": {
+                "operationId": "api_mepassword_post",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "PasswordChange resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Troca a senha. As outras sess\u00f5es da conta s\u00e3o encerradas; esta continua.",
+                "description": "Troca a senha. As outras sess\u00f5es da conta s\u00e3o encerradas; esta continua.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new PasswordChange resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordChange"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/me/sessions": {
+            "get": {
+                "operationId": "api_mesessions_get_collection",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session collection",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Session"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Lista as sess\u00f5es abertas da conta.",
+                "description": "Lista as sess\u00f5es abertas da conta.",
+                "parameters": []
+            }
+        },
+        "/api/v1/me/sessions/{id}": {
+            "delete": {
+                "operationId": "api_mesessions_id_delete",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Session resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Encerra uma sess\u00e3o da pr\u00f3pria conta.",
+                "description": "Sess\u00f5es de outras contas respondem 404, como se n\u00e3o existissem.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Session identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/handles/{handle}/availability": {
+            "get": {
+                "operationId": "api_handles_handleavailability_get",
+                "tags": [
+                    "Perfis"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HandleAvailability resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HandleAvailability"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Diz se um nome de usu\u00e1rio est\u00e1 livre e tem formato v\u00e1lido.",
+                "description": "Limite de taxa por IP.",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "HandleAvailability identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/users/{handle}": {
+            "get": {
+                "operationId": "api_users_handle_get",
+                "tags": [
+                    "Perfis"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Profile"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Perfil p\u00fablico pelo @.",
+                "description": "Contas suspensas, inexistentes ou com bloqueio entre as pessoas respondem 404.",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "Profile identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/feed": {
+            "get": {
+                "operationId": "api_feed_get",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PostPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostPage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Feed da pessoa logada.",
+                "description": "tab=para-voce (padr\u00e3o): comunas p\u00fablicas, comunas de que participa e publica\u00e7\u00f5es em perfis. tab=minhas: s\u00f3 comunas de que participa. Ordem cronol\u00f3gica. Sem publica\u00e7\u00f5es de quem tem bloqueio com voc\u00ea.",
+                "parameters": [
+                    {
+                        "name": "tab",
+                        "in": "query",
+                        "description": "para-voce ou minhas.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "para-voce",
+                                "minhas"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/posts": {
+            "post": {
+                "operationId": "api_posts_post",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Post resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Publica numa comuna (comunaId) ou no pr\u00f3prio perfil (comunaId nulo).",
+                "description": "Exige e-mail confirmado (403 /errors/email-not-verified) e participar da comuna (403 /errors/not-a-member). A autoria \u00e9 sempre quem est\u00e1 logado. Limite de taxa por conta.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Post resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Post.PostInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/posts/{id}": {
+            "get": {
+                "operationId": "api_posts_id_get",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Uma publica\u00e7\u00e3o.",
+                "description": "Apagada, removida, de comuna privada sem participa\u00e7\u00e3o ou com bloqueio entre as pessoas: 404.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "api_posts_id_delete",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Post resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Apaga a pr\u00f3pria publica\u00e7\u00e3o (o texto sai do banco).",
+                "description": "Apaga a pr\u00f3pria publica\u00e7\u00e3o (o texto sai do banco).",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/health": {
+            "get": {
+                "operationId": "api_health_get",
+                "tags": [
+                    "Sistema"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Health resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Health"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Verifica se a API e o banco de dados est\u00e3o dispon\u00edveis.",
+                "description": "Responde 200 quando tudo est\u00e1 ok e 503 quando o banco n\u00e3o responde.",
+                "parameters": []
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AuthorView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Block": {
+                "type": "object",
+                "description": "Bloqueios da pr\u00f3pria conta. Valem no servidor nos dois sentidos: publica\u00e7\u00f5es e coment\u00e1rios\nsomem dos feeds, perfis e conversas de ambas as pessoas. A pessoa bloqueada n\u00e3o \u00e9 avisada.",
+                "properties": {
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "blockedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "Comment": {
+                "type": "object",
+                "description": "Coment\u00e1rio em lista plana (o app monta a \u00e1rvore pelo parentId, como j\u00e1 faz com os mocks).\nComent\u00e1rios apagados, removidos ou de quem tem bloqueio com voc\u00ea continuam na lista como\nmarcadores sem texto e sem autoria (status deleted/removed/hidden), para as respostas n\u00e3o\nficarem soltas.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "postId": {
+                        "type": "string"
+                    },
+                    "parentId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "description": "published, deleted, removed ou hidden (bloqueio). S\u00f3 \"published\" traz texto e autoria.",
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "author": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AuthorView"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "viewer": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "Comment.CommentInput": {
+                "type": "object",
+                "description": "Coment\u00e1rio em lista plana (o app monta a \u00e1rvore pelo parentId, como j\u00e1 faz com os mocks).\nComent\u00e1rios apagados, removidos ou de quem tem bloqueio com voc\u00ea continuam na lista como\nmarcadores sem texto e sem autoria (status deleted/removed/hidden), para as respostas n\u00e3o\nficarem soltas.",
+                "additionalProperties": false,
+                "required": [
+                    "body"
+                ],
+                "properties": {
+                    "body": {
+                        "maxLength": 2000,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "parentId": {
+                        "format": "uuid",
+                        "description": "Coment\u00e1rio respondido; null para comentar direto na publica\u00e7\u00e3o.",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "CommentPage": {
+                "type": "object",
+                "description": "P\u00e1gina de coment\u00e1rios de uma publica\u00e7\u00e3o, do mais antigo para o mais novo.",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Comment"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "Comuna": {
+                "type": "object",
+                "description": "Comuna com regras e o estado de quem v\u00ea (viewer). Comunas privadas aparecem com nome e\ndescri\u00e7\u00e3o; s\u00f3 as publica\u00e7\u00f5es s\u00e3o restritas a quem participa.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "place": {
+                        "type": "string"
+                    },
+                    "visibility": {
+                        "description": "public ou private.",
+                        "type": "string"
+                    },
+                    "tone": {
+                        "type": "string"
+                    },
+                    "topics": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "foundedYear": {
+                        "type": "integer"
+                    },
+                    "memberCount": {
+                        "type": "integer"
+                    },
+                    "moderationNote": {
+                        "type": "string"
+                    },
+                    "rules": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "viewer": {
+                        "description": "Estado de quem v\u00ea: participa? com qual papel (member, moderator, founder)?",
+                        "type": "object",
+                        "additionalProperties": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "ComunaPage": {
+                "type": "object",
+                "description": "P\u00e1gina da lista de comunas.",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Comuna"
+                        }
+                    },
+                    "nextCursor": {
+                        "description": "Passe em ?cursor= para a pr\u00f3xima p\u00e1gina; null quando n\u00e3o h\u00e1 mais.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "ConstraintViolation": {
+                "type": "object",
+                "description": "Unprocessable entity",
+                "properties": {
+                    "status": {
+                        "default": 422,
+                        "type": "integer"
+                    },
+                    "violations": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "propertyPath": {
+                                    "type": "string",
+                                    "description": "The property path of the violation"
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "description": "The message associated with the violation"
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "description": "The code of the violation"
+                                },
+                                "hint": {
+                                    "type": "string",
+                                    "description": "An extra hint to understand the violation"
+                                },
+                                "payload": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "description": "The serialized payload of the violation"
+                                }
+                            },
+                            "required": [
+                                "propertyPath",
+                                "message"
+                            ]
+                        }
+                    },
+                    "detail": {
+                        "readOnly": true,
+                        "type": "string"
+                    },
+                    "type": {
+                        "readOnly": true,
+                        "type": "string"
+                    },
+                    "title": {
+                        "readOnly": true,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "instance": {
+                        "readOnly": true,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "EmailVerification": {
+                "type": "object",
+                "description": "Confirma\u00e7\u00e3o do e-mail com o c\u00f3digo de 6 d\u00edgitos enviado no cadastro.",
+                "additionalProperties": false,
+                "required": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "pattern": "^(\\d{6})$",
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "EmailVerification.Accepted": {
+                "type": "object",
+                "description": "Confirma\u00e7\u00e3o do e-mail com o c\u00f3digo de 6 d\u00edgitos enviado no cadastro.",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Error": {
+                "type": "object",
+                "description": "A representation of common errors.",
+                "properties": {
+                    "title": {
+                        "readOnly": true,
+                        "description": "A short, human-readable summary of the problem.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "detail": {
+                        "readOnly": true,
+                        "description": "A human-readable explanation specific to this occurrence of the problem.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "examples": [
+                            404
+                        ],
+                        "default": 400
+                    },
+                    "instance": {
+                        "readOnly": true,
+                        "description": "A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "type": {
+                        "readOnly": true,
+                        "description": "A URI reference that identifies the problem type",
+                        "type": "string"
+                    }
+                }
+            },
+            "EvidenceHold": {
+                "type": "object",
+                "description": "Preserva\u00e7\u00e3o de evid\u00eancias: impede que a rotina de reten\u00e7\u00e3o apague os eventos de seguran\u00e7a\nde uma conta durante uma investiga\u00e7\u00e3o. S\u00f3 ROLE_ADMIN; cria\u00e7\u00e3o e libera\u00e7\u00e3o s\u00e3o auditadas.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "subjectId": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    },
+                    "createdById": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "releasedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                }
+            },
+            "EvidenceHold.EvidenceHoldInput": {
+                "type": "object",
+                "description": "Preserva\u00e7\u00e3o de evid\u00eancias: impede que a rotina de reten\u00e7\u00e3o apague os eventos de seguran\u00e7a\nde uma conta durante uma investiga\u00e7\u00e3o. S\u00f3 ROLE_ADMIN; cria\u00e7\u00e3o e libera\u00e7\u00e3o s\u00e3o auditadas.",
+                "additionalProperties": false,
+                "required": [
+                    "userId",
+                    "reason"
+                ],
+                "properties": {
+                    "userId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "default": "",
+                        "type": "string"
+                    },
+                    "reason": {
+                        "minLength": 10,
+                        "maxLength": 1000,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "EvidenceHold.EvidenceHoldRelease": {
+                "type": "object",
+                "description": "Preserva\u00e7\u00e3o de evid\u00eancias: impede que a rotina de reten\u00e7\u00e3o apague os eventos de seguran\u00e7a\nde uma conta durante uma investiga\u00e7\u00e3o. S\u00f3 ROLE_ADMIN; cria\u00e7\u00e3o e libera\u00e7\u00e3o s\u00e3o auditadas.",
+                "additionalProperties": false,
+                "required": [
+                    "reason"
+                ],
+                "properties": {
+                    "reason": {
+                        "minLength": 10,
+                        "maxLength": 1000,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "HandleAvailability": {
+                "type": "object",
+                "description": "Se um @ pode ser usado no cadastro. O @ \u00e9 p\u00fablico, ent\u00e3o isso n\u00e3o revela dado privado.",
+                "properties": {
+                    "handle": {
+                        "type": "string"
+                    },
+                    "available": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "Health": {
+                "type": "object",
+                "description": "Situa\u00e7\u00e3o da API e do banco. P\u00fablica e sem detalhes internos (vers\u00f5es, hosts, erros).",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "database": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Login": {
+                "type": "object",
+                "description": "Login com e-mail e senha. Cria uma sess\u00e3o para este aparelho.",
+                "additionalProperties": false,
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "maxLength": 180,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "password": {
+                        "maxLength": 4096,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "deviceLabel": {
+                        "maxLength": 60,
+                        "description": "Nome do aparelho para a lista de sess\u00f5es, como \"iPhone\". Opcional.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "Login.Tokens": {
+                "type": "object",
+                "description": "Login com e-mail e senha. Cria uma sess\u00e3o para este aparelho.",
+                "properties": {
+                    "tokenType": {
+                        "type": "string"
+                    },
+                    "accessToken": {
+                        "type": "string"
+                    },
+                    "accessTokenExpiresIn": {
+                        "description": "Segundos at\u00e9 o access token vencer.",
+                        "type": "integer"
+                    },
+                    "refreshToken": {
+                        "type": "string"
+                    },
+                    "refreshTokenExpiresIn": {
+                        "description": "Segundos at\u00e9 o refresh token vencer, se n\u00e3o for usado antes.",
+                        "type": "integer"
+                    },
+                    "sessionId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Me": {
+                "type": "object",
+                "description": "A pr\u00f3pria conta. \u00c9 a \u00fanica resposta com e-mail, interesses e papel: perfis de outras\npessoas usam App\\Api\\Profile\\PublicProfile. A conta vem sempre do token, nunca de um ID.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "emailVerified": {
+                        "type": "boolean"
+                    },
+                    "bio": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "interests": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "platformRole": {
+                        "description": "user, platform_moderator ou admin. S\u00f3 leitura.",
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "Me.MeUpdate.jsonMergePatch": {
+                "type": "object",
+                "description": "A pr\u00f3pria conta. \u00c9 a \u00fanica resposta com e-mail, interesses e papel: perfis de outras\npessoas usam App\\Api\\Profile\\PublicProfile. A conta vem sempre do token, nunca de um ID.",
+                "additionalProperties": false,
+                "properties": {
+                    "displayName": {
+                        "maxLength": 50,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bio": {
+                        "maxLength": 160,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "city": {
+                        "maxLength": 80,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "interests": {
+                        "maxItems": 18,
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Membership": {
+                "type": "object",
+                "description": "Participar ou sair de uma comuna. Repetir a chamada n\u00e3o muda nada (idempotente).",
+                "properties": {
+                    "slug": {
+                        "type": "string"
+                    },
+                    "isMember": {
+                        "type": "boolean"
+                    },
+                    "role": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "memberCount": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "PasswordChange": {
+                "type": "object",
+                "description": "Troca de senha de quem est\u00e1 logado. Exige a senha atual e encerra as outras sess\u00f5es.",
+                "additionalProperties": false,
+                "required": [
+                    "currentPassword",
+                    "newPassword"
+                ],
+                "properties": {
+                    "currentPassword": {
+                        "maxLength": 4096,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "newPassword": {
+                        "minLength": 8,
+                        "maxLength": 4096,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "PasswordResetConfirmation": {
+                "type": "object",
+                "description": "Nova senha com o c\u00f3digo recebido por e-mail. Encerra todas as sess\u00f5es da conta.",
+                "additionalProperties": false,
+                "required": [
+                    "email",
+                    "code",
+                    "newPassword"
+                ],
+                "properties": {
+                    "email": {
+                        "maxLength": 180,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "code": {
+                        "pattern": "^(\\d{6})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "newPassword": {
+                        "minLength": 8,
+                        "maxLength": 4096,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "PasswordResetRequest": {
+                "type": "object",
+                "description": "Pedido de c\u00f3digo para criar uma nova senha.",
+                "additionalProperties": false,
+                "required": [
+                    "email"
+                ],
+                "properties": {
+                    "email": {
+                        "format": "email",
+                        "maxLength": 180,
+                        "externalDocs": {
+                            "url": "https://schema.org/email"
+                        },
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "PasswordResetRequest.Accepted": {
+                "type": "object",
+                "description": "Pedido de c\u00f3digo para criar uma nova senha.",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Post": {
+                "type": "object",
+                "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/AuthorView"
+                    },
+                    "comuna": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "commentCount": {
+                        "type": "integer"
+                    },
+                    "viewer": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "Post.PostInput": {
+                "type": "object",
+                "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente.",
+                "additionalProperties": false,
+                "properties": {
+                    "comunaId": {
+                        "format": "uuid",
+                        "description": "Comuna onde publicar; null publica no pr\u00f3prio perfil.",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "body": {
+                        "maxLength": 1000,
+                        "default": "",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "body"
+                ]
+            },
+            "PostPage": {
+                "type": "object",
+                "description": "P\u00e1gina de publica\u00e7\u00f5es (feed ou comuna), da mais nova para a mais antiga.",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Post"
+                        }
+                    },
+                    "nextCursor": {
+                        "description": "Passe em ?cursor= para a pr\u00f3xima p\u00e1gina; null quando n\u00e3o h\u00e1 mais.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "Profile": {
+                "type": "object",
+                "description": "Perfil p\u00fablico de uma pessoa. S\u00f3 campos que ela escolheu mostrar: nunca e-mail,\ninteresses, estado da conta, papel ou datas internas al\u00e9m do \"na Popularia desde\".",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "bio": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "memberSince": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "Registration": {
+                "type": "object",
+                "description": "Cadastro. Responde sempre 202 com a mesma mensagem, exista ou n\u00e3o uma conta com o e-mail:\nse j\u00e1 existir, quem \u00e9 dono do e-mail recebe um aviso. O @ \u00e9 p\u00fablico, ent\u00e3o \"@ em uso\" \u00e9 422.\nDepois do 202 o app entra com e-mail e senha (POST /auth/login) e pede o c\u00f3digo de e-mail.",
+                "additionalProperties": false,
+                "required": [
+                    "email",
+                    "password",
+                    "handle",
+                    "displayName"
+                ],
+                "properties": {
+                    "email": {
+                        "format": "email",
+                        "maxLength": 180,
+                        "externalDocs": {
+                            "url": "https://schema.org/email"
+                        },
+                        "default": "",
+                        "type": "string"
+                    },
+                    "password": {
+                        "minLength": 8,
+                        "maxLength": 4096,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "handle": {
+                        "pattern": "^([a-z0-9._]{3,20})$",
+                        "enum": [
+                            "popularia",
+                            "admin",
+                            "administracao",
+                            "moderacao",
+                            "moderador",
+                            "moderadora",
+                            "suporte",
+                            "ajuda",
+                            "equipe",
+                            "oficial",
+                            "api",
+                            "root",
+                            "sistema",
+                            "seguranca",
+                            "contato",
+                            "me"
+                        ],
+                        "default": "",
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "maxLength": 50,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "bio": {
+                        "maxLength": 160,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "city": {
+                        "maxLength": 80,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "interests": {
+                        "maxItems": 18,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Registration.Accepted": {
+                "type": "object",
+                "description": "Cadastro. Responde sempre 202 com a mesma mensagem, exista ou n\u00e3o uma conta com o e-mail:\nse j\u00e1 existir, quem \u00e9 dono do e-mail recebe um aviso. O @ \u00e9 p\u00fablico, ent\u00e3o \"@ em uso\" \u00e9 422.\nDepois do 202 o app entra com e-mail e senha (POST /auth/login) e pede o c\u00f3digo de e-mail.",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SecurityEvent": {
+                "type": "object",
+                "description": "Registro de seguran\u00e7a de uma conta, para investiga\u00e7\u00e3o de incidentes.\nS\u00f3 ROLE_ADMIN. Exige um motivo, e cada consulta fica no AdminAuditLog.\nModeradores (da plataforma ou de comunas) n\u00e3o t\u00eam acesso.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "sessionId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "ipAddress": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "context": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "anyOf": [
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    "occurredAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "Session": {
+                "type": "object",
+                "description": "Sess\u00e3o aberta da pr\u00f3pria conta, para \"aparelhos conectados\". Sem IP e sem tokens.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "deviceLabel": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "lastUsedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "current": {
+                        "description": "Se \u00e9 a sess\u00e3o que fez esta requisi\u00e7\u00e3o.",
+                        "type": "boolean"
+                    }
+                }
+            },
+            "TokenRefresh": {
+                "type": "object",
+                "description": "Troca um refresh token v\u00e1lido por um novo par de tokens (rota\u00e7\u00e3o a cada uso).",
+                "additionalProperties": false,
+                "required": [
+                    "refreshToken"
+                ],
+                "properties": {
+                    "refreshToken": {
+                        "maxLength": 128,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "TokenRefresh.Tokens": {
+                "type": "object",
+                "description": "Troca um refresh token v\u00e1lido por um novo par de tokens (rota\u00e7\u00e3o a cada uso).",
+                "properties": {
+                    "tokenType": {
+                        "type": "string"
+                    },
+                    "accessToken": {
+                        "type": "string"
+                    },
+                    "accessTokenExpiresIn": {
+                        "description": "Segundos at\u00e9 o access token vencer.",
+                        "type": "integer"
+                    },
+                    "refreshToken": {
+                        "type": "string"
+                    },
+                    "refreshTokenExpiresIn": {
+                        "description": "Segundos at\u00e9 o refresh token vencer, se n\u00e3o for usado antes.",
+                        "type": "integer"
+                    },
+                    "sessionId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Topic": {
+                "type": "object",
+                "description": "Assuntos para a escolha de interesses (lista fixa, mantida pela equipe em App\\Enum\\Topic).",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "shortLabel": {
+                        "type": "string"
+                    },
+                    "group": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "responses": {},
+        "parameters": {},
+        "examples": {},
+        "requestBodies": {},
+        "headers": {},
+        "securitySchemes": {
+            "bearer": {
+                "type": "apiKey",
+                "description": "Value for the Authorization header parameter.",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearer": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "Administra\u00e7\u00e3o",
+            "description": "Registro de seguran\u00e7a de uma conta, para investiga\u00e7\u00e3o de incidentes.\nS\u00f3 ROLE_ADMIN. Exige um motivo, e cada consulta fica no AdminAuditLog.\nModeradores (da plataforma ou de comunas) n\u00e3o t\u00eam acesso."
+        },
+        {
+            "name": "Autentica\u00e7\u00e3o",
+            "description": "Troca um refresh token v\u00e1lido por um novo par de tokens (rota\u00e7\u00e3o a cada uso)."
+        },
+        {
+            "name": "Conta",
+            "description": "Sess\u00e3o aberta da pr\u00f3pria conta, para \"aparelhos conectados\". Sem IP e sem tokens."
+        },
+        {
+            "name": "Coment\u00e1rios",
+            "description": "Coment\u00e1rio em lista plana (o app monta a \u00e1rvore pelo parentId, como j\u00e1 faz com os mocks).\nComent\u00e1rios apagados, removidos ou de quem tem bloqueio com voc\u00ea continuam na lista como\nmarcadores sem texto e sem autoria (status deleted/removed/hidden), para as respostas n\u00e3o\nficarem soltas."
+        },
+        {
+            "name": "Comunas",
+            "description": "P\u00e1gina de publica\u00e7\u00f5es (feed ou comuna), da mais nova para a mais antiga."
+        },
+        {
+            "name": "Sistema",
+            "description": "Situa\u00e7\u00e3o da API e do banco. P\u00fablica e sem detalhes internos (vers\u00f5es, hosts, erros)."
+        },
+        {
+            "name": "Publica\u00e7\u00f5es",
+            "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente."
+        },
+        {
+            "name": "Perfis",
+            "description": "Perfil p\u00fablico de uma pessoa. S\u00f3 campos que ela escolheu mostrar: nunca e-mail,\ninteresses, estado da conta, papel ou datas internas al\u00e9m do \"na Popularia desde\"."
+        },
+        {
+            "name": "Assuntos",
+            "description": "Assuntos para a escolha de interesses (lista fixa, mantida pela equipe em App\\Enum\\Topic)."
+        }
+    ],
+    "webhooks": {}
+}

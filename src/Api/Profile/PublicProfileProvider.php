@@ -23,7 +23,7 @@ final readonly class PublicProfileProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): PublicProfile
     {
-        $user = $this->users->findOneByHandle((string) ($uriVariables['handle'] ?? ''));
+        $user = $this->users->findByHandleOrId((string) ($uriVariables['handle'] ?? ''));
         if (null === $user || !$user->isActive() || $this->blocks->isBlockedEitherWay($this->currentUser->find(), $user)) {
             throw ApiProblem::notFound('Perfil não encontrado.');
         }

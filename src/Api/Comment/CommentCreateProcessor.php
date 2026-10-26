@@ -10,6 +10,7 @@ use ApiPlatform\Validator\Exception\ValidationException;
 use App\Content\ContentPolicy;
 use App\Content\TextNormalizer;
 use App\Entity\Comment;
+use App\Notification\NotificationCreator;
 use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
 use App\Repository\UserBlockRepository;
@@ -33,6 +34,7 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
         private RateLimitGuard $rateLimit,
         private EntityManagerInterface $em,
         private ClockInterface $clock,
+        private NotificationCreator $notifications,
     ) {
     }
 
@@ -60,6 +62,7 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
         $comment = new Comment($post, $parent, $author, TextNormalizer::normalize($data->body), $this->clock->now());
         $this->em->wrapInTransaction(function () use ($comment, $post): void {
             $this->em->persist($comment);
+            $this->notifications->commented($comment);
             $this->em->flush();
             $this->posts->incrementCommentCount($post);
         });

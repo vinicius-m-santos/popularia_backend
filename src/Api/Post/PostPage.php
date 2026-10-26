@@ -11,10 +11,17 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\OpenApi\Model\Operation;
 use ApiPlatform\OpenApi\Model\Parameter;
 use App\Api\Comuna\ComunaView;
+use App\Api\Profile\PublicProfile;
 
 /** Página de publicações (feed ou comuna), da mais nova para a mais antiga. */
 #[ApiResource(
     operations: [
+        new Get(
+            uriTemplate: '/users/{handle}/posts',
+            uriVariables: ['handle' => new Link(fromClass: PublicProfile::class, identifiers: ['handle'])],
+            provider: ProfilePostsProvider::class,
+            openapi: new Operation(tags: ['Perfis'], summary: 'Publicações visíveis de uma pessoa, com paginação por cursor.'),
+        ),
         new Get(
             uriTemplate: '/feed',
             security: "is_granted('ROLE_USER')",

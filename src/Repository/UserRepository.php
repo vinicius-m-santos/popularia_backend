@@ -8,6 +8,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\LockMode;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Uid\Uuid;
 
 /** @extends ServiceEntityRepository<User> */
 class UserRepository extends ServiceEntityRepository
@@ -25,6 +26,11 @@ class UserRepository extends ServiceEntityRepository
     public function findOneByHandle(string $handle): ?User
     {
         return $this->findOneBy(['handle' => User::normalizeHandle($handle)]);
+    }
+
+    public function findByHandleOrId(string $value): ?User
+    {
+        return Uuid::isValid($value) ? $this->find(Uuid::fromString($value)) : $this->findOneByHandle($value);
     }
 
     public function handleExists(string $handle): bool

@@ -18,6 +18,7 @@ use App\Enum\ComunaRole;
 use App\Enum\ComunaVisibility;
 use App\Enum\JoinRequestStatus;
 use App\Enum\OwnershipTransferStatus;
+use App\Notification\NotificationCreator;
 use App\Repository\ComunaJoinRequestRepository;
 use App\Repository\ComunaMembershipRepository;
 use App\Repository\ComunaOwnershipTransferRepository;
@@ -51,6 +52,7 @@ final readonly class ComunaGovernance
         private ComunaModerationPolicy $policy,
         private AdminAudit $audit,
         private ClockInterface $clock,
+        private NotificationCreator $notifications,
     ) {
     }
 
@@ -262,6 +264,7 @@ final readonly class ComunaGovernance
             if (null === $request) {
                 $request = new ComunaJoinRequest($comuna, $user, $this->clock->now());
                 $this->em->persist($request);
+                $this->notifications->joinRequested($request);
                 $this->em->flush();
             }
 
@@ -304,6 +307,7 @@ final readonly class ComunaGovernance
             $this->em->flush();
             $action = JoinRequestStatus::Approved === $request->getStatus() ? 'comuna.join_request_approved' : 'comuna.join_request_rejected';
             $this->record($actor, $action, $comuna, $requester);
+            $this->notifications->joinDecided($request, $actor);
 
             return $request;
         });
@@ -379,11 +383,13 @@ final readonly class ComunaGovernance
             $now = $this->clock->now();
             if (null !== $current) {
                 $current->close(OwnershipTransferStatus::Cancelled, $now);
+                $this->notifications->ownershipChanged($current);
                 // O índice parcial só aceita uma proposta em aberto: fecha a antiga antes de gravar a nova.
                 $this->em->flush();
             }
             $transfer = new ComunaOwnershipTransfer($comuna, $actor, $target, $now);
             $this->em->persist($transfer);
+            $this->notifications->ownershipChanged($transfer);
             $this->em->flush();
             $this->record($actor, 'comuna.ownership_transfer_proposed', $comuna, $target);
 
@@ -399,6 +405,7 @@ final readonly class ComunaGovernance
             $transfer = $this->transfers->findPending($comuna);
             if (null !== $transfer) {
                 $transfer->close(OwnershipTransferStatus::Cancelled, $this->clock->now());
+                $this->notifications->ownershipChanged($transfer);
                 $this->em->flush();
                 $this->record($actor, 'comuna.ownership_transfer_cancelled', $comuna, $transfer->getToUser());
             }
@@ -420,6 +427,7 @@ final readonly class ComunaGovernance
             $now = $this->clock->now();
             if (!$accept) {
                 $transfer->close(OwnershipTransferStatus::Declined, $now);
+                $this->notifications->ownershipChanged($transfer);
                 $this->em->flush();
                 $this->record($recipient, 'comuna.ownership_transfer_declined', $comuna, $transfer->getFromUser());
 
@@ -434,6 +442,7 @@ final readonly class ComunaGovernance
             }
             $this->changeOwner($comuna, $recipient);
             $transfer->close(OwnershipTransferStatus::Accepted, $now);
+            $this->notifications->ownershipChanged($transfer);
             $this->em->flush();
             $this->record($recipient, 'comuna.ownership_transferred', $comuna, $transfer->getFromUser(), ['from' => $transfer->getFromUser()->getId()->toRfc4122()]);
 

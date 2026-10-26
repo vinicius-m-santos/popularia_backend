@@ -76,6 +76,22 @@ class PostRepository extends ServiceEntityRepository
         $this->getEntityManager()->refresh($post);
     }
 
+    /** @return list<Post> */
+    public function findAuthorPage(User $author, ?User $viewer, ?Uuid $before, int $limit): array
+    {
+        $memberOf = sprintf('SELECT IDENTITY(pm.comuna) FROM %s pm WHERE pm.user = :profileViewer', ComunaMembership::class);
+        $qb = $this->visible($viewer, $before, $limit)->andWhere('p.author = :profileAuthor')->setParameter('profileAuthor', $author);
+        if (null === $viewer) {
+            $qb->andWhere('c.id IS NULL OR c.visibility = :profilePublic');
+        } else {
+            $qb->andWhere("c.id IS NULL OR c.visibility = :profilePublic OR c.id IN ($memberOf)")->setParameter('profileViewer', $viewer);
+        }
+        $qb->setParameter('profilePublic', ComunaVisibility::Public);
+
+        /** @var list<Post> */
+        return $qb->getQuery()->getResult();
+    }
+
     private function visible(?User $viewer, ?Uuid $before, int $limit): QueryBuilder
     {
         $qb = $this->createQueryBuilder('p')

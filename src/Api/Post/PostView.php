@@ -78,6 +78,7 @@ final readonly class PostView
         public ?array $comuna,
         public int $commentCount,
         public array $viewer,
+        public ?string $topic = null,
     ) {
     }
 }

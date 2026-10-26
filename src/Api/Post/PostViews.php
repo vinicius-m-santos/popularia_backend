@@ -56,6 +56,7 @@ final readonly class PostViews
                 null === $comuna ? null : self::comunaSummary($comuna),
                 $post->getCommentCount(),
                 ['isAuthor' => $isAuthor, 'canComment' => $canComment, 'canDelete' => $isAuthor, 'canRemove' => $canRemove],
+                $post->getTopic(),
             );
         }, $posts);
     }

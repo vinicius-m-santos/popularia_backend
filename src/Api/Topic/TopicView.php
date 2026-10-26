@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Enum\Topic;
 
-/** Assuntos para a escolha de interesses (lista fixa, mantida pela equipe em App\Enum\Topic). */
+/** Assuntos oficiais (lista fixa, mantida pela equipe em App\Enum\Topic). */
 #[ApiResource(
     shortName: 'Topic',
     operations: [

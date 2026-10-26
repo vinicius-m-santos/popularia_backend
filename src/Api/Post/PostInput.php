@@ -6,10 +6,14 @@ namespace App\Api\Post;
 
 use App\Api\Constraint\TextRules;
 use App\Entity\Post;
+use App\Enum\Topic;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class PostInput
 {
+    #[Assert\Choice(callback: [Topic::class, 'values'], message: 'Assunto desconhecido.')]
+    public ?string $topic = null;
+
     /** Comuna onde publicar; null publica no próprio perfil. */
     #[Assert\Uuid(message: 'Comuna inválida.')]
     public ?string $comunaId = null;

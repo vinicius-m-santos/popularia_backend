@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Enum;
 
 /**
- * Assuntos que a pessoa pode escolher como interesse. Os códigos são os mesmos do app
+ * Taxonomia oficial da plataforma, compartilhada por comunas, publicações e interesses. Os códigos são os mesmos do app
  * (src/types/models.ts, TopicId). Interesses são dado privado: só aparecem em /me.
  */
 enum Topic: string

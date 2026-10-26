@@ -27,7 +27,7 @@ final readonly class ComunaUpdateProcessor implements ProcessorInterface
         $comuna = $this->comunas->findOneBySlug((string) ($uriVariables['slug'] ?? '')) ?? throw ApiProblem::notFound('Comuna não encontrada.');
         $actor = $this->currentUser->get();
         $rules = null === $data->rules ? null : array_map(static fn (ComunaRuleInput $r) => $r->toArray(), $data->rules);
-        $this->governance->updateDetails($comuna, $actor, $data->description, $rules);
+        $this->governance->updateDetails($comuna, $actor, $data->description, $rules, $data->topic);
 
         return $this->views->detail($comuna, $actor);
     }

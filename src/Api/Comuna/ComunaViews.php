@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Api\Comuna;
 
 use App\Api\Profile\AuthorView;
+use App\Api\Topic\TopicView;
 use App\Content\ComunaModerationPolicy;
 use App\Entity\Comuna;
 use App\Entity\ComunaMembership;
 use App\Entity\User;
+use App\Enum\Topic;
 use App\Repository\ComunaJoinRequestRepository;
 use App\Repository\ComunaMembershipRepository;
 use App\Repository\ComunaOwnershipTransferRepository;
@@ -46,15 +48,16 @@ final readonly class ComunaViews
 
     /**
      * @param list<Comuna>                         $comunas
-     * @param array<string, ComunaMembership>|null $mine    participações de quem vê, por ID da comuna (null = buscar)
+     * @param array<string, ComunaMembership>|null $mine        participações de quem vê, por ID da comuna (null = buscar)
+     * @param array<string, true>                  $hiddenUsers identidades bloqueadas, omitidas nos previews de descoberta
      *
      * @return list<ComunaView>
      */
-    public function many(array $comunas, ?User $viewer, ?array $mine = null): array
+    public function many(array $comunas, ?User $viewer, ?array $mine = null, array $hiddenUsers = []): array
     {
         $mine ??= null === $viewer ? [] : $this->memberships->findForComunas($viewer, $comunas);
 
-        return array_map(fn (Comuna $c) => $this->build($c, $mine[$c->getId()->toRfc4122()] ?? null, null, null, null), $comunas);
+        return array_map(fn (Comuna $c) => $this->build($c, $mine[$c->getId()->toRfc4122()] ?? null, null, null, null, $hiddenUsers), $comunas);
     }
 
     public function one(Comuna $comuna, ?User $viewer): ComunaView
@@ -89,10 +92,12 @@ final readonly class ComunaViews
     /**
      * @param list<ComunaMemberView>|null $moderation
      * @param array<string, mixed>|null   $transfer
+     * @param array<string, true>         $hiddenUsers
      */
-    private function build(Comuna $comuna, ?ComunaMembership $membership, ?array $moderation, ?string $joinRequest, ?array $transfer): ComunaView
+    private function build(Comuna $comuna, ?ComunaMembership $membership, ?array $moderation, ?string $joinRequest, ?array $transfer, array $hiddenUsers = []): ComunaView
     {
         $owner = $comuna->getOwner();
+        $topic = Topic::tryFrom($comuna->getTopics()[0] ?? '');
 
         return new ComunaView(
             $comuna->getId()->toRfc4122(),
@@ -109,7 +114,7 @@ final readonly class ComunaViews
             $comuna->getMemberCount(),
             $comuna->getModerationNote(),
             array_map(static fn ($r) => ['title' => $r->getTitle(), 'body' => $r->getBody()], $comuna->getRules()),
-            null === $owner ? null : AuthorView::fromUser($owner),
+            null === $owner || isset($hiddenUsers[$owner->getId()->toRfc4122()]) ? null : AuthorView::fromUser($owner),
             $moderation,
             [
                 'isMember' => null !== $membership,
@@ -118,6 +123,7 @@ final readonly class ComunaViews
                 'joinRequest' => $joinRequest,
                 'ownershipTransfer' => $transfer,
             ],
+            null === $topic ? null : TopicView::fromTopic($topic),
         );
     }
 }

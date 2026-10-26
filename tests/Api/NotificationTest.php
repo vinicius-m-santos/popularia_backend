@@ -104,7 +104,9 @@ final class NotificationTest extends ApiTestCase
         self::assertSame(0, $this->request('PUT', '/me/notifications/read-all', token: $bia)['unreadCount']);
         self::assertSame(0, $this->request('GET', '/me/notifications/unread-count', token: $bia)['unreadCount']);
         self::assertSame(1, $this->request('GET', '/me/notifications/unread-count', token: $ana)['unreadCount']);
-        foreach ($this->request('GET', '/me/notifications', token: $bia)['items'] as $item) { self::assertNotNull($item['readAt']); }
+        foreach ($this->request('GET', '/me/notifications', token: $bia)['items'] as $item) {
+            self::assertNotNull($item['readAt']);
+        }
         foreach (['/me/notifications', '/me/notifications/unread-count'] as $uri) {
             $this->request('GET', $uri);
             $this->assertStatus(401);
@@ -132,7 +134,9 @@ final class NotificationTest extends ApiTestCase
         self::assertNull($second['nextCursor']);
         $ids = array_merge(array_column($first['items'], 'id'), array_column($second['items'], 'id'));
         self::assertCount(24, array_unique($ids));
-        $ordered = $ids; rsort($ordered); self::assertSame($ordered, $ids);
+        $ordered = $ids;
+        rsort($ordered);
+        self::assertSame($ordered, $ids);
         foreach (['limit=51', 'limit=0', 'cursor=invalid'] as $query) {
             $this->request('GET', '/me/notifications?'.$query, token: $token);
             $this->assertStatus(400);
@@ -149,7 +153,9 @@ final class NotificationTest extends ApiTestCase
         $this->addMember($comuna, $member);
         $this->createUser('ana');
         $tokens = [];
-        foreach (['dona', 'modera', 'membro', 'ana'] as $handle) { $tokens[$handle] = $this->login($handle.'@exemplo.org')['accessToken']; }
+        foreach (['dona', 'modera', 'membro', 'ana'] as $handle) {
+            $tokens[$handle] = $this->login($handle.'@exemplo.org')['accessToken'];
+        }
         $pending = $this->request('PUT', '/comunas/fechada/join-request', token: $tokens['ana']);
         $this->request('PUT', '/comunas/fechada/join-request', token: $tokens['ana']);
         foreach (['dona', 'modera'] as $handle) {
@@ -274,7 +280,8 @@ final class NotificationTest extends ApiTestCase
 
     public function testBlocksHideHistoryAndPreventNewFollowNotifications(): void
     {
-        $this->createUser('ana'); $this->createUser('bia');
+        $this->createUser('ana');
+        $this->createUser('bia');
         $ana = $this->login('ana@exemplo.org')['accessToken'];
         $bia = $this->login('bia@exemplo.org')['accessToken'];
         $this->request('PUT', '/users/bia/follow', token: $ana);
@@ -315,8 +322,10 @@ final class NotificationTest extends ApiTestCase
     {
         $ownerUser = $this->createUser('dona');
         $comuna = $this->createComuna('fechada', ComunaVisibility::Private, $ownerUser);
-        $author = $this->createUser('ana'); $visitor = $this->createUser('bia');
-        $this->addMember($comuna, $author); $this->addMember($comuna, $visitor);
+        $author = $this->createUser('ana');
+        $visitor = $this->createUser('bia');
+        $this->addMember($comuna, $author);
+        $this->addMember($comuna, $visitor);
         $post = $this->createPost($author, $comuna);
         $ana = $this->login('ana@exemplo.org')['accessToken'];
         $bia = $this->login('bia@exemplo.org')['accessToken'];
@@ -337,7 +346,8 @@ final class NotificationTest extends ApiTestCase
 
     public function testNotificationRollsBackWithItsBusinessAction(): void
     {
-        $actor = $this->createUser('ana'); $recipient = $this->createUser('bia');
+        $actor = $this->createUser('ana');
+        $recipient = $this->createUser('bia');
         $connection = $this->em()->getConnection();
         try {
             $connection->transactional(function () use ($actor, $recipient): void {
@@ -347,7 +357,9 @@ final class NotificationTest extends ApiTestCase
                 $this->em()->flush();
                 throw new \RuntimeException('Rollback expected');
             });
-        } catch (\RuntimeException $error) { self::assertSame('Rollback expected', $error->getMessage()); }
+        } catch (\RuntimeException $error) {
+            self::assertSame('Rollback expected', $error->getMessage());
+        }
         $this->em()->clear();
         self::assertSame(0, $this->em()->getRepository(Notification::class)->count([]));
         self::assertSame(0, $this->em()->getRepository(UserFollow::class)->count([]));
@@ -355,7 +367,8 @@ final class NotificationTest extends ApiTestCase
 
     public function testDatabaseRejectsDuplicateEventForSameRecipient(): void
     {
-        $recipient = $this->createUser('bia'); $actor = $this->createUser('ana');
+        $recipient = $this->createUser('bia');
+        $actor = $this->createUser('ana');
         $this->em()->persist(new Notification($recipient, $actor, NotificationType::Follow, 'same-event', new \DateTimeImmutable()));
         $this->em()->persist(new Notification($recipient, $actor, NotificationType::Follow, 'same-event', new \DateTimeImmutable()));
         $this->expectException(UniqueConstraintViolationException::class);

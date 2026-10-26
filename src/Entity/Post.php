@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Enum\ContentStatus;
+use App\Enum\Topic;
 use App\Repository\PostRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -36,6 +37,9 @@ class Post
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(length: 20, nullable: true, enumType: Topic::class)]
+    private ?Topic $topic = null;
+
     public function __construct(
         #[ORM\ManyToOne]
         #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -49,6 +53,19 @@ class Post
     ) {
         $this->id = Uuid::v7();
         $this->createdAt = $now;
+    }
+
+    public function setTopic(?Topic $topic): void
+    {
+        if (null !== $this->comuna && null !== $topic) {
+            throw new \InvalidArgumentException('O assunto é herdado da comuna.');
+        }
+        $this->topic = $topic;
+    }
+
+    public function getTopic(): ?string
+    {
+        return null !== $this->comuna ? ($this->comuna->getTopics()[0] ?? null) : $this->topic?->value;
     }
 
     public function getId(): Uuid

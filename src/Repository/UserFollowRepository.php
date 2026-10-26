@@ -23,6 +23,25 @@ class UserFollowRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param list<User> $people
+     *
+     * @return array<string, true>
+     */
+    public function followedIds(User $viewer, array $people): array
+    {
+        if ([] === $people) {
+            return [];
+        }
+        /** @var list<array{followed: string}> $rows */
+        $rows = $this->createQueryBuilder('f')->select('IDENTITY(f.followed) AS followed')
+            ->where('f.follower = :viewer AND f.followed IN (:people)')
+            ->setParameter('viewer', $viewer)->setParameter('people', $people)
+            ->getQuery()->getArrayResult();
+
+        return array_fill_keys(array_column($rows, 'followed'), true);
+    }
+
+    /**
      * Serializes follow changes by this account, without blocking the FK key-share locks
      * of a simultaneous follow in the opposite direction. Requires an open transaction.
      */

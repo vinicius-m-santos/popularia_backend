@@ -133,13 +133,17 @@ final readonly class ComunaGovernance
     }
 
     /** @param list<array{title: string, body: string}>|null $rules */
-    public function updateDetails(Comuna $comuna, User $actor, ?string $description, ?array $rules): void
+    public function updateDetails(Comuna $comuna, User $actor, ?string $description, ?array $rules, ?string $topic = null): void
     {
-        $this->transactional(function () use ($comuna, $actor, $description, $rules): void {
+        $this->transactional(function () use ($comuna, $actor, $description, $rules, $topic): void {
             $this->comunas->lock($comuna);
             $this->policy->assertOwner($comuna, $actor);
             $this->policy->assertNotArchived($comuna);
             $changed = [];
+            if (null !== $topic) {
+                $comuna->changeTopic($topic);
+                $changed[] = 'topic';
+            }
             if (null !== $description) {
                 $comuna->changeDescription(TextNormalizer::normalize($description));
                 $changed[] = 'description';

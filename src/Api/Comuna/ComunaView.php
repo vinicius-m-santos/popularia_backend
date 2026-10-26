@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Api\Profile\AuthorView;
+use App\Api\Topic\TopicView;
 
 /**
  * Comuna com regras e o estado de quem vê (viewer). Comunas privadas aparecem com nome e
@@ -46,7 +47,7 @@ use App\Api\Profile\AuthorView;
             processor: ComunaUpdateProcessor::class,
             openapi: new Operation(
                 tags: ['Gestão de comunas'],
-                summary: 'Edita descrição e regras (só o proprietário).',
+                summary: 'Edita descrição, assunto principal e regras (só o proprietário).',
                 description: 'Nome, endereço, visibilidade e proprietário não mudam por aqui (campos desconhecidos: 400). Comuna arquivada: 409 /errors/comuna-archived.',
             ),
         ),
@@ -115,6 +116,8 @@ final readonly class ComunaView
          * envolve quem vê). joinRequest e ownershipTransfer só vêm preenchidos no detalhe.
          */
         public array $viewer,
+        #[ApiProperty(readableLink: true)]
+        public ?TopicView $primaryTopic = null,
     ) {
     }
 }

@@ -1074,7 +1074,7 @@
                     }
                 },
                 "summary": "Cria uma comuna; quem cria vira propriet\u00e1rio.",
-                "description": "Exige conta ativa e e-mail confirmado (403 /errors/email-not-verified). No m\u00e1ximo 3 comunas ativas por pessoa (409 /errors/comuna-limit-reached) e 7 dias entre cria\u00e7\u00f5es efetivas (409 /errors/comuna-creation-interval; arquivar ou excluir n\u00e3o zera o prazo). O endere\u00e7o (slug) \u00e9 gerado do nome e precisa ser \u00fanico (422 em \"name\"). Nome e slug n\u00e3o mudam depois.",
+                "description": "Exige conta ativa e e-mail confirmado (403 /errors/email-not-verified). No m\u00e1ximo 3 comunas ativas por pessoa (409 /errors/comuna-limit-reached), sem cooldown. Arquivar ou excluir libera a vaga imediatamente. O endere\u00e7o (slug) \u00e9 gerado do nome e precisa ser \u00fanico (422 em \"name\"). Nome e slug n\u00e3o mudam depois.",
                 "parameters": [],
                 "requestBody": {
                     "description": "The new Comuna resource",
@@ -1281,7 +1281,7 @@
                         "links": {}
                     }
                 },
-                "summary": "Edita descri\u00e7\u00e3o e regras (s\u00f3 o propriet\u00e1rio).",
+                "summary": "Edita descri\u00e7\u00e3o, assunto principal e regras (s\u00f3 o propriet\u00e1rio).",
                 "description": "Nome, endere\u00e7o, visibilidade e propriet\u00e1rio n\u00e3o mudam por aqui (campos desconhecidos: 400). Comuna arquivada: 409 /errors/comuna-archived.",
                 "parameters": [
                     {
@@ -2644,6 +2644,190 @@
                 ]
             }
         },
+        "/api/v1/explore": {
+            "get": {
+                "operationId": "api_explore_get",
+                "tags": [
+                    "Descoberta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Discovery resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Discovery"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Previews de descoberta; topic opcional restringe ao assunto oficial.",
+                "description": "Previews de descoberta; topic opcional restringe ao assunto oficial.",
+                "parameters": [
+                    {
+                        "name": "topic",
+                        "in": "query",
+                        "description": "C\u00f3digo oficial do assunto.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/search": {
+            "get": {
+                "operationId": "api_search_get",
+                "tags": [
+                    "Descoberta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Discovery resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Discovery"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Busca parcial sem acentos.",
+                "description": "Busca parcial sem acentos.",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Termo de 3 a 100 caracteres (m\u00ednimo de tr\u00eas letras/n\u00fameros seguidos). Vazio lista a categoria.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Categoria; all retorna at\u00e9 tr\u00eas itens por se\u00e7\u00e3o.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "all",
+                                "comunas",
+                                "people",
+                                "posts"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "topic",
+                        "in": "query",
+                        "description": "Assunto principal. N\u00e3o admite a categoria people.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por categoria (1 a 50).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 50
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor de next da categoria escolhida. N\u00e3o aceito com all.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
         "/api/v1/comments/{id}/removal": {
             "post": {
                 "operationId": "api_comments_idremoval_post",
@@ -3921,6 +4105,418 @@
                 }
             }
         },
+        "/api/v1/me/notifications": {
+            "get": {
+                "operationId": "api_menotifications_get",
+                "tags": [
+                    "Notifica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "NotificationPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationPage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Minhas notifica\u00e7\u00f5es, mais recentes primeiro.",
+                "description": "Minhas notifica\u00e7\u00f5es, mais recentes primeiro.",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/me/notifications/read-all": {
+            "put": {
+                "operationId": "api_menotificationsread-all_put",
+                "tags": [
+                    "Notifica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "UnreadCount resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnreadCount"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Marca todas as notifica\u00e7\u00f5es pr\u00f3prias como lidas.",
+                "description": "Marca todas as notifica\u00e7\u00f5es pr\u00f3prias como lidas.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The updated UnreadCount resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UnreadCount"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/me/notifications/unread-count": {
+            "get": {
+                "operationId": "api_menotificationsunread-count_get",
+                "tags": [
+                    "Notifica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "UnreadCount resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnreadCount"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Total de notifica\u00e7\u00f5es vis\u00edveis n\u00e3o lidas.",
+                "description": "Total de notifica\u00e7\u00f5es vis\u00edveis n\u00e3o lidas.",
+                "parameters": []
+            }
+        },
+        "/api/v1/me/notifications/{id}": {
+            "get": {
+                "operationId": "api_menotifications_id_get",
+                "tags": [
+                    "Notifica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "NotificationView resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationView"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Revalida uma notifica\u00e7\u00e3o e seu destino.",
+                "description": "Revalida uma notifica\u00e7\u00e3o e seu destino.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "NotificationView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/me/notifications/{id}/read": {
+            "put": {
+                "operationId": "api_menotifications_idread_put",
+                "tags": [
+                    "Notifica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "NotificationView resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationView"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Marca uma notifica\u00e7\u00e3o pr\u00f3pria como lida (idempotente).",
+                "description": "Marca uma notifica\u00e7\u00e3o pr\u00f3pria como lida (idempotente).",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "NotificationView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated NotificationView resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NotificationView"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/handles/{handle}/availability": {
             "get": {
                 "operationId": "api_handles_handleavailability_get",
@@ -4014,6 +4610,295 @@
                         "name": "handle",
                         "in": "path",
                         "description": "Profile identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/users/{handle}/follow": {
+            "get": {
+                "operationId": "api_users_handlefollow_get",
+                "tags": [
+                    "Perfis"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "FollowView resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FollowView"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Se sigo este perfil.",
+                "description": "Se sigo este perfil.",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "PublicProfile identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "put": {
+                "operationId": "api_users_handlefollow_put",
+                "tags": [
+                    "Perfis"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "FollowView resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FollowView"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Segue uma pessoa (idempotente; sem seguir a si mesmo ou com bloqueio).",
+                "description": "Segue uma pessoa (idempotente; sem seguir a si mesmo ou com bloqueio).",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "PublicProfile identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated FollowView resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FollowView"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            },
+            "delete": {
+                "operationId": "api_users_handlefollow_delete",
+                "tags": [
+                    "Perfis"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "FollowView resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Deixa de seguir uma pessoa (idempotente).",
+                "description": "Deixa de seguir uma pessoa (idempotente).",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "PublicProfile identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/users/{handle}/posts": {
+            "get": {
+                "operationId": "api_users_handleposts_get",
+                "tags": [
+                    "Perfis"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PostPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Publica\u00e7\u00f5es vis\u00edveis de uma pessoa, com pagina\u00e7\u00e3o por cursor.",
+                "description": "Publica\u00e7\u00f5es vis\u00edveis de uma pessoa, com pagina\u00e7\u00e3o por cursor.",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "PublicProfile identifier",
                         "required": true,
                         "deprecated": false,
                         "schema": {
@@ -4576,6 +5461,16 @@
                         "description": "Estado de quem v\u00ea: isMember, role (member, moderator, founder), permissions (dicas para a\ninterface), joinRequest (pending ou null) e ownershipTransfer (proposta em aberto que\nenvolve quem v\u00ea). joinRequest e ownershipTransfer s\u00f3 v\u00eam preenchidos no detalhe.",
                         "type": "object",
                         "additionalProperties": {}
+                    },
+                    "primaryTopic": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Topic"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 }
             },
@@ -4646,6 +5541,32 @@
                 "properties": {
                     "description": {
                         "maxLength": 500,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "topic": {
+                        "enum": [
+                            "pol",
+                            "trab",
+                            "sind",
+                            "eco",
+                            "fem",
+                            "anti",
+                            "lgbt",
+                            "edu",
+                            "saude",
+                            "clima",
+                            "comun",
+                            "cult",
+                            "hist",
+                            "livros",
+                            "tec",
+                            "games",
+                            "esp",
+                            "humor"
+                        ],
                         "type": [
                             "string",
                             "null"
@@ -4891,6 +5812,67 @@
                     }
                 }
             },
+            "Discovery": {
+                "type": "object",
+                "properties": {
+                    "topics": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Topic"
+                        }
+                    },
+                    "comunas": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Comuna"
+                        }
+                    },
+                    "people": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DiscoveryPerson"
+                        }
+                    },
+                    "posts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Post"
+                        }
+                    },
+                    "recentPosts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Post"
+                        }
+                    },
+                    "next": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            },
+            "DiscoveryPerson": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "following": {
+                        "type": "boolean"
+                    }
+                }
+            },
             "EmailVerification": {
                 "type": "object",
                 "description": "Confirma\u00e7\u00e3o do e-mail com o c\u00f3digo de 6 d\u00edgitos enviado no cadastro.",
@@ -5030,6 +6012,14 @@
                         "maxLength": 1000,
                         "default": "",
                         "type": "string"
+                    }
+                }
+            },
+            "FollowView": {
+                "type": "object",
+                "properties": {
+                    "following": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -5267,6 +6257,73 @@
                     }
                 }
             },
+            "NotificationPage": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NotificationView"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "NotificationView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "actor": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AuthorView"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "subject": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "quote": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "readAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "target": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "OwnershipTransfer": {
                 "type": "object",
                 "description": "Transfer\u00eancia de propriedade: o propriet\u00e1rio prop\u00f5e, a pessoa escolhida aceita ou recusa.\nAt\u00e9 o aceite nada muda; no aceite, a troca \u00e9 feita de uma vez, numa transa\u00e7\u00e3o.",
@@ -5420,6 +6477,12 @@
                         "additionalProperties": {
                             "type": "boolean"
                         }
+                    },
+                    "topic": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -5444,6 +6507,32 @@
                 "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente.",
                 "additionalProperties": false,
                 "properties": {
+                    "topic": {
+                        "enum": [
+                            "pol",
+                            "trab",
+                            "sind",
+                            "eco",
+                            "fem",
+                            "anti",
+                            "lgbt",
+                            "edu",
+                            "saude",
+                            "clima",
+                            "comun",
+                            "cult",
+                            "hist",
+                            "livros",
+                            "tec",
+                            "games",
+                            "esp",
+                            "humor"
+                        ],
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "comunaId": {
                         "format": "uuid",
                         "description": "Comuna onde publicar; null publica no pr\u00f3prio perfil.",
@@ -5724,7 +6813,7 @@
             },
             "Topic": {
                 "type": "object",
-                "description": "Assuntos para a escolha de interesses (lista fixa, mantida pela equipe em App\\Enum\\Topic).",
+                "description": "Assuntos oficiais (lista fixa, mantida pela equipe em App\\Enum\\Topic).",
                 "properties": {
                     "id": {
                         "type": "string"
@@ -5737,6 +6826,14 @@
                     },
                     "group": {
                         "type": "string"
+                    }
+                }
+            },
+            "UnreadCount": {
+                "type": "object",
+                "properties": {
+                    "unreadCount": {
+                        "type": "integer"
                     }
                 }
             }
@@ -5786,20 +6883,28 @@
             "description": "P\u00e1gina de publica\u00e7\u00f5es (feed ou comuna), da mais nova para a mais antiga."
         },
         {
+            "name": "Descoberta",
+            "description": "Resource 'Descoberta' operations."
+        },
+        {
             "name": "Sistema",
             "description": "Situa\u00e7\u00e3o da API e do banco. P\u00fablica e sem detalhes internos (vers\u00f5es, hosts, erros)."
         },
         {
-            "name": "Publica\u00e7\u00f5es",
-            "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente."
+            "name": "Notifica\u00e7\u00f5es",
+            "description": "Resource 'Notifica\u00e7\u00f5es' operations."
         },
         {
             "name": "Perfis",
             "description": "Perfil p\u00fablico de uma pessoa. S\u00f3 campos que ela escolheu mostrar: nunca e-mail,\ninteresses, estado da conta, papel ou datas internas al\u00e9m do \"na Popularia desde\"."
         },
         {
+            "name": "Publica\u00e7\u00f5es",
+            "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente."
+        },
+        {
             "name": "Assuntos",
-            "description": "Assuntos para a escolha de interesses (lista fixa, mantida pela equipe em App\\Enum\\Topic)."
+            "description": "Assuntos oficiais (lista fixa, mantida pela equipe em App\\Enum\\Topic)."
         }
     ],
     "webhooks": {}

@@ -10,6 +10,7 @@ use App\Api\ApiProblem;
 use App\Content\ContentPolicy;
 use App\Content\TextNormalizer;
 use App\Entity\Post;
+use App\Enum\Topic;
 use App\Repository\ComunaRepository;
 use App\Security\CurrentUser;
 use App\Security\RateLimitGuard;
@@ -38,10 +39,14 @@ final readonly class PostCreateProcessor implements ProcessorInterface
         if (null !== $data->comunaId) {
             $comuna = $this->comunas->find(Uuid::fromString($data->comunaId)) ?? throw ApiProblem::notFound('Comuna não encontrada.');
         }
+        if (null !== $comuna && null !== $data->topic) {
+            throw ApiProblem::badRequest('/errors/inherited-topic', 'O assunto é herdado da comuna.');
+        }
         $this->policy->assertCanPostIn($comuna, $author);
         $this->rateLimit->consume('content_creation', $author->getUserIdentifier());
 
         $post = new Post($author, $comuna, TextNormalizer::normalize($data->body), $this->clock->now());
+        $post->setTopic(null === $data->topic ? null : Topic::from($data->topic));
         $this->em->persist($post);
         $this->em->flush();
 

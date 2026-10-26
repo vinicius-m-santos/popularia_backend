@@ -40,6 +40,8 @@ abstract class ApiTestCase extends WebTestCase
      * @param array<mixed>|null $body
      *
      * @return array<mixed>
+     *
+     * @phpstan-impure Requisições HTTP alteram o kernel/banco e observam estado mutável.
      */
     protected function request(string $method, string $uri, ?array $body = null, ?string $token = null, string $contentType = 'application/json'): array
     {

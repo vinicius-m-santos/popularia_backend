@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Enum\ComunaStatus;
 use App\Enum\ComunaVisibility;
+use App\Enum\Topic;
 use App\Repository\ComunaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -170,6 +171,12 @@ class Comuna
     public function getTopics(): array
     {
         return $this->topics;
+    }
+
+    /** Um assunto principal; o array legado é preservado até a próxima escolha explícita. */
+    public function changeTopic(string $topic): void
+    {
+        $this->topics = [Topic::from($topic)->value];
     }
 
     public function getModerationNote(): string

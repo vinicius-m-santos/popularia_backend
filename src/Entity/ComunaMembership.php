@@ -12,13 +12,15 @@ use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Participação de uma conta numa comuna, com o papel dentro dela. Moderar uma comuna
+ * Participação de uma conta numa comuna, com o papel dentro dela ("founder" espelha
+ * Comuna::owner; o banco aceita um só por comuna). Moderar uma comuna
  * (role moderator/founder) não dá acesso a e-mail, IP ou sessões de ninguém: as respostas
  * de moderação usam só dados públicos de perfil (docs/moderacao.md).
  */
 #[ORM\Entity(repositoryClass: ComunaMembershipRepository::class)]
 #[ORM\Table(name: 'comuna_membership')]
 #[ORM\UniqueConstraint(name: 'uniq_comuna_membership', columns: ['comuna_id', 'user_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_comuna_membership_founder', columns: ['comuna_id'], options: ['where' => "role = 'founder'"])]
 #[ORM\Index(name: 'idx_comuna_membership_user', columns: ['user_id'])]
 class ComunaMembership
 {
@@ -57,6 +59,17 @@ class ComunaMembership
     public function getRole(): ComunaRole
     {
         return $this->role;
+    }
+
+    /** Papel muda só pela ComunaGovernance (moderação e transferência), nunca por dado do cliente. */
+    public function changeRole(ComunaRole $role): void
+    {
+        $this->role = $role;
+    }
+
+    public function getId(): Uuid
+    {
+        return $this->id;
     }
 
     public function getJoinedAt(): \DateTimeImmutable

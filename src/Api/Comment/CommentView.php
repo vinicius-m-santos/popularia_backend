@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post as PostOperation;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Api\Post\ContentRemovalInput;
 use App\Api\Post\PostView;
 use App\Api\Profile\AuthorView;
 use App\Entity\Comment;
@@ -36,11 +37,25 @@ use App\Entity\Comment;
                 description: 'Mesmas regras de publicar: e-mail confirmado e participar da comuna. O comentário pai precisa ser da mesma publicação.',
             ),
         ),
+        new PostOperation(
+            uriTemplate: '/comments/{id}/removal',
+            status: 204,
+            read: false,
+            output: false,
+            security: "is_granted('ROLE_USER')",
+            input: ContentRemovalInput::class,
+            processor: CommentRemovalProcessor::class,
+            openapi: new Operation(
+                tags: ['Gestão de comunas'],
+                summary: 'Remove um comentário (moderação da comuna), com motivo.',
+                description: 'Mesmas regras da remoção de publicações. O comentário vira um marcador "removed" na conversa.',
+            ),
+        ),
     ],
 )]
 final readonly class CommentView
 {
-    /** @param array{isAuthor: bool} $viewer */
+    /** @param array{isAuthor: bool, canRemove: bool} $viewer */
     public function __construct(
         #[ApiProperty(identifier: true)]
         public string $id,
@@ -55,7 +70,8 @@ final readonly class CommentView
     ) {
     }
 
-    public static function fromComment(Comment $comment, bool $hiddenByBlock, ?string $viewerId): self
+    /** $canRemove: quem vê modera a comuna e pode remover este comentário (dica; a operação confere de novo). */
+    public static function fromComment(Comment $comment, bool $hiddenByBlock, ?string $viewerId, bool $canRemove = false): self
     {
         $status = $hiddenByBlock && $comment->isPublished() ? 'hidden' : $comment->getStatus()->value;
         $visible = 'published' === $status;
@@ -68,7 +84,10 @@ final readonly class CommentView
             $visible ? $comment->getBody() : null,
             $visible ? AuthorView::fromUser($comment->getAuthor()) : null,
             $comment->getCreatedAt(),
-            ['isAuthor' => $visible && $comment->getAuthor()->getId()->toRfc4122() === $viewerId],
+            [
+                'isAuthor' => $visible && $comment->getAuthor()->getId()->toRfc4122() === $viewerId,
+                'canRemove' => $visible && $canRemove,
+            ],
         );
     }
 }

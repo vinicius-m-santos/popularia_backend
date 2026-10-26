@@ -70,6 +70,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
+    /**
+     * Última criação efetiva, para histórico. Não restringe a criação de novas comunas.
+     */
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lastComunaCreatedAt = null;
+
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
     private \DateTimeImmutable $updatedAt;
 
@@ -212,6 +218,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getLastComunaCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->lastComunaCreatedAt;
+    }
+
+    public function recordComunaCreation(\DateTimeImmutable $now): void
+    {
+        $this->lastComunaCreatedAt = $now;
     }
 
     public function getUpdatedAt(): \DateTimeImmutable

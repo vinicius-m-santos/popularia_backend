@@ -19,9 +19,10 @@ use Symfony\Component\Uid\Uuid;
  * sobre um item específico, com o motivo da recusa em formato problem+json.
  *
  * Regras:
- * - Ler uma comuna privada exige participar dela.
- * - Publicar exige conta ativa, e-mail confirmado e, numa comuna, participar dela.
- * - Comentar exige poder ler a publicação, e-mail confirmado e não ter bloqueio com a autoria.
+ * - Ler uma comuna privada exige participar dela (também depois de arquivada).
+ * - Publicar exige conta ativa, e-mail confirmado e, numa comuna, participar dela e ela não estar arquivada.
+ * - Comentar exige poder ler a publicação, e-mail confirmado, não ter bloqueio com a autoria e,
+ *   numa comuna, participar dela e ela não estar arquivada.
  * - Bloqueio vale nos dois sentidos: quem bloqueia e quem foi bloqueado não se veem.
  * - Só a autoria apaga a própria publicação (a remoção pela moderação é outro fluxo).
  */
@@ -79,6 +80,9 @@ final readonly class ContentPolicy
         if (null !== $comuna && null === $this->memberships->findMembership($comuna, $author)) {
             throw ApiProblem::forbidden('/errors/not-a-member', 'Entre na comuna para publicar nela.');
         }
+        if (null !== $comuna && $comuna->isArchived()) {
+            throw ComunaModerationPolicy::archived();
+        }
     }
 
     /** Motivo pelo qual $viewer não pode comentar (null = pode). Supõe que a publicação é visível. */
@@ -93,6 +97,9 @@ final readonly class ContentPolicy
         $comuna = $post->getComuna();
         if (null !== $comuna && null === $this->memberships->findMembership($comuna, $viewer)) {
             return ApiProblem::forbidden('/errors/not-a-member', 'Entre na comuna para comentar.');
+        }
+        if (null !== $comuna && $comuna->isArchived()) {
+            return ComunaModerationPolicy::archived();
         }
 
         return null;

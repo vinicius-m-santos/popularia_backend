@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model\Operation;
 use ApiPlatform\OpenApi\Model\Parameter;
 
-/** Página da lista de comunas. */
+/** Página de comunas (todas, ou as da pessoa logada). */
 #[ApiResource(
     operations: [
         new Get(
@@ -19,6 +19,19 @@ use ApiPlatform\OpenApi\Model\Parameter;
             openapi: new Operation(
                 tags: ['Comunas'],
                 summary: 'Lista as comunas, com paginação por cursor.',
+                parameters: [
+                    new Parameter('cursor', 'query', 'Valor de nextCursor da página anterior.'),
+                    new Parameter('limit', 'query', 'Itens por página (1 a 50, padrão 20).', schema: ['type' => 'integer']),
+                ],
+            ),
+        ),
+        new Get(
+            uriTemplate: '/me/comunas',
+            security: "is_granted('ROLE_USER')",
+            provider: MyComunasProvider::class,
+            openapi: new Operation(
+                tags: ['Conta'],
+                summary: 'Comunas de que você participa, com seu papel em cada uma.',
                 parameters: [
                     new Parameter('cursor', 'query', 'Valor de nextCursor da página anterior.'),
                     new Parameter('limit', 'query', 'Itens por página (1 a 50, padrão 20).', schema: ['type' => 'integer']),

@@ -7,9 +7,11 @@ namespace App\Api\Comment;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Pagination;
+use App\Content\ComunaModerationPolicy;
 use App\Content\ContentPolicy;
 use App\Entity\Comment;
 use App\Repository\CommentRepository;
+use App\Repository\ComunaMembershipRepository;
 use App\Repository\UserBlockRepository;
 use App\Security\CurrentUser;
 
@@ -21,6 +23,8 @@ final readonly class CommentPageProvider implements ProviderInterface
         private ContentPolicy $policy,
         private CommentRepository $comments,
         private UserBlockRepository $blocks,
+        private ComunaMembershipRepository $memberships,
+        private ComunaModerationPolicy $moderation,
     ) {
     }
 
@@ -34,12 +38,15 @@ final readonly class CommentPageProvider implements ProviderInterface
 
         $blocked = $this->blocks->blockedEitherWayIds($viewer);
         $viewerId = $viewer?->getId()->toRfc4122();
+        $comuna = $post->getComuna();
+        $membership = null === $comuna ? null : $this->memberships->findMembership($comuna, $viewer);
 
         return new CommentPage(
-            array_map(static fn (Comment $c) => CommentView::fromComment(
+            array_map(fn (Comment $c) => CommentView::fromComment(
                 $c,
                 isset($blocked[$c->getAuthor()->getId()->toRfc4122()]) || !$c->getAuthor()->isActive(),
                 $viewerId,
+                null !== $comuna && $this->moderation->canRemoveContentBy($comuna, $membership, $c->getAuthor()),
             ), $comments),
             $next,
         );

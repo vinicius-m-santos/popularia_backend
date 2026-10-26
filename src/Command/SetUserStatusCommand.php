@@ -8,7 +8,9 @@ use App\Auth\AdminAudit;
 use App\Auth\SecurityEventRecorder;
 use App\Auth\SessionManager;
 use App\Enum\AccountStatus;
+use App\Enum\ComunaStatus;
 use App\Enum\SecurityEventType;
+use App\Repository\ComunaRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
@@ -32,6 +34,7 @@ final class SetUserStatusCommand
         private readonly SecurityEventRecorder $events,
         private readonly AdminAudit $audit,
         private readonly ClockInterface $clock,
+        private readonly ComunaRepository $comunas,
     ) {
     }
 
@@ -59,6 +62,18 @@ final class SetUserStatusCommand
         $this->audit->record(null, 'user.status_changed', $user->getId(), trim($reason), ['from' => $previous->value, 'to' => $newStatus->value]);
 
         $io->success(\sprintf('@%s agora está "%s".', $user->getHandle(), $newStatus->value));
+
+        // A suspensão não muda a propriedade: as comunas continuam com a moderação que têm.
+        // Se precisarem de um novo responsável, a equipe usa app:comuna:transfer-owner.
+        if (AccountStatus::Suspended === $newStatus) {
+            $owned = $this->comunas->findBy(['owner' => $user, 'status' => ComunaStatus::Active]);
+            if ([] !== $owned) {
+                $io->warning(\sprintf(
+                    'Esta conta é proprietária de: %s. Avalie transferir com app:comuna:transfer-owner.',
+                    implode(', ', array_map(static fn ($c) => 'c/'.$c->getSlug(), $owned)),
+                ));
+            }
+        }
 
         return Command::SUCCESS;
     }

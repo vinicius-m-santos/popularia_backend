@@ -25,7 +25,7 @@ use ApiPlatform\OpenApi\Model\Operation;
             openapi: new Operation(
                 tags: ['Comunas'],
                 summary: 'Entra na comuna (sem corpo).',
-                description: 'Comunas privadas exigem aprovação: 403 /errors/comuna-requires-approval (fluxo de convite numa próxima etapa).',
+                description: 'Comunas privadas exigem aprovação: 403 /errors/comuna-requires-approval (peça em PUT /comunas/{slug}/join-request). Comuna arquivada: 409 /errors/comuna-archived.',
             ),
         ),
         new Delete(
@@ -36,7 +36,7 @@ use ApiPlatform\OpenApi\Model\Operation;
             openapi: new Operation(
                 tags: ['Comunas'],
                 summary: 'Sai da comuna.',
-                description: 'Quem fundou a comuna não sai por aqui (409), para ela não ficar sem responsável.',
+                description: 'Quem é proprietário não sai por aqui (409 /errors/founder-cannot-leave), para a comuna não ficar sem responsável: transfira ou arquive antes. Sair de uma comuna privada encerra o acesso ao conteúdo dela.',
             ),
         ),
     ],

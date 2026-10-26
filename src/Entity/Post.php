@@ -97,4 +97,13 @@ class Post
         $this->status = ContentStatus::Deleted;
         $this->body = '';
     }
+
+    /**
+     * Removido pela moderação da comuna: some para todos. O texto fica no banco (não é exibido)
+     * como registro da decisão, para a futura etapa de recursos (docs/moderacao.md).
+     */
+    public function removeByModeration(): void
+    {
+        $this->status = ContentStatus::Removed;
+    }
 }

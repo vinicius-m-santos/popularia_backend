@@ -1006,6 +1006,87 @@
                         "explode": true
                     }
                 ]
+            },
+            "post": {
+                "operationId": "api_comunas_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Comuna resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Comuna"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Cria uma comuna; quem cria vira propriet\u00e1rio.",
+                "description": "Exige conta ativa e e-mail confirmado (403 /errors/email-not-verified). No m\u00e1ximo 3 comunas ativas por pessoa (409 /errors/comuna-limit-reached) e 7 dias entre cria\u00e7\u00f5es efetivas (409 /errors/comuna-creation-interval; arquivar ou excluir n\u00e3o zera o prazo). O endere\u00e7o (slug) \u00e9 gerado do nome e precisa ser \u00fanico (422 em \"name\"). Nome e slug n\u00e3o mudam depois.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Comuna resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Comuna.ComunaCreateInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
             }
         },
         "/api/v1/comunas/{slug}": {
@@ -1049,6 +1130,441 @@
                         "name": "slug",
                         "in": "path",
                         "description": "Comuna identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "api_comunas_slug_delete",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Comuna resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Exclui a comuna definitivamente (s\u00f3 o propriet\u00e1rio, se for o \u00fanico membro).",
+                "description": "Com outros membros: 409 /errors/comuna-has-members. Com publica\u00e7\u00f5es ou coment\u00e1rios de outras pessoas, ou conte\u00fado removido pela modera\u00e7\u00e3o: 409 /errors/comuna-has-content. Nos dois casos, a alternativa \u00e9 arquivar. Comuna arquivada: 409 /errors/comuna-archived.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Comuna identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "api_comunas_slug_patch",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comuna resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Comuna"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Edita descri\u00e7\u00e3o e regras (s\u00f3 o propriet\u00e1rio).",
+                "description": "Nome, endere\u00e7o, visibilidade e propriet\u00e1rio n\u00e3o mudam por aqui (campos desconhecidos: 400). Comuna arquivada: 409 /errors/comuna-archived.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Comuna identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Comuna resource",
+                    "content": {
+                        "application/merge-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Comuna.ComunaUpdateInput.jsonMergePatch"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Comuna.ComunaUpdateInput.jsonMergePatch"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/join-request": {
+            "put": {
+                "operationId": "api_comunas_slugjoin-request_put",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JoinRequest resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JoinRequest"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Pede para entrar numa comuna privada (sem corpo; repetir n\u00e3o cria outro pedido).",
+                "description": "Comuna p\u00fablica: 409 /errors/join-request-not-needed (use PUT /membership). J\u00e1 participa: 409 /errors/already-member. Arquivada: 409 /errors/comuna-archived. Limite de taxa por conta.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated JoinRequest resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JoinRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            },
+            "delete": {
+                "operationId": "api_comunas_slugjoin-request_delete",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "JoinRequest resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retira o pr\u00f3prio pedido de entrada.",
+                "description": "Retira o pr\u00f3prio pedido de entrada.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}/members": {
+            "get": {
+                "operationId": "api_comunas_slugmembers_get",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ComunaMemberPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ComunaMemberPage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Membros da comuna (s\u00f3 para quem participa).",
+                "description": "Participar de uma comuna pode revelar opini\u00f5es: a lista \u00e9 s\u00f3 para membros (403 /errors/members-only). Propriet\u00e1rio e modera\u00e7\u00e3o aparecem para todos em GET /comunas/{slug}.",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
                         "required": true,
                         "deprecated": false,
                         "schema": {
@@ -1144,7 +1660,7 @@
                     }
                 },
                 "summary": "Entra na comuna (sem corpo).",
-                "description": "Comunas privadas exigem aprova\u00e7\u00e3o: 403 /errors/comuna-requires-approval (fluxo de convite numa pr\u00f3xima etapa).",
+                "description": "Comunas privadas exigem aprova\u00e7\u00e3o: 403 /errors/comuna-requires-approval (pe\u00e7a em PUT /comunas/{slug}/join-request). Comuna arquivada: 409 /errors/comuna-archived.",
                 "parameters": [
                     {
                         "name": "slug",
@@ -1214,7 +1730,7 @@
                     }
                 },
                 "summary": "Sai da comuna.",
-                "description": "Quem fundou a comuna n\u00e3o sai por aqui (409), para ela n\u00e3o ficar sem respons\u00e1vel.",
+                "description": "Quem \u00e9 propriet\u00e1rio n\u00e3o sai por aqui (409 /errors/founder-cannot-leave), para a comuna n\u00e3o ficar sem respons\u00e1vel: transfira ou arquive antes. Sair de uma comuna privada encerra o acesso ao conte\u00fado dela.",
                 "parameters": [
                     {
                         "name": "slug",
@@ -1668,6 +2184,139 @@
                 ]
             }
         },
+        "/api/v1/me/comuna-quota": {
+            "get": {
+                "operationId": "api_mecomuna-quota_get",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ComunaQuota resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ComunaQuota"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Quantas comunas ativas voc\u00ea possui e quando pode criar a pr\u00f3xima.",
+                "description": "Quantas comunas ativas voc\u00ea possui e quando pode criar a pr\u00f3xima.",
+                "parameters": []
+            }
+        },
+        "/api/v1/me/comunas": {
+            "get": {
+                "operationId": "api_mecomunas_get",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ComunaPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ComunaPage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Comunas de que voc\u00ea participa, com seu papel em cada uma.",
+                "description": "Comunas de que voc\u00ea participa, com seu papel em cada uma.",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
         "/api/v1/me/email-verification": {
             "post": {
                 "operationId": "api_meemail-verification_post",
@@ -1993,6 +2642,1283 @@
                         "explode": false
                     }
                 ]
+            }
+        },
+        "/api/v1/comments/{id}/removal": {
+            "post": {
+                "operationId": "api_comments_idremoval_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Comment resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Remove um coment\u00e1rio (modera\u00e7\u00e3o da comuna), com motivo.",
+                "description": "Mesmas regras da remo\u00e7\u00e3o de publica\u00e7\u00f5es. O coment\u00e1rio vira um marcador \"removed\" na conversa.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Comment identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new Comment resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Comment.ContentRemovalInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/comuna-names/availability": {
+            "get": {
+                "operationId": "api_comuna-namesavailability_get",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ComunaNameAvailability resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ComunaNameAvailability"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Diz se um nome de comuna est\u00e1 livre.",
+                "description": "Limite de taxa por conta.",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Nome pretendido.",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}/archive": {
+            "post": {
+                "operationId": "api_comunas_slugarchive_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comuna resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Comuna"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Arquiva a comuna (s\u00f3 o propriet\u00e1rio; definitivo pelo app).",
+                "description": "O hist\u00f3rico fica para leitura de quem participa (comuna privada continua fechada). Sem novas publica\u00e7\u00f5es, coment\u00e1rios, membros ou pedidos. Libera uma vaga no limite de comunas ativas.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Comuna identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new Comuna resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Comuna"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/join-requests": {
+            "get": {
+                "operationId": "api_comunas_slugjoin-requests_get",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JoinRequestPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JoinRequestPage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Pedidos de entrada em aberto (propriet\u00e1rio ou modera\u00e7\u00e3o da comuna).",
+                "description": "Pedidos de entrada em aberto (propriet\u00e1rio ou modera\u00e7\u00e3o da comuna).",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}/join-requests/{id}/approve": {
+            "post": {
+                "operationId": "api_comunas_slugjoin-requests_idapprove_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JoinRequest resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JoinRequest"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Aprova um pedido: a pessoa passa a participar (propriet\u00e1rio ou modera\u00e7\u00e3o).",
+                "description": "Aprova um pedido: a pessoa passa a participar (propriet\u00e1rio ou modera\u00e7\u00e3o).",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "JoinRequest identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new JoinRequest resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JoinRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/join-requests/{id}/reject": {
+            "post": {
+                "operationId": "api_comunas_slugjoin-requests_idreject_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JoinRequest resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JoinRequest"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Recusa um pedido (propriet\u00e1rio ou modera\u00e7\u00e3o).",
+                "description": "Recusa um pedido (propriet\u00e1rio ou modera\u00e7\u00e3o).",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "JoinRequest identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new JoinRequest resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JoinRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/members/{handle}": {
+            "delete": {
+                "operationId": "api_comunas_slugmembers_handle_delete",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ComunaMemberManagement resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Remove algu\u00e9m da comuna (propriet\u00e1rio ou modera\u00e7\u00e3o).",
+                "description": "A modera\u00e7\u00e3o remove membros comuns; s\u00f3 o propriet\u00e1rio remove quem modera. Ningu\u00e9m remove o propriet\u00e1rio (403 /errors/cannot-remove-owner). O acesso a conte\u00fado privado acaba na hora.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "ComunaMemberManagement identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}/moderators/{handle}": {
+            "put": {
+                "operationId": "api_comunas_slugmoderators_handle_put",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ComunaMemberManagement resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ComunaMemberManagement.ComunaMemberView"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Nomeia um membro para a modera\u00e7\u00e3o (s\u00f3 o propriet\u00e1rio; sem corpo).",
+                "description": "Nomeia um membro para a modera\u00e7\u00e3o (s\u00f3 o propriet\u00e1rio; sem corpo).",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "ComunaMemberManagement identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated ComunaMemberManagement resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ComunaMemberManagement"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            },
+            "delete": {
+                "operationId": "api_comunas_slugmoderators_handle_delete",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ComunaMemberManagement resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Tira algu\u00e9m da modera\u00e7\u00e3o; a pessoa continua membro (s\u00f3 o propriet\u00e1rio).",
+                "description": "Tira algu\u00e9m da modera\u00e7\u00e3o; a pessoa continua membro (s\u00f3 o propriet\u00e1rio).",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "ComunaMemberManagement identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}/ownership-transfer": {
+            "put": {
+                "operationId": "api_comunas_slugownership-transfer_put",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OwnershipTransfer resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OwnershipTransfer"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Prop\u00f5e passar a comuna para outro membro (s\u00f3 o propriet\u00e1rio).",
+                "description": "Substitui uma proposta anterior em aberto. A pessoa precisa participar da comuna (409 /errors/target-not-member).",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated OwnershipTransfer resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OwnershipTransfer.OwnershipTransferInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            },
+            "delete": {
+                "operationId": "api_comunas_slugownership-transfer_delete",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "OwnershipTransfer resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retira a proposta em aberto (s\u00f3 o propriet\u00e1rio).",
+                "description": "Retira a proposta em aberto (s\u00f3 o propriet\u00e1rio).",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}/ownership-transfer/accept": {
+            "post": {
+                "operationId": "api_comunas_slugownership-transferaccept_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OwnershipTransfer resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OwnershipTransfer"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Aceita a comuna (s\u00f3 quem recebeu a proposta).",
+                "description": "Exige e-mail confirmado. O limite de 3 comunas ativas vale para quem recebe (409 /errors/comuna-limit-reached). Quem prop\u00f4s vira membro comum.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new OwnershipTransfer resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OwnershipTransfer"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/ownership-transfer/decline": {
+            "post": {
+                "operationId": "api_comunas_slugownership-transferdecline_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OwnershipTransfer resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OwnershipTransfer"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Recusa a comuna (s\u00f3 quem recebeu a proposta).",
+                "description": "Recusa a comuna (s\u00f3 quem recebeu a proposta).",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new OwnershipTransfer resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OwnershipTransfer"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/posts/{id}/removal": {
+            "post": {
+                "operationId": "api_posts_idremoval_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Post resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Remove uma publica\u00e7\u00e3o da comuna (modera\u00e7\u00e3o da comuna), com motivo.",
+                "description": "S\u00f3 quem modera a comuna da publica\u00e7\u00e3o (403 /errors/not-comuna-moderator). N\u00e3o vale para o pr\u00f3prio conte\u00fado nem para o do propriet\u00e1rio, salvo pelo pr\u00f3prio propriet\u00e1rio (403 /errors/cannot-moderate-content). Fica na auditoria.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new Post resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Post.ContentRemovalInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
             }
         },
         "/api/v1/handles/{handle}/availability": {
@@ -2533,6 +4459,22 @@
                     }
                 }
             },
+            "Comment.ContentRemovalInput": {
+                "type": "object",
+                "description": "Coment\u00e1rio em lista plana (o app monta a \u00e1rvore pelo parentId, como j\u00e1 faz com os mocks).\nComent\u00e1rios apagados, removidos ou de quem tem bloqueio com voc\u00ea continuam na lista como\nmarcadores sem texto e sem autoria (status deleted/removed/hidden), para as respostas n\u00e3o\nficarem soltas.",
+                "additionalProperties": false,
+                "required": [
+                    "reason"
+                ],
+                "properties": {
+                    "reason": {
+                        "minLength": 3,
+                        "maxLength": 500,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
             "CommentPage": {
                 "type": "object",
                 "description": "P\u00e1gina de coment\u00e1rios de uma publica\u00e7\u00e3o, do mais antigo para o mais novo.",
@@ -2553,7 +4495,7 @@
             },
             "Comuna": {
                 "type": "object",
-                "description": "Comuna com regras e o estado de quem v\u00ea (viewer). Comunas privadas aparecem com nome e\ndescri\u00e7\u00e3o; s\u00f3 as publica\u00e7\u00f5es s\u00e3o restritas a quem participa.",
+                "description": "Comuna com regras e o estado de quem v\u00ea (viewer). Comunas privadas aparecem com nome e\ndescri\u00e7\u00e3o; s\u00f3 as publica\u00e7\u00f5es e a lista de membros s\u00e3o restritas a quem participa.\nPropriet\u00e1rio, papel e permiss\u00f5es s\u00e3o sempre calculados no servidor.",
                 "properties": {
                     "id": {
                         "type": "string"
@@ -2573,6 +4515,17 @@
                     "visibility": {
                         "description": "public ou private.",
                         "type": "string"
+                    },
+                    "status": {
+                        "description": "active ou archived.",
+                        "type": "string"
+                    },
+                    "archivedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     },
                     "tone": {
                         "type": "string"
@@ -2601,28 +4554,210 @@
                             }
                         }
                     },
-                    "viewer": {
-                        "description": "Estado de quem v\u00ea: participa? com qual papel (member, moderator, founder)?",
-                        "type": "object",
-                        "additionalProperties": {
-                            "anyOf": [
-                                {
-                                    "type": "boolean"
-                                },
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "null"
-                                }
-                            ]
+                    "owner": {
+                        "description": "Quem responde pela comuna; null em comunas da equipe da plataforma.",
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AuthorView"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "moderation": {
+                        "description": "Propriet\u00e1rio e modera\u00e7\u00e3o (dado p\u00fablico). S\u00f3 no detalhe; null nas listas.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ComunaMemberView"
                         }
+                    },
+                    "viewer": {
+                        "description": "Estado de quem v\u00ea: isMember, role (member, moderator, founder), permissions (dicas para a\ninterface), joinRequest (pending ou null) e ownershipTransfer (proposta em aberto que\nenvolve quem v\u00ea). joinRequest e ownershipTransfer s\u00f3 v\u00eam preenchidos no detalhe.",
+                        "type": "object",
+                        "additionalProperties": {}
+                    }
+                }
+            },
+            "Comuna.ComunaCreateInput": {
+                "type": "object",
+                "description": "Comuna com regras e o estado de quem v\u00ea (viewer). Comunas privadas aparecem com nome e\ndescri\u00e7\u00e3o; s\u00f3 as publica\u00e7\u00f5es e a lista de membros s\u00e3o restritas a quem participa.\nPropriet\u00e1rio, papel e permiss\u00f5es s\u00e3o sempre calculados no servidor.",
+                "additionalProperties": false,
+                "required": [
+                    "name",
+                    "description"
+                ],
+                "properties": {
+                    "name": {
+                        "minLength": 3,
+                        "maxLength": 60,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "description": {
+                        "maxLength": 500,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "visibility": {
+                        "enum": [
+                            "public",
+                            "private"
+                        ],
+                        "description": "public: qualquer pessoa l\u00ea e entra; private: s\u00f3 membros leem, e a entrada depende de aprova\u00e7\u00e3o.",
+                        "default": "public",
+                        "type": "string"
+                    },
+                    "place": {
+                        "maxLength": 80,
+                        "description": "Lugar declarado, opcional (\"S\u00e3o Paulo \u00b7 SP\").",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "tone": {
+                        "enum": [
+                            "red",
+                            "black",
+                            "cream"
+                        ],
+                        "default": "red",
+                        "type": "string"
+                    },
+                    "topics": {
+                        "maxItems": 3,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "rules": {
+                        "maxItems": 10,
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ComunaRuleInput"
+                        }
+                    }
+                }
+            },
+            "Comuna.ComunaUpdateInput.jsonMergePatch": {
+                "type": "object",
+                "description": "Comuna com regras e o estado de quem v\u00ea (viewer). Comunas privadas aparecem com nome e\ndescri\u00e7\u00e3o; s\u00f3 as publica\u00e7\u00f5es e a lista de membros s\u00e3o restritas a quem participa.\nPropriet\u00e1rio, papel e permiss\u00f5es s\u00e3o sempre calculados no servidor.",
+                "additionalProperties": false,
+                "properties": {
+                    "description": {
+                        "maxLength": 500,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "rules": {
+                        "maxItems": 10,
+                        "description": "A lista inteira, na ordem; substitui a anterior.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ComunaRuleInput"
+                        }
+                    }
+                }
+            },
+            "ComunaMemberManagement": {
+                "type": "object",
+                "description": "A\u00e7\u00f5es sobre uma pessoa da comuna, pelo @: remover e mudar o papel na modera\u00e7\u00e3o. Quem pode\nfazer o qu\u00ea \u00e9 decidido no servidor (ComunaModerationPolicy); o cliente s\u00f3 diz quem.",
+                "properties": {
+                    "handle": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ComunaMemberManagement.ComunaMemberView": {
+                "type": "object",
+                "description": "A\u00e7\u00f5es sobre uma pessoa da comuna, pelo @: remover e mudar o papel na modera\u00e7\u00e3o. Quem pode\nfazer o qu\u00ea \u00e9 decidido no servidor (ComunaModerationPolicy); o cliente s\u00f3 diz quem.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "description": "member, moderator ou founder (propriet\u00e1rio).",
+                        "type": "string"
+                    },
+                    "joinedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ComunaMemberPage": {
+                "type": "object",
+                "description": "P\u00e1gina de membros de uma comuna, na ordem de entrada.",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ComunaMemberView"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "ComunaMemberView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "description": "member, moderator ou founder (propriet\u00e1rio).",
+                        "type": "string"
+                    },
+                    "joinedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ComunaNameAvailability": {
+                "type": "object",
+                "description": "Se um nome de comuna est\u00e1 livre, e o endere\u00e7o (slug) que ele geraria. \u00c9 s\u00f3 uma pr\u00e9via para o\nformul\u00e1rio: POST /comunas confere de novo e o banco garante a unicidade do slug.",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "available": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "description": "Por que o nome n\u00e3o serve (null quando est\u00e1 livre).",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
             "ComunaPage": {
                 "type": "object",
-                "description": "P\u00e1gina da lista de comunas.",
+                "description": "P\u00e1gina de comunas (todas, ou as da pessoa logada).",
                 "properties": {
                     "items": {
                         "type": "array",
@@ -2636,6 +4771,58 @@
                             "string",
                             "null"
                         ]
+                    }
+                }
+            },
+            "ComunaQuota": {
+                "type": "object",
+                "description": "Situa\u00e7\u00e3o da pessoa logada para criar comunas. Serve s\u00f3 para o app explicar antes de abrir o\nformul\u00e1rio: POST /comunas confere tudo de novo, sob trava.",
+                "properties": {
+                    "activeOwned": {
+                        "type": "integer"
+                    },
+                    "limit": {
+                        "type": "integer"
+                    },
+                    "intervalDays": {
+                        "type": "integer"
+                    },
+                    "nextCreationAt": {
+                        "description": "Data a partir da qual uma nova cria\u00e7\u00e3o \u00e9 aceita; null se n\u00e3o h\u00e1 espera.",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "canCreate": {
+                        "type": "boolean"
+                    },
+                    "blockedBy": {
+                        "description": "type do erro que POST /comunas responderia agora (null = pode criar).",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "ComunaRuleInput": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "title"
+                ],
+                "properties": {
+                    "title": {
+                        "maxLength": 120,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "body": {
+                        "maxLength": 500,
+                        "default": "",
+                        "type": "string"
                     }
                 }
             },
@@ -2870,6 +5057,54 @@
                     }
                 }
             },
+            "JoinRequest": {
+                "type": "object",
+                "description": "Pedido de entrada numa comuna privada. A pessoa pede e pode retirar o pedido; quem \u00e9\npropriet\u00e1rio ou modera a comuna aprova (a participa\u00e7\u00e3o \u00e9 criada nesse momento) ou recusa.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "comunaSlug": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/AuthorView"
+                    },
+                    "status": {
+                        "description": "pending, approved, rejected ou cancelled.",
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "decidedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                }
+            },
+            "JoinRequestPage": {
+                "type": "object",
+                "description": "Pedidos de entrada em aberto, do mais antigo para o mais novo.",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JoinRequest"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
             "Login": {
                 "type": "object",
                 "description": "Login com e-mail e senha. Cria uma sess\u00e3o para este aparelho.",
@@ -3032,6 +5267,47 @@
                     }
                 }
             },
+            "OwnershipTransfer": {
+                "type": "object",
+                "description": "Transfer\u00eancia de propriedade: o propriet\u00e1rio prop\u00f5e, a pessoa escolhida aceita ou recusa.\nAt\u00e9 o aceite nada muda; no aceite, a troca \u00e9 feita de uma vez, numa transa\u00e7\u00e3o.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "comunaSlug": {
+                        "type": "string"
+                    },
+                    "from": {
+                        "$ref": "#/components/schemas/AuthorView"
+                    },
+                    "to": {
+                        "$ref": "#/components/schemas/AuthorView"
+                    },
+                    "status": {
+                        "description": "pending, accepted, declined ou cancelled.",
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "OwnershipTransfer.OwnershipTransferInput": {
+                "type": "object",
+                "description": "Transfer\u00eancia de propriedade: o propriet\u00e1rio prop\u00f5e, a pessoa escolhida aceita ou recusa.\nAt\u00e9 o aceite nada muda; no aceite, a troca \u00e9 feita de uma vez, numa transa\u00e7\u00e3o.",
+                "additionalProperties": false,
+                "required": [
+                    "handle"
+                ],
+                "properties": {
+                    "handle": {
+                        "maxLength": 40,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
             "PasswordChange": {
                 "type": "object",
                 "description": "Troca de senha de quem est\u00e1 logado. Exige a senha atual e encerra as outras sess\u00f5es.",
@@ -3144,6 +5420,22 @@
                         "additionalProperties": {
                             "type": "boolean"
                         }
+                    }
+                }
+            },
+            "Post.ContentRemovalInput": {
+                "type": "object",
+                "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente.",
+                "additionalProperties": false,
+                "required": [
+                    "reason"
+                ],
+                "properties": {
+                    "reason": {
+                        "minLength": 3,
+                        "maxLength": 500,
+                        "default": "",
+                        "type": "string"
                     }
                 }
             },
@@ -3484,6 +5776,10 @@
         {
             "name": "Coment\u00e1rios",
             "description": "Coment\u00e1rio em lista plana (o app monta a \u00e1rvore pelo parentId, como j\u00e1 faz com os mocks).\nComent\u00e1rios apagados, removidos ou de quem tem bloqueio com voc\u00ea continuam na lista como\nmarcadores sem texto e sem autoria (status deleted/removed/hidden), para as respostas n\u00e3o\nficarem soltas."
+        },
+        {
+            "name": "Gest\u00e3o de comunas",
+            "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente."
         },
         {
             "name": "Comunas",

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\ComunaStatus;
 use App\Enum\ComunaVisibility;
 use App\Repository\ComunaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -14,14 +15,34 @@ use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Comunidade ("comuna"). No MVP só a equipe cria comunas (comando app:dev:seed em
- * desenvolvimento; ferramenta administrativa depois). memberCount é calculado no servidor.
+ * Comunidade ("comuna"). Criada por uma pessoa (POST /comunas, que vira a proprietária) ou pela
+ * equipe (sem proprietário). Nome e slug não mudam depois de criados: o slug é o endereço estável.
+ * memberCount é calculado no servidor.
+ *
+ * A propriedade fica em owner (fonte da verdade, FK RESTRICT: uma conta que é dona de comunas não
+ * pode ser apagada sem antes transferi-las) e é espelhada no papel "founder" da participação; as
+ * duas mudam juntas, na mesma transação (ComunaGovernance). O banco garante um único "founder" por
+ * comuna e no máximo MAX_ACTIVE_PER_OWNER comunas ativas por proprietário (migration Version20261026200000).
  */
 #[ORM\Entity(repositoryClass: ComunaRepository::class)]
 #[ORM\Table(name: 'comuna')]
 #[ORM\UniqueConstraint(name: 'uniq_comuna_slug', columns: ['slug'])]
+#[ORM\Index(name: 'idx_comuna_owner_status', columns: ['owner_id', 'status'])]
 class Comuna
 {
+    public const int MAX_ACTIVE_PER_OWNER = 3;
+    // Sem cooldown; mantido no contrato de cota para compatibilidade com o app.
+    public const int CREATION_INTERVAL_DAYS = 0;
+    public const int NAME_MIN_LENGTH = 3;
+    public const int NAME_MAX_LENGTH = 60;
+    public const int SLUG_MAX_LENGTH = 40;
+    public const int DESCRIPTION_MAX_LENGTH = 500;
+    public const int PLACE_MAX_LENGTH = 80;
+    public const int MAX_RULES = 10;
+    public const int RULE_TITLE_MAX_LENGTH = 120;
+    public const int RULE_BODY_MAX_LENGTH = 500;
+    public const array TONES = ['red', 'black', 'cream'];
+
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME)]
     private Uuid $id;
@@ -62,6 +83,17 @@ class Comuna
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
+    /** Quem responde pela comuna. Null = comuna da equipe da plataforma. */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
+    private ?User $owner = null;
+
+    #[ORM\Column(length: 20, enumType: ComunaStatus::class, options: ['default' => 'active'])]
+    private ComunaStatus $status = ComunaStatus::Active;
+
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $archivedAt = null;
+
     /** @var Collection<int, ComunaRule> */
     #[ORM\OneToMany(targetEntity: ComunaRule::class, mappedBy: 'comuna', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
@@ -78,6 +110,7 @@ class Comuna
         array $topics,
         int $foundedYear,
         \DateTimeImmutable $now,
+        ?User $owner = null,
     ) {
         $this->id = Uuid::v7();
         $this->slug = $slug;
@@ -89,6 +122,7 @@ class Comuna
         $this->topics = $topics;
         $this->foundedYear = $foundedYear;
         $this->createdAt = $now;
+        $this->owner = $owner;
         $this->rules = new ArrayCollection();
     }
 
@@ -158,6 +192,54 @@ class Comuna
         return $this->memberCount;
     }
 
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function isOwnedBy(?User $user): bool
+    {
+        return null !== $user && null !== $this->owner && $this->owner->getId()->equals($user->getId());
+    }
+
+    /** Só ComunaGovernance chama, junto com a troca dos papéis "founder" (mesma transação). */
+    public function changeOwner(User $owner): void
+    {
+        $this->owner = $owner;
+    }
+
+    public function getStatus(): ComunaStatus
+    {
+        return $this->status;
+    }
+
+    public function isArchived(): bool
+    {
+        return ComunaStatus::Archived === $this->status;
+    }
+
+    public function getArchivedAt(): ?\DateTimeImmutable
+    {
+        return $this->archivedAt;
+    }
+
+    /** Definitivo pelo app: não há caminho de volta para "active". */
+    public function archive(\DateTimeImmutable $now): void
+    {
+        $this->status = ComunaStatus::Archived;
+        $this->archivedAt = $now;
+    }
+
+    public function changeDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+
     /** @return list<ComunaRule> */
     public function getRules(): array
     {
@@ -167,5 +249,27 @@ class Comuna
     public function addRule(string $title, string $body): void
     {
         $this->rules->add(new ComunaRule($this, $this->rules->count() + 1, $title, $body));
+    }
+
+    /**
+     * Troca a lista de regras mantendo as posições 1..n. As regras existentes são atualizadas no
+     * lugar e só as que sobram são removidas (o Doctrine insere antes de apagar: recriar todas
+     * esbarraria na posição única por comuna).
+     *
+     * @param list<array{title: string, body: string}> $rules
+     */
+    public function replaceRules(array $rules): void
+    {
+        $current = $this->getRules();
+        foreach ($rules as $i => $rule) {
+            if (isset($current[$i])) {
+                $current[$i]->change($rule['title'], $rule['body']);
+            } else {
+                $this->addRule($rule['title'], $rule['body']);
+            }
+        }
+        foreach (\array_slice($current, \count($rules)) as $extra) {
+            $this->rules->removeElement($extra);
+        }
     }
 }

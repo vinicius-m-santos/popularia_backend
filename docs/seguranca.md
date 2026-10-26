@@ -95,7 +95,9 @@ ou IP em texto). Respostas 429 com `Retry-After`; cada estouro gera `rate_limit_
 | Confirmar recuperação | 20 / 15 min | IP |
 | Renovar sessão | 60 / min | IP |
 | Checar @ | 60 / min | IP |
+| Checar nome de comuna | 60 / min | IP |
 | Publicar e comentar | 30 / 10 min | conta |
+| Pedido de entrada em comuna | 20 / hora | conta |
 
 Os limites por IP são generosos porque muitas pessoas no Brasil compartilham IP (CGNAT de operadoras
 móveis). Ajuste em `config/packages/framework.yaml`. Sem CAPTCHA nem pontuação de risco nesta etapa;
@@ -138,7 +140,25 @@ falha e conclusão de recuperação, troca de senha, estouro de limite de taxa, 
 - `admin_audit_log` é **só de inserção**: um gatilho no PostgreSQL recusa `UPDATE`, `DELETE` e `TRUNCATE`.
 - Moderadores (da plataforma ou de comunas) não têm acesso a esses endpoints (403), nem a e-mail, IP ou sessões.
 
-## 9. Retenção e expurgo
+## 9. Comunas: retenção e exclusão de conta
+
+**Exclusão permanente de uma comuna:** o `admin_audit_log` e os `security_event` que referenciam
+a comuna são **mantidos**. O campo `details` dos registros guarda `comunaId` e `slug`, que
+permitem rastrear ações mesmo depois que a linha da tabela `comunas` é apagada.
+
+Publicações e comentários são excluídos em cascata pela FK. Conteúdo removido pela moderação
+também é excluído (o texto estava guardado para fins de revisão, não de investigação criminal).
+
+**Exclusão de conta com comunas:** a FK `RESTRICT` no campo `owner_id` da tabela `comunas`
+impede a exclusão de uma conta que ainda possua comunas. A conta só pode ser excluída depois
+que todas as suas comunas forem arquivadas ou a propriedade for transferida. Comunas sem
+proprietário (`owner_id IS NULL`, como as "comunas da equipe") não bloqueiam a exclusão de nenhuma conta.
+
+**Suspensão do proprietário:** a propriedade é mantida; o conteúdo do proprietário some enquanto
+a conta está suspensa, mas a estrutura e os membros da comuna ficam intactos. A equipe transfere
+a propriedade com `app:comuna:transfer-owner` quando necessário.
+
+## 10. Retenção e expurgo
 
 `php bin/console app:security:purge` (rodar uma vez por dia):
 
@@ -155,7 +175,7 @@ falha e conclusão de recuperação, troca de senha, estouro de limite de taxa, 
 > autoridades e preservação judicial têm regras próprias. A política final (prazo, quem acessa, como se
 > responde a requisições) deve ser escrita, publicada na política de privacidade e refletida aqui.
 
-## 10. Outras proteções
+## 11. Outras proteções
 
 - Respostas com campos explícitos por público: `Me` (própria conta) ≠ `PublicProfile` ≠ `AuthorView`.
   Testes conferem as chaves exatas das respostas.
@@ -168,7 +188,7 @@ falha e conclusão de recuperação, troca de senha, estouro de limite de taxa, 
 - Banco com restrições de defesa em profundidade (sem autobloqueio, contadores não negativos, unicidades).
 - `composer audit` faz parte de `composer check`.
 
-## 11. Pendências conhecidas
+## 12. Pendências conhecidas
 
 - TLS fica a cargo do proxy/balanceador em produção (o contêiner fala HTTP).
 - Sem 2FA, passkeys, CAPTCHA ou aviso de novo login (a arquitetura permite acrescentar).

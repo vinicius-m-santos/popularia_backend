@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\LockMode;
 use Doctrine\Persistence\ManagerRegistry;
 
 /** @extends ServiceEntityRepository<User> */
@@ -29,5 +30,14 @@ class UserRepository extends ServiceEntityRepository
     public function handleExists(string $handle): bool
     {
         return null !== $this->findOneByHandle($handle);
+    }
+
+    /**
+     * Relê a conta com SELECT ... FOR UPDATE (precisa de transação aberta). Serializa as operações
+     * que mudam quantas comunas a pessoa possui: duas criações simultâneas não passam juntas do limite.
+     */
+    public function lock(User $user): void
+    {
+        $this->getEntityManager()->refresh($user, LockMode::PESSIMISTIC_WRITE);
     }
 }

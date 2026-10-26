@@ -23,9 +23,9 @@ final class PostTest extends ApiTestCase
         $this->assertStatus(201);
         self::assertSame("Assembleia sábado às 10h.\nTragam ideias!", $post['body']);
         self::assertSame('camila', $post['author']['handle']);
-        self::assertSame(['id' => $comuna->getId()->toRfc4122(), 'slug' => 'tarifa', 'name' => 'Tarifa'], $post['comuna']);
+        self::assertSame(['id' => $comuna->getId()->toRfc4122(), 'slug' => 'tarifa', 'name' => 'Tarifa', 'status' => 'active'], $post['comuna']);
         self::assertSame(0, $post['commentCount']);
-        self::assertSame(['isAuthor' => true, 'canComment' => true, 'canDelete' => true], $post['viewer']);
+        self::assertSame(['isAuthor' => true, 'canComment' => true, 'canDelete' => true, 'canRemove' => false], $post['viewer']);
         self::assertSame(['id', 'body', 'createdAt', 'author', 'comuna', 'commentCount', 'viewer'], array_keys($post));
         self::assertSame(['id', 'handle', 'displayName'], array_keys($post['author']));
         self::assertTrue($this->fresh(Post::class, $post['id'])->getAuthor()->getId()->equals($author->getId()));

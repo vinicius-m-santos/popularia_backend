@@ -42,11 +42,16 @@ final class ComunaTest extends ApiTestCase
         $this->addMember($comuna, $user, ComunaRole::Moderator);
 
         $anonymous = $this->request('GET', '/comunas/tarifa');
-        self::assertSame(['isMember' => false, 'role' => null], $anonymous['viewer']);
+        self::assertFalse($anonymous['viewer']['isMember']);
+        self::assertNull($anonymous['viewer']['role']);
+        self::assertNotContains(true, $anonymous['viewer']['permissions']);
         self::assertSame([['title' => 'Respeito sempre', 'body' => 'Sem ataques pessoais.']], $anonymous['rules']);
+        self::assertSame('active', $anonymous['status']);
+        self::assertSame([['camila', 'moderator']], array_map(static fn ($m) => [$m['handle'], $m['role']], $anonymous['moderation']));
 
         $mine = $this->request('GET', '/comunas/tarifa', token: $this->login('camila@exemplo.org')['accessToken']);
-        self::assertSame(['isMember' => true, 'role' => 'moderator'], $mine['viewer']);
+        self::assertTrue($mine['viewer']['isMember']);
+        self::assertSame('moderator', $mine['viewer']['role']);
     }
 
     public function testJoinAndLeaveAreIdempotentAndCountedOnServer(): void

@@ -24,15 +24,18 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
  * Dados FICTÍCIOS para desenvolvimento: algumas comunas do protótipo do app, uma conta de
  * fundação e publicações de exemplo. Recusa rodar em produção. Pode rodar mais de uma vez.
  *   php bin/console app:dev:seed.
+ *
+ * A conta de fundação é proprietária de três comunas (o limite de comunas ativas por pessoa);
+ * "hortas" fica como comuna da equipe (sem proprietário), com a mesma conta na moderação.
  */
 #[AsCommand(name: 'app:dev:seed', description: 'Cria comunas e publicações fictícias para desenvolvimento.')]
 final class SeedDevDataCommand
 {
     private const array COMUNAS = [
-        ['tarifa', 'Tarifa Zero BH', 'Luta pelo transporte público gratuito em Belo Horizonte e região metropolitana.', 'Belo Horizonte · MG', 'red', ['pol', 'comun', 'eco'], 2019, ComunaVisibility::Public],
-        ['cursinho', 'Cursinho Popular Carolina', 'Cursinho pré-vestibular gratuito. Simulados, monitoria e grupos de estudo para o Enem.', 'São Paulo · SP', 'cream', ['edu', 'comun', 'livros'], 2021, ComunaVisibility::Public],
-        ['hortas', 'Hortas da Zona Leste', 'Rede de hortas comunitárias da Zona Leste: mutirões, trocas de mudas e oficinas de compostagem.', 'São Paulo · SP', 'red', ['clima', 'comun', 'saude'], 2023, ComunaVisibility::Public],
-        ['entregadores', 'Entregadores Unidos', 'Organização de entregadores e entregadoras por aplicativo. Espaço fechado para quem é da categoria.', 'Recife · PE', 'black', ['trab', 'sind'], 2022, ComunaVisibility::Private],
+        ['tarifa', 'Tarifa Zero BH', 'Luta pelo transporte público gratuito em Belo Horizonte e região metropolitana.', 'Belo Horizonte · MG', 'red', ['pol', 'comun', 'eco'], 2019, ComunaVisibility::Public, true],
+        ['cursinho', 'Cursinho Popular Carolina', 'Cursinho pré-vestibular gratuito. Simulados, monitoria e grupos de estudo para o Enem.', 'São Paulo · SP', 'cream', ['edu', 'comun', 'livros'], 2021, ComunaVisibility::Public, true],
+        ['hortas', 'Hortas da Zona Leste', 'Rede de hortas comunitárias da Zona Leste: mutirões, trocas de mudas e oficinas de compostagem.', 'São Paulo · SP', 'red', ['clima', 'comun', 'saude'], 2023, ComunaVisibility::Public, false],
+        ['entregadores', 'Entregadores Unidos', 'Organização de entregadores e entregadoras por aplicativo. Espaço fechado para quem é da categoria.', 'Recife · PE', 'black', ['trab', 'sind'], 2022, ComunaVisibility::Private, true],
     ];
 
     private const array RULES = [
@@ -69,17 +72,18 @@ final class SeedDevDataCommand
             $this->em->persist($founder);
         }
 
-        foreach (self::COMUNAS as [$slug, $name, $description, $place, $tone, $topics, $year, $visibility]) {
+        foreach (self::COMUNAS as [$slug, $name, $description, $place, $tone, $topics, $year, $visibility, $owned]) {
             if (null !== $this->comunas->findOneBySlug($slug)) {
                 continue;
             }
-            $comuna = new Comuna($slug, $name, $description, $place, $visibility, $tone, $topics, $year, $now);
+            $owner = $owned ? $founder : null;
+            $comuna = new Comuna($slug, $name, $description, $place, $visibility, $tone, $topics, $year, $now, $owner);
             $comuna->setModerationNote('A moderação é escolhida em votação aberta a cada seis meses.');
             foreach (self::RULES as [$title, $body]) {
                 $comuna->addRule($title, $body);
             }
             $this->em->persist($comuna);
-            $this->em->persist(new ComunaMembership($comuna, $founder, ComunaRole::Founder, $now));
+            $this->em->persist(new ComunaMembership($comuna, $founder, null === $owner ? ComunaRole::Moderator : ComunaRole::Founder, $now));
             $this->em->persist(new Post($founder, $comuna, "Boas-vindas à {$name}! Leia as regras e se apresente nos comentários. (publicação fictícia)", $now));
             $this->em->flush();
             $this->comunas->adjustMemberCount($comuna, +1);

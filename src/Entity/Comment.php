@@ -89,4 +89,10 @@ class Comment
     {
         return $this->createdAt;
     }
+
+    /** Removido pela moderação da comuna: vira marcador "removed"; o texto fica guardado, sem exibição. */
+    public function removeByModeration(): void
+    {
+        $this->status = ContentStatus::Removed;
+    }
 }

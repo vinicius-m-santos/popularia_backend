@@ -7,7 +7,6 @@ namespace App\Api\Comuna;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\ApiProblem;
-use App\Repository\ComunaMembershipRepository;
 use App\Repository\ComunaRepository;
 use App\Security\CurrentUser;
 
@@ -16,7 +15,7 @@ final readonly class ComunaProvider implements ProviderInterface
 {
     public function __construct(
         private ComunaRepository $comunas,
-        private ComunaMembershipRepository $memberships,
+        private ComunaViews $views,
         private CurrentUser $currentUser,
     ) {
     }
@@ -25,6 +24,6 @@ final readonly class ComunaProvider implements ProviderInterface
     {
         $comuna = $this->comunas->findOneBySlug((string) ($uriVariables['slug'] ?? '')) ?? throw ApiProblem::notFound('Comuna não encontrada.');
 
-        return ComunaView::fromComuna($comuna, $this->memberships->findMembership($comuna, $this->currentUser->find()));
+        return $this->views->detail($comuna, $this->currentUser->find());
     }
 }

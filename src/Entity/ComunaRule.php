@@ -51,4 +51,10 @@ class ComunaRule
     {
         return $this->body;
     }
+
+    public function change(string $title, string $body): void
+    {
+        $this->title = $title;
+        $this->body = $body;
+    }
 }

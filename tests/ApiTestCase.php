@@ -85,20 +85,29 @@ abstract class ApiTestCase extends WebTestCase
         return $user;
     }
 
-    protected function createComuna(string $slug, ComunaVisibility $visibility = ComunaVisibility::Public): Comuna
+    /** Sem $owner, é uma comuna da equipe; com $owner, a pessoa é proprietária e membro "founder". */
+    protected function createComuna(string $slug, ComunaVisibility $visibility = ComunaVisibility::Public, ?User $owner = null): Comuna
     {
         $comuna = new Comuna($slug, ucfirst($slug), 'Descrição de '.$slug, 'São Paulo · SP', $visibility, 'red', ['comun'], 2024, new \DateTimeImmutable());
         $comuna->addRule('Respeito sempre', 'Sem ataques pessoais.');
         $this->em()->persist($comuna);
         $this->em()->flush();
+        if (null !== $owner) {
+            $this->addMember($comuna, $owner, ComunaRole::Founder);
+        }
 
         return $comuna;
     }
 
+    /** Com ComunaRole::Founder, a pessoa vira também a proprietária (comuna.owner), como no app. */
     protected function addMember(Comuna $comuna, User $user, ComunaRole $role = ComunaRole::Member): void
     {
+        if (ComunaRole::Founder === $role) {
+            $comuna->changeOwner($user);
+        }
         $this->em()->persist(new ComunaMembership($comuna, $user, $role, new \DateTimeImmutable()));
         $this->em()->flush();
+        $this->em()->getRepository(Comuna::class)->adjustMemberCount($comuna, +1);
     }
 
     protected function createPost(User $author, ?Comuna $comuna, string $body = 'Publicação de teste'): Post

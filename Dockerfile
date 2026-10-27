@@ -42,6 +42,7 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-pr
 
 COPY . .
 RUN rm -f .env.local .env.*.local \
+    && chmod +x docker/start.sh \
     && composer dump-autoload --classmap-authoritative --no-dev \
     && composer dump-env prod \
     && php bin/console cache:warmup \

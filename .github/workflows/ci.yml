@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  ci:
+    name: Qualidade e testes
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18.6-alpine
+        env:
+          POSTGRES_DB: popularia
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: pdo_pgsql, intl, opcache, zip, apcu
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Instalar dependências
+        run: composer install --no-progress --no-scripts
+
+      - name: Verificar estilo de código
+        run: composer cs
+
+      - name: Análise estática (PHPStan)
+        run: composer stan
+
+      - name: Testes
+        env:
+          # A suíte usa o sufixo _test → banco efetivo: popularia_test
+          # postgres é superusuário e pode executar CREATE EXTENSION (unaccent, pg_trgm).
+          DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/popularia?serverVersion=18&charset=utf8"
+          APP_SECRET: "ci-secret-not-for-production-00000000000000"
+        run: composer test
+
+      - name: Auditoria de dependências
+        run: composer audit

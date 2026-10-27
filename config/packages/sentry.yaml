@@ -1,0 +1,34 @@
+# Sentry: rastreamento de erros e exceções.
+#
+# DSN vazio desabilita o Sentry (dev local, testes).
+# Em staging e production, definir no Railway:
+#   SENTRY_DSN          = DSN do projeto (obtido no dashboard Sentry)
+#   SENTRY_ENVIRONMENT  = "staging" ou "production"
+#   SENTRY_RELEASE      = SHA do commit ($RAILWAY_GIT_COMMIT_SHA no CI)
+#
+# Ver docs/observability.md para detalhes e ações manuais necessárias.
+sentry:
+    dsn: '%env(default::SENTRY_DSN)%'
+    options:
+        environment: '%env(default::SENTRY_ENVIRONMENT)%'
+        release: '%env(default::SENTRY_RELEASE)%'
+
+        # Privacidade: não coletar IP, e-mail, user-agent por padrão.
+        send_default_pii: false
+
+        # Não enviar corpo da requisição (pode conter conteúdo privado da Praça, senhas, etc.).
+        max_request_body_size: 'never'
+
+        # Performance monitoring desabilitado: o objetivo é erro/crash, não APM.
+        traces_sample_rate: 0.0
+        profiles_sample_rate: 0.0
+
+        # Session replay: desabilitado (conteúdo político sensível).
+        # enable_tracing: false (padrão)
+
+        # Filtro: descarta 4xx esperados, adiciona request_id como tag.
+        before_send: '@App\Sentry\SentryBeforeSend'
+
+        # Cabeçalhos sempre excluídos do contexto HTTP capturado.
+        ignored_exceptions:
+            - 'Symfony\Component\Security\Core\Exception\AuthenticationException'

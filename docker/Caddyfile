@@ -10,8 +10,21 @@
 	root * /app/public
 	encode zstd gzip
 
-	# Limite de tamanho do corpo das requisições (a API só recebe JSON pequeno).
-	request_body {
+	# Somente o envio de PDF aceita o envelope maior; JSON mantém o limite anterior.
+	@library_upload {
+		path /api/v1/library/documents
+		method POST
+	}
+	@other_requests {
+		not {
+			path /api/v1/library/documents
+			method POST
+		}
+	}
+	request_body @library_upload {
+		max_size 27MB
+	}
+	request_body @other_requests {
 		max_size 1MB
 	}
 

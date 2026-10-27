@@ -52,6 +52,7 @@ final readonly class Me
         public string $platformRole,
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $updatedAt,
+        public bool $isPrivate = false,
     ) {
     }
 
@@ -69,6 +70,7 @@ final readonly class Me
             $user->getPlatformRole()->value,
             $user->getCreatedAt(),
             $user->getUpdatedAt(),
+            $user->isPrivate(),
         );
     }
 }

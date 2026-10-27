@@ -52,6 +52,7 @@ final readonly class SquareQueries
         if ([] === $ids) {
             return [];
         }
+
         /** @var list<SquareMessage> */
         return $this->em->createQueryBuilder()->select('m', 'a', 's', 'p', 'pa', 'ps')->from(SquareMessage::class, 'm')
             ->join('m.author', 'a')->leftJoin('m.sticker', 's')->leftJoin('m.replyTo', 'p')->leftJoin('p.author', 'pa')->leftJoin('p.sticker', 'ps')

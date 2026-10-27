@@ -12,6 +12,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 /** Campos que a pessoa pode mudar no próprio perfil. Null = não mudar; "" em bio/cidade = apagar. */
 final class MeUpdate
 {
+    public ?bool $isPrivate = null;
+
     #[Assert\NotBlank(message: 'Preencha seu nome.', allowNull: true)]
     #[Assert\Length(max: User::DISPLAY_NAME_MAX_LENGTH, maxMessage: 'Use até {{ limit }} caracteres.')]
     #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]

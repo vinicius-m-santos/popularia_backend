@@ -39,6 +39,7 @@ final readonly class PublicProfile
         public string $bio,
         public ?string $city,
         public \DateTimeImmutable $memberSince,
+        public bool $isPrivate = false,
     ) {
     }
 
@@ -51,6 +52,7 @@ final readonly class PublicProfile
             $user->getBio(),
             $user->getCity(),
             $user->getCreatedAt(),
+            $user->isPrivate(),
         );
     }
 }

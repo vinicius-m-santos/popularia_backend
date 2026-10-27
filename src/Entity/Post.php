@@ -55,6 +55,10 @@ class Post
         $this->createdAt = $now;
     }
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
+    public ?LibraryDocument $libraryDocument = null;
+
     public function setTopic(?Topic $topic): void
     {
         if (null !== $this->comuna && null !== $topic) {

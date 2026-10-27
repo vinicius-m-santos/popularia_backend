@@ -140,3 +140,5 @@ rodando como `www-data`. Antes de publicar, siga o checklist de [docs/configurac
 (segredos, proxies confiáveis, e-mail, retenção validada juridicamente, backups).
 
 Praça V1: arquitetura, privacidade, endpoints e execução em [docs/praca.md](docs/praca.md).
+
+Biblioteca V1: modelo, autorização, upload/S3, API, lifecycle, configuração e limitações de validação em [docs/biblioteca.md](docs/biblioteca.md).

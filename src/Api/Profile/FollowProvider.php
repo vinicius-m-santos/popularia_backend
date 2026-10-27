@@ -31,6 +31,8 @@ final readonly class FollowProvider implements ProviderInterface
             throw ApiProblem::notFound('Perfil não encontrado.');
         }
 
-        return new FollowView(null !== $this->follows->findFollow($me, $target));
+        $follow = $this->follows->findFollow($me, $target);
+
+        return new FollowView($follow?->isApproved() ?? false, null !== $follow && !$follow->isApproved());
     }
 }

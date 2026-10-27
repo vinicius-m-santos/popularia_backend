@@ -34,7 +34,7 @@ class UserFollowRepository extends ServiceEntityRepository
         }
         /** @var list<array{followed: string}> $rows */
         $rows = $this->createQueryBuilder('f')->select('IDENTITY(f.followed) AS followed')
-            ->where('f.follower = :viewer AND f.followed IN (:people)')
+            ->where('f.follower = :viewer AND f.followed IN (:people) AND f.approved = true')
             ->setParameter('viewer', $viewer)->setParameter('people', $people)
             ->getQuery()->getArrayResult();
 

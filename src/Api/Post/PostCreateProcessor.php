@@ -25,6 +25,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
         private CurrentUser $currentUser,
         private ComunaRepository $comunas,
         private ContentPolicy $policy,
+        private \App\Library\LibraryAccess $library,
         private PostViews $views,
         private RateLimitGuard $rateLimit,
         private EntityManagerInterface $em,
@@ -34,22 +35,30 @@ final readonly class PostCreateProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): PostView
     {
-        $author = $this->currentUser->get();
-        $comuna = null;
-        if (null !== $data->comunaId) {
-            $comuna = $this->comunas->find(Uuid::fromString($data->comunaId)) ?? throw ApiProblem::notFound('Comuna não encontrada.');
-        }
-        if (null !== $comuna && null !== $data->topic) {
-            throw ApiProblem::badRequest('/errors/inherited-topic', 'O assunto é herdado da comuna.');
-        }
-        $this->policy->assertCanPostIn($comuna, $author);
-        $this->rateLimit->consume('content_creation', $author->getUserIdentifier());
+        return $this->em->getConnection()->transactional(function () use ($data): PostView {
+            $author = $this->currentUser->get();
+            $comuna = null;
+            if (null !== $data->comunaId) {
+                $comuna = $this->comunas->find(Uuid::fromString($data->comunaId)) ?? throw ApiProblem::notFound('Comuna não encontrada.');
+            }
+            if (null !== $comuna && null !== $data->topic) {
+                throw ApiProblem::badRequest('/errors/inherited-topic', 'O assunto é herdado da comuna.');
+            }
+            $this->policy->assertCanPostIn($comuna, $author);
+            $this->rateLimit->consume('content_creation', $author->getUserIdentifier());
 
-        $post = new Post($author, $comuna, TextNormalizer::normalize($data->body), $this->clock->now());
-        $post->setTopic(null === $data->topic ? null : Topic::from($data->topic));
-        $this->em->persist($post);
-        $this->em->flush();
+            $post = new Post($author, $comuna, TextNormalizer::normalize($data->body), $this->clock->now());
+            $post->setTopic(null === $data->topic ? null : Topic::from($data->topic));
+            if (null !== $data->documentId) {
+                $document = $this->library->find($data->documentId);
+                $this->em->refresh($document, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
+                $this->library->assertRead($document, $author);
+                $post->libraryDocument = $document;
+            }
+            $this->em->persist($post);
+            $this->em->flush();
 
-        return $this->views->one($post, $author);
+            return $this->views->one($post, $author);
+        });
     }
 }

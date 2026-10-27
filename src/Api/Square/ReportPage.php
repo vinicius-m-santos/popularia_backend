@@ -21,7 +21,6 @@ use App\Api\Comuna\ComunaView;
             provider: SquareProvider::class,
             openapi: new Operation(tags: ['Praças'], summary: 'Fila paginada de denúncias da comuna; só moderação.', parameters: [new Parameter('cursor', 'query', 'nextCursor da página anterior.'), new Parameter('limit', 'query', '1..50; padrão 20.', schema: ['type' => 'integer'])]),
         ),
-
     ],
 )]
 final readonly class ReportPage

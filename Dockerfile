@@ -8,7 +8,7 @@ FROM dunglas/frankenphp:1.13-php8.4 AS base
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git unzip \
+    && apt-get install -y --no-install-recommends git unzip qpdf coreutils util-linux \
     && rm -rf /var/lib/apt/lists/*
 
 RUN install-php-extensions \

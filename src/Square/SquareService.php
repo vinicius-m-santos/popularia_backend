@@ -201,7 +201,7 @@ final readonly class SquareService
         $comuna = $this->comunas->findOneBySlug($slug) ?? throw ApiProblem::notFound();
         $this->access->moderation->assertModerator($comuna, $actor);
         $report = Uuid::isValid($reportId) ? $this->em->find(ContentReport::class, Uuid::fromString($reportId)) : null;
-        if (null === $report || !$report->comuna->getId()->equals($comuna->getId())) {
+        if (null === $report || 'square_message' !== $report->targetType || null === $report->comuna || !$report->comuna->getId()->equals($comuna->getId())) {
             throw ApiProblem::notFound();
         }
         $message = $this->em->find(SquareMessage::class, $report->targetId) ?? throw ApiProblem::notFound();
@@ -224,6 +224,7 @@ final readonly class SquareService
 
     /** @template T
      * @param callable(Square): T $callback
+     *
      * @return T
      */
     private function mutate(string $id, callable $callback): mixed

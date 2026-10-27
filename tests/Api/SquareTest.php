@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use App\Entity\Square;
-use App\Tests\ApiTestCase;
 use App\Enum\ComunaRole;
 use App\Enum\ComunaVisibility;
+use App\Tests\ApiTestCase;
 
 /** HTTP real: autorização, privacidade e reconciliação do contrato usado pelos dois aparelhos. */
 final class SquareTest extends ApiTestCase
@@ -309,6 +309,7 @@ final class SquareTest extends ApiTestCase
         $this->send(extra: ['authorId' => 'untrusted']);
         $this->assertStatus(400);
     }
+
     public function testCrossSquareReactionClosedInteractionAndRateLimitAreEnforced(): void
     {
         $foreign = $this->send($this->privateId);
@@ -328,5 +329,4 @@ final class SquareTest extends ApiTestCase
         $this->send($this->privateId, $this->ownerToken);
         $this->assertStatus(429);
     }
-
 }

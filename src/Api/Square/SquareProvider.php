@@ -54,7 +54,7 @@ final readonly class SquareProvider implements ProviderInterface
         if ('square_reports' === $name) {
             $comuna = $this->comunas->findOneBySlug((string) $uriVariables['slug']) ?? throw ApiProblem::notFound();
             $this->access->moderation->assertModerator($comuna, $viewer);
-            $qb = $this->em->createQueryBuilder()->select('r')->from(ContentReport::class, 'r')->where('r.comuna = :comuna')->andWhere('r.status = :status')->setParameter('comuna', $comuna)->setParameter('status', 'pending')->orderBy('r.id', 'DESC')->setMaxResults($page->limit + 1);
+            $qb = $this->em->createQueryBuilder()->select('r')->from(ContentReport::class, 'r')->where("r.comuna = :comuna AND r.targetType = 'square_message'")->andWhere('r.status = :status')->setParameter('comuna', $comuna)->setParameter('status', 'pending')->orderBy('r.id', 'DESC')->setMaxResults($page->limit + 1);
             if (null !== $page->cursor) {
                 $qb->andWhere('r.id < :cursor')->setParameter('cursor', $page->cursor, 'uuid');
             }

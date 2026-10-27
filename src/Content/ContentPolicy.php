@@ -32,6 +32,7 @@ final readonly class ContentPolicy
         private ComunaMembershipRepository $memberships,
         private UserBlockRepository $blocks,
         private PostRepository $posts,
+        private \App\Repository\UserFollowRepository $follows,
     ) {
     }
 
@@ -65,6 +66,9 @@ final readonly class ContentPolicy
             return false;
         }
         $comuna = $post->getComuna();
+        if (null === $comuna && $post->getAuthor()->isPrivate() && (null === $viewer || (!$viewer->getId()->equals($post->getAuthor()->getId()) && !($this->follows->findFollow($viewer, $post->getAuthor())?->isApproved() ?? false)))) {
+            return false;
+        }
         if (null !== $comuna && !$this->canReadComuna($comuna, $viewer)) {
             return false;
         }

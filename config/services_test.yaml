@@ -1,0 +1,4 @@
+services:
+    App\Tests\Library\MemoryStorage:
+        public: true
+    App\Library\ObjectStorage: '@App\Tests\Library\MemoryStorage'

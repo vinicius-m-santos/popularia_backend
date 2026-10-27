@@ -44,7 +44,10 @@ final readonly class FollowProcessor implements ProcessorInterface
 
         return $this->em->getConnection()->transactional(function () use ($me, $target, $operation): ?FollowView {
             // Serializes repeat taps/requests before deciding whether an actual new follow exists.
-            $this->follows->lockFollower($me);
+            $ids = [$me->getId()->toRfc4122(), $target->getId()->toRfc4122()];
+            sort($ids);
+            $this->em->getConnection()->executeQuery('SELECT id FROM app_user WHERE id IN (?, ?) ORDER BY id FOR NO KEY UPDATE', $ids)->fetchAllAssociative();
+            $this->em->refresh($target);
             $follow = $this->follows->findFollow($me, $target);
             if ($operation instanceof Delete) {
                 if (null !== $follow) {
@@ -55,13 +58,15 @@ final readonly class FollowProcessor implements ProcessorInterface
                 return null;
             }
             if (null === $follow) {
-                $follow = new UserFollow($me, $target, $this->clock->now());
+                $follow = new UserFollow($me, $target, $this->clock->now(), !$target->isPrivate());
                 $this->em->persist($follow);
-                $this->notifications->followed($follow, $me, $target);
+                if ($follow->isApproved()) {
+                    $this->notifications->followed($follow, $me, $target);
+                }
                 $this->em->flush();
             }
 
-            return new FollowView(true);
+            return new FollowView($follow->isApproved(), !$follow->isApproved());
         });
     }
 }

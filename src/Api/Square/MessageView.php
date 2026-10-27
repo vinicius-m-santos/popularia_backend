@@ -70,8 +70,8 @@ final readonly class MessageView
 {
     /** @param array<string, string>|null $sticker
      * @param array{id: string, author: ?AuthorView, body: ?string, status: string}|null $replyTo
-     * @param list<array{emoji: string, count: int, mine: bool}> $reactions
-     * @param array<string, bool> $viewer
+     * @param list<array{emoji: string, count: int, mine: bool}>                         $reactions
+     * @param array<string, bool>                                                        $viewer
      */
     public function __construct(
         #[ApiProperty(identifier: true)]

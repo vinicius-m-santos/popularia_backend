@@ -47,7 +47,7 @@ use ApiPlatform\OpenApi\Model\Operation;
 )]
 final readonly class FollowView
 {
-    public function __construct(public bool $following)
+    public function __construct(public bool $following, public bool $requested = false)
     {
     }
 }

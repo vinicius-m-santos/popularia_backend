@@ -33,6 +33,7 @@ final class RateLimitGuard
             'handle_check' => new Autowire(service: 'limiter.handle_check'),
             'square_message' => new Autowire(service: 'limiter.square_message'),
             'square_interaction' => new Autowire(service: 'limiter.square_interaction'),
+            'library_upload' => new Autowire(service: 'limiter.library_upload'),
             'content_creation' => new Autowire(service: 'limiter.content_creation'),
             'comuna_name_check' => new Autowire(service: 'limiter.comuna_name_check'),
             'comuna_join_request' => new Autowire(service: 'limiter.comuna_join_request'),

@@ -32,6 +32,8 @@ final readonly class DiscoveryProvider implements ProviderInterface
         private PostViews $posts,
         private UserFollowRepository $follows,
         private UserBlockRepository $blocks,
+        private \App\Library\LibraryQueries $libraryQueries,
+        private \App\Library\LibraryViews $libraryViews,
     ) {
     }
 
@@ -48,14 +50,14 @@ final readonly class DiscoveryProvider implements ProviderInterface
         $search = $operation instanceof HttpOperation && '/search' === $operation->getUriTemplate();
         $term = trim((string) $query?->get('q', ''));
         $type = (string) $query?->get('type', 'all');
-        if (!\in_array($type, ['all', 'comunas', 'people', 'posts'], true) || (null !== $topic && 'people' === $type)) {
+        if (!\in_array($type, ['all', 'comunas', 'people', 'posts', 'documents'], true) || (null !== $topic && 'people' === $type)) {
             throw ApiProblem::badRequest('/errors/invalid-search-type', 'Filtro de busca inválido.');
         }
         // q vazio permite "Ver todas"; um termo curto nunca dispara uma varredura textual.
         if ($search && '' !== $term && (mb_strlen(ltrim($term, '@')) < 3 || mb_strlen($term) > 100 || !preg_match('/[\pL\pN]{3}/u', $term))) {
             throw ApiProblem::badRequest('/errors/invalid-search-query', 'Use de 3 a 100 caracteres e pelo menos três letras ou números seguidos.');
         }
-        $page = Pagination::fromContext($context);
+        $page = 'documents' === $type ? \App\Library\LibraryCursor::fromContext($context) : Pagination::fromContext($context);
         if ($search && 'all' === $type && null !== $page->cursor) {
             throw ApiProblem::badRequest('/errors/invalid-cursor', 'Escolha uma categoria antes de paginar.');
         }
@@ -91,6 +93,15 @@ final readonly class DiscoveryProvider implements ProviderInterface
             $recent = $this->posts->many(\array_slice($rows, 0, 5), $viewer);
         }
 
-        return new DiscoveryView(array_map(TopicView::fromTopic(...), Topic::cases()), $comunas, $people, $posts, $recent, $next);
+        $documents = [];
+        if ($search && in_array($type, ['all', 'documents'], true)) {
+            $libraryRequest = new Request(['scope' => 'public', 'q' => $term, 'topic' => $topic ?? '', 'limit' => (string) $limit, 'cursor' => $page->cursor?->toRfc4122() ?? '']);
+            $libraryRequest->attributes->set('library_rank', $request instanceof Request ? $request->attributes->get('library_rank') : null);
+            [$libraryRows, $libraryNext] = $this->libraryQueries->documents($viewer, $libraryRequest, Pagination::fromContext(['request' => $libraryRequest]));
+            $documents = $this->libraryViews->many($libraryRows, $viewer);
+            $next['documents'] = $libraryNext;
+        }
+
+        return new DiscoveryView(array_map(TopicView::fromTopic(...), Topic::cases()), $comunas, $people, $posts, $recent, $next, $documents);
     }
 }

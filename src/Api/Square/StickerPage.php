@@ -32,7 +32,6 @@ use ApiPlatform\OpenApi\Model\Operation;
             output: StickerPage::class,
             openapi: new Operation(tags: ['Praças'], summary: 'Adiciona figurinha simbólica da comuna (moderação, até 40).'),
         ),
-
     ],
 )]
 final readonly class StickerPage

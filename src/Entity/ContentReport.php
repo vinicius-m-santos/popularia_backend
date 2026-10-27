@@ -28,8 +28,8 @@ class ContentReport
 
     public function __construct(
         #[ORM\ManyToOne]
-        #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-        public Comuna $comuna,
+        #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+        public ?Comuna $comuna,
         #[ORM\ManyToOne]
         #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
         public User $reporter,

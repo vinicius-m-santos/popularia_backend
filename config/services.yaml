@@ -21,3 +21,5 @@ services:
             - '../src/Kernel.php'
             - '../src/Entity/'
             - '../src/Enum/'
+
+    App\Library\ObjectStorage: '@App\Library\S3Storage'

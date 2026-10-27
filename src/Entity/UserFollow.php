@@ -28,11 +28,33 @@ class UserFollow
         private User $followed,
         #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
         private \DateTimeImmutable $createdAt,
+        #[ORM\Column(options: ['default' => true])]
+        private bool $approved = true,
     ) {
         if ($follower->getId()->equals($followed->getId())) {
             throw new \InvalidArgumentException('Não é possível seguir a própria conta.');
         }
         $this->id = Uuid::v7();
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->approved;
+    }
+
+    public function approve(): void
+    {
+        $this->approved = true;
+    }
+
+    public function getFollower(): User
+    {
+        return $this->follower;
+    }
+
+    public function getFollowed(): User
+    {
+        return $this->followed;
     }
 
     public function getId(): Uuid

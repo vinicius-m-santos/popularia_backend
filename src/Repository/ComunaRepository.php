@@ -85,6 +85,9 @@ class ComunaRepository extends ServiceEntityRepository
      */
     public function hasContentBlockingDeletion(Comuna $comuna, User $owner): bool
     {
+        if (false !== $this->getEntityManager()->getConnection()->executeQuery('SELECT id FROM library_document WHERE comuna_id = ? LIMIT 1', [$comuna->getId()->toRfc4122()])->fetchOne()) {
+            return true;
+        }
         $em = $this->getEntityManager();
         $queries = [
             $em->createQueryBuilder()->select('1')->from(Post::class, 'x')->where('x.comuna = :comuna'),

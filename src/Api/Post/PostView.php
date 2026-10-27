@@ -79,6 +79,8 @@ final readonly class PostView
         public int $commentCount,
         public array $viewer,
         public ?string $topic = null,
+        #[ApiProperty(readableLink: true)]
+        public ?\App\Api\Library\DocumentView $document = null,
     ) {
     }
 }

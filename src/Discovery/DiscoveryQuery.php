@@ -56,6 +56,7 @@ final readonly class DiscoveryQuery
         } else {
             $from = 'post x JOIN app_user a ON a.id = x.author_id LEFT JOIN comuna c ON c.id = x.comuna_id';
             $where = "x.status = 'published' AND a.status = 'active' AND ".$blocked('a.id')
+                .' AND (c.id IS NOT NULL OR NOT a.is_private OR a.id = :viewer OR EXISTS (SELECT 1 FROM user_follow pf WHERE pf.follower_id = :viewer AND pf.followed_id = a.id AND pf.approved))'
                 ." AND (c.id IS NULL OR (c.status = 'active' AND (c.visibility = 'public' OR $member)))";
             $text = 'x.body';
             if (null !== $topic) {
@@ -97,11 +98,13 @@ final readonly class DiscoveryQuery
         }
         $qb = $this->em->createQueryBuilder()->select('e')->from($class, 'e')->where('e.id IN (:ids)')->setParameter('ids', $ids);
         if (Post::class === $class) {
+            $qb->addSelect('ld', 'lf', 'lc', 'lu')->leftJoin('e.libraryDocument', 'ld')->leftJoin('ld.file', 'lf')->leftJoin('ld.collection', 'lc')->leftJoin('lf.uploadedBy', 'lu')->addSelect('lou', 'loc')->leftJoin('ld.user', 'lou')->leftJoin('ld.comuna', 'loc');
             $qb->addSelect('author', 'comuna')->join('e.author', 'author')->leftJoin('e.comuna', 'comuna');
             // Entre selecionar IDs e hidratar, uma remoção/revogação pode ter ocorrido.
             // Revalida em lote, na própria consulta que lê o texto (sem N+1).
             $memberOf = sprintf('SELECT IDENTITY(hm.comuna) FROM %s hm WHERE hm.user = :hydrateViewer', ComunaMembership::class);
             $qb->andWhere("e.status = 'published' AND author.status = 'active'")
+                ->andWhere('comuna.id IS NOT NULL OR author.isPrivate = false OR author = :hydrateViewer OR EXISTS (SELECT hpf.id FROM \App\Entity\UserFollow hpf WHERE hpf.follower = :hydrateViewer AND hpf.followed = author AND hpf.approved = true)')
                 ->andWhere("comuna.id IS NULL OR (comuna.status = 'active' AND (comuna.visibility = 'public' OR comuna.id IN ($memberOf)))")
                 ->setParameter('hydrateViewer', $viewer);
             UserBlockRepository::excludeBlocked($qb, 'author', $viewer);

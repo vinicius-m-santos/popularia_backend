@@ -100,6 +100,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return mb_strtolower(trim($handle));
     }
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isPrivate = false;
+
+    public function isPrivate(): bool
+    {
+        return $this->isPrivate;
+    }
+
+    public function setPrivate(bool $private, \DateTimeImmutable $now): void
+    {
+        $this->isPrivate = $private;
+        $this->updatedAt = $now;
+    }
+
     public function getId(): Uuid
     {
         return $this->id;

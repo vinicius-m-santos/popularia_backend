@@ -21,6 +21,7 @@ final readonly class PostViews
     public function __construct(
         private ComunaMembershipRepository $memberships,
         private ComunaModerationPolicy $moderation,
+        private \App\Library\LibraryViews $library,
     ) {
     }
 
@@ -39,7 +40,13 @@ final readonly class PostViews
         $comunas = array_values(array_filter(array_map(static fn (Post $p) => $p->getComuna(), $posts)));
         $memberOf = null === $viewer ? [] : $this->memberships->findForComunas($viewer, $comunas);
 
-        return array_map(function (Post $post) use ($viewer, $memberOf): PostView {
+        $documents = array_values(array_filter(array_map(static fn (Post $p) => $p->libraryDocument, $posts)));
+        $documentViews = [];
+        foreach ($this->library->many($documents, $viewer) as $view) {
+            $documentViews[$view->id] = $view;
+        }
+
+        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews): PostView {
             $comuna = $post->getComuna();
             $membership = null === $comuna ? null : ($memberOf[$comuna->getId()->toRfc4122()] ?? null);
             $isAuthor = null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());
@@ -57,6 +64,7 @@ final readonly class PostViews
                 $post->getCommentCount(),
                 ['isAuthor' => $isAuthor, 'canComment' => $canComment, 'canDelete' => $isAuthor, 'canRemove' => $canRemove],
                 $post->getTopic(),
+                null === $post->libraryDocument ? null : ($documentViews[$post->libraryDocument->id->toRfc4122()] ?? null),
             );
         }, $posts);
     }

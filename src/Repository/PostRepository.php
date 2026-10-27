@@ -95,7 +95,8 @@ class PostRepository extends ServiceEntityRepository
     private function visible(?User $viewer, ?Uuid $before, int $limit): QueryBuilder
     {
         $qb = $this->createQueryBuilder('p')
-            ->addSelect('a', 'c')
+            ->addSelect('a', 'c', 'ld', 'lf', 'lc', 'lu')
+            ->leftJoin('p.libraryDocument', 'ld')->leftJoin('ld.file', 'lf')->leftJoin('ld.collection', 'lc')->leftJoin('lf.uploadedBy', 'lu')->addSelect('lou', 'loc')->leftJoin('ld.user', 'lou')->leftJoin('ld.comuna', 'loc')
             ->join('p.author', 'a')
             ->leftJoin('p.comuna', 'c')
             ->where('p.status = :published')
@@ -104,6 +105,11 @@ class PostRepository extends ServiceEntityRepository
             ->setParameter('active', AccountStatus::Active)
             ->orderBy('p.id', 'DESC')
             ->setMaxResults($limit + 1);
+        if (null === $viewer) {
+            $qb->andWhere('c.id IS NOT NULL OR a.isPrivate = false');
+        } else {
+            $qb->andWhere('c.id IS NOT NULL OR a.isPrivate = false OR a = :privacyViewer OR EXISTS (SELECT pf.id FROM \App\Entity\UserFollow pf WHERE pf.follower = :privacyViewer AND pf.followed = a AND pf.approved = true)')->setParameter('privacyViewer', $viewer);
+        }
         if (null !== $before) {
             $qb->andWhere('p.id < :before')->setParameter('before', $before, 'uuid');
         }

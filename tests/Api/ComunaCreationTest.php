@@ -67,7 +67,6 @@ final class ComunaCreationTest extends ApiTestCase
         $immediate = $this->request('GET', '/comunas/'.$comuna['slug'].'/square', token: $token);
         $this->assertStatus(200);
         self::assertSame($square->id->toRfc4122(), $immediate['id']);
-
     }
 
     public function testClientCannotChooseOwnerSlugStatusOrCounters(): void

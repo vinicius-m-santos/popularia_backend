@@ -103,8 +103,8 @@ final class UploadTest extends ApiTestCase
         self::assertSame(1, $first['pageCount']);
         self::assertSame(1, $this->em()->getRepository(LibraryDocument::class)->count([]));
         $this->client->request('GET', '/api/v1/library/documents/'.$first['id'].'/file', server: ['HTTP_AUTHORIZATION' => 'Bearer '.$token]);
-        $this->assertStatus(200);
-        self::assertSame('application/pdf', $this->client->getResponse()->headers->get('Content-Type'));
+        $this->assertStatus(302);
+        self::assertNotEmpty($this->client->getResponse()->headers->get('Location'));
         self::assertStringContainsString('no-store', $this->client->getResponse()->headers->get('Cache-Control') ?? '');
     }
 

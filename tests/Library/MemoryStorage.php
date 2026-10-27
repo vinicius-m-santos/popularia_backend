@@ -40,6 +40,13 @@ final class MemoryStorage implements ObjectStorage
         return $stream;
     }
 
+    public function signedUrl(string $key, int $ttl): string
+    {
+        $expires = (string) (time() + $ttl);
+
+        return 'https://storage.test/'.rawurlencode($key).'?expires='.$expires;
+    }
+
     public function delete(string $key): void
     {
         unset(self::$objects[$key]);

@@ -7,36 +7,28 @@ namespace App\Api\Library;
 use App\Library\LibraryAccess;
 use App\Library\ObjectStorage;
 use App\Security\CurrentUser;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
 #[AsController]
 final readonly class DownloadController
 {
+    /** TTL da URL assinada em segundos. Curto o suficiente para tornar revogação prática. */
+    private const int SIGNED_URL_TTL = 300;
+
     public function __construct(private CurrentUser $user, private LibraryAccess $access, private ObjectStorage $storage)
     {
     }
 
-    public function __invoke(string $id): StreamedResponse
+    public function __invoke(string $id): RedirectResponse
     {
         $document = $this->access->find($id);
         $this->access->assertRead($document, $this->user->get());
-        $stream = $this->storage->read($document->file->storageKey);
+        $url = $this->storage->signedUrl($document->file->storageKey, self::SIGNED_URL_TTL);
 
-        return new StreamedResponse(static function () use ($stream): void {
-            try {
-                fpassthru($stream);
-            } finally {
-                fclose($stream);
-            }
-        }, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="documento.pdf"',
-            'Content-Length' => (string) $document->file->byteSize,
+        return new RedirectResponse($url, 302, [
             'Cache-Control' => 'private, no-store, max-age=0',
             'Pragma' => 'no-cache',
-            'X-Content-Type-Options' => 'nosniff',
-            'Content-Security-Policy' => "sandbox; default-src 'none'",
         ]);
     }
 }

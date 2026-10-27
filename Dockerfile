@@ -49,3 +49,4 @@ RUN rm -f .env.local .env.*.local \
     && chown -R www-data:www-data var /data/caddy /config/caddy
 
 USER www-data
+CMD ["sh", "/app/docker/start.sh"]

@@ -198,7 +198,7 @@ Executa em batches de até 100 objetos por execução. Idempotente — tolera ob
 
 Documentos soft-deleted (`status=deleted` ou `status=removed`) continuam com o objeto físico no storage. O acesso ao objeto é negado pelo backend (a lógica de autorização recusa para documentos não-publicados).
 
-Política atual de retenção física: indefinida (objeto nunca removido pelo purge para documentos deleted/removed). Implementar remoção física futuramente se necessário via nova query no purge command ou lifecycle rule no R2.
+Atualização pré-beta (27/10/2026): documentos `deleted` ficam elegíveis ao purge após 24h. PDFs pessoais de contas excluídas entram em `purge_pending` imediatamente. O purge nunca apaga arquivo ainda referenciado por documento `published` ou `removed`. Conteúdo `removed` tem retenção para apuração ainda pendente de prazo; não prometer expiração automática. Ver [exclusão de conta](account-deletion.md).
 
 ## Agendamento do Purge
 

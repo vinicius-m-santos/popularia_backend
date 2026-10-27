@@ -37,7 +37,7 @@ final readonly class SentryUserSubscriber
         }
 
         SentrySdk::getCurrentHub()->configureScope(static function (Scope $scope) use ($user): void {
-            $scope->setUser(['id' => (string) $user->getId()]);
+            $scope->setUser(['id' => (string) $user->getId(), 'ip_address' => '0.0.0.0']);
         });
     }
 }

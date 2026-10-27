@@ -43,6 +43,22 @@ final readonly class SentryBeforeSend
             $event->setTag('request_id', $requestId);
         }
 
+        $request = $event->getRequest();
+        $request = array_intersect_key($request, array_flip(['url', 'method']));
+        if (isset($request['url']) && is_string($request['url'])) {
+            $request['url'] = preg_replace('~[?#].*$~', '', $request['url']);
+            $request['url'] = preg_replace('~/webhooks/brevo/[^/]+~', '/webhooks/brevo/[redacted]', $request['url'] ?? '');
+        }
+        $event->setRequest($request);
+        $event->setUser(\Sentry\UserDataBag::createFromArray(array_filter(['id' => $event->getUser()?->getId(), 'ip_address' => '0.0.0.0'])));
+        $event->setExtra([]);
+        $event->setBreadcrumb([]);
+        foreach ($event->getExceptions() as $error) {
+            if (preg_match('/Doctrine|PDO|Postgre|HttpClient/', $error->getType())) {
+                $error->setValue('Operational failure; sensitive details omitted.');
+            }
+        }
+
         return $event;
     }
 }

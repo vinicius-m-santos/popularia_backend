@@ -69,10 +69,14 @@ final class JwksClient
     {
         try {
             if ('RSA' === $jwk['kty']) {
-                return InMemory::plainText($this->rsaJwkToPem($jwk));
+                $pem = $this->rsaJwkToPem($jwk);
+
+                return '' === $pem ? null : InMemory::plainText($pem);
             }
             if ('EC' === $jwk['kty']) {
-                return InMemory::plainText($this->ecJwkToPem($jwk));
+                $pem = $this->ecJwkToPem($jwk);
+
+                return '' === $pem ? null : InMemory::plainText($pem);
             }
         } catch (\Throwable) {
             // JWK malformado: ignorar esta chave.
@@ -87,16 +91,7 @@ final class JwksClient
         $n = $this->base64UrlDecode((string) $jwk['n']);
         $e = $this->base64UrlDecode((string) $jwk['e']);
 
-        $key = openssl_pkey_get_public([
-            'n' => $n,
-            'e' => $e,
-        ]);
-
-        if (false === $key) {
-            // PHP 8.x: openssl_pkey_get_public(['n'=>...,'e'=>...]) não é suportado diretamente.
-            // Usamos openssl_pkey_get_public com DER construído manualmente.
-            $key = openssl_pkey_get_public($this->rsaToPem($n, $e));
-        }
+        $key = openssl_pkey_get_public($this->rsaToPem($n, $e));
 
         if (false === $key) {
             throw new \RuntimeException('Falha ao construir chave RSA do JWK.');
@@ -139,7 +134,7 @@ final class JwksClient
         $bytes = '';
         $tmp = $len;
         while ($tmp > 0) {
-            $bytes = chr($tmp & 0xff).$bytes;
+            $bytes = chr($tmp & 0xFF).$bytes;
             $tmp >>= 8;
         }
 

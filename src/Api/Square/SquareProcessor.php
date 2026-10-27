@@ -13,14 +13,14 @@ use App\Square\SquareQueries;
 use App\Square\SquareService;
 use App\Square\SquareViews;
 
-/** @implements ProcessorInterface<MessageInput|ReadInput|StickerInput|ReportDecisionInput|ContentRemovalInput|null, SquareView|MessageView|PresenceView|StickerPage|null> */
+/** @implements ProcessorInterface<MessageInput|ReadInput|StickerInput|ReportDecisionInput|ContentRemovalInput|null, MessageView|PresenceView|StickerPage|null> */
 final readonly class SquareProcessor implements ProcessorInterface
 {
     public function __construct(private CurrentUser $currentUser, private SquareService $service, private SquareAccess $access, private SquareViews $views, private SquareQueries $queries)
     {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): SquareView|MessageView|PresenceView|StickerPage|null
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): MessageView|PresenceView|StickerPage|null
     {
         $actor = $this->currentUser->get();
         $id = (string) ($uriVariables['id'] ?? '');

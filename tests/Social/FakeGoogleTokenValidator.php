@@ -28,6 +28,7 @@ class FakeGoogleTokenValidator implements ProviderTokenValidatorInterface
         $name = $parts[4] ?? null;
 
         return new ProviderClaims(
+            issuedAt: new \DateTimeImmutable(),
             subject: $sub,
             email: '' !== $email ? $email : null,
             emailVerified: '1' === $emailVerified,

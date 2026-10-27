@@ -34,6 +34,7 @@ final readonly class SquareService
     public function __construct(
         private EntityManagerInterface $em,
         private SquareAccess $access,
+        private \App\Content\RemovedContentFilter $filter,
         private ComunaRepository $comunas,
         private ClockInterface $clock,
         private RateLimitGuard $rateLimit,
@@ -51,9 +52,10 @@ final readonly class SquareService
             if (null !== $existing) {
                 return $existing;
             }
+            $this->filter->assertText($input->body ?? '', $comuna);
             $body = null === $input->body ? null : TextNormalizer::normalize($input->body);
             $body = '' === $body ? null : $body;
-            if ((null === $body || '' === $body) === (null === $input->stickerId)) {
+            if ((null === $body) === (null === $input->stickerId)) {
                 throw new ApiProblem(422, '/errors/invalid-message', 'Envie texto ou uma figurinha.');
             }
             $sticker = null === $input->stickerId ? null : $this->em->find(Sticker::class, Uuid::fromString($input->stickerId));
@@ -132,7 +134,7 @@ final readonly class SquareService
             $this->rateLimit->consume('square_interaction', $actor->getUserIdentifier());
             if ($active) {
                 $this->em->persist(new SquareReaction($message, $actor, $emoji));
-            } else {
+            } elseif (null !== $reaction) {
                 $this->em->remove($reaction);
             }
             $message->revision = $s->advance($this->clock->now());

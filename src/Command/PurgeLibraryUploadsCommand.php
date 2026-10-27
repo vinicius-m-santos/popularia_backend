@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:library:purge', description: 'Remove objetos de envios interrompidos há mais de 24 horas (até 100 por execução).')]
+#[AsCommand(name: 'app:library:purge', description: 'Remove PDFs sem uso: envios interrompidos, documentos excluídos e contas excluídas (até 100).')]
 final class PurgeLibraryUploadsCommand extends Command
 {
     public function __construct(private readonly Connection $connection, private readonly ObjectStorage $storage, private readonly ClockInterface $clock)
@@ -33,12 +33,19 @@ final class PurgeLibraryUploadsCommand extends Command
             $output->writeln('<comment>[dry-run] Nenhum objeto será removido.</comment>');
         }
         $removed = 0;
+        $after = '';
         for ($i = 0; $i < 100; ++$i) {
-            $deleted = $this->connection->transactional(function () use ($dryRun, $output): bool {
-                $file = $this->connection->executeQuery("SELECT f.id, f.storage_key FROM library_file f WHERE f.status IN ('pending','failed') AND f.created_at < :cutoff AND NOT EXISTS (SELECT 1 FROM library_document d WHERE d.file_id = f.id) ORDER BY f.id FOR UPDATE SKIP LOCKED LIMIT 1", ['cutoff' => $this->clock->now()->modify('-24 hours')->format('Y-m-d H:i:sP')])->fetchAssociative();
+            $deleted = $this->connection->transactional(function () use ($dryRun, $output, &$after): bool {
+                $file = $this->connection->executeQuery("SELECT f.id, f.storage_key FROM library_file f WHERE f.status <> 'purged' AND f.id::text > :after AND (
+                    f.status = 'purge_pending'
+                    OR (f.status IN ('pending','failed') AND f.created_at < :cutoff AND NOT EXISTS (SELECT 1 FROM library_document d WHERE d.file_id = f.id))
+                    OR EXISTS (SELECT 1 FROM library_document d WHERE d.file_id = f.id AND d.status = 'deleted' AND d.removed_at < :cutoff)
+                    ) AND NOT EXISTS (SELECT 1 FROM library_document d WHERE d.file_id = f.id AND d.status IN ('published', 'removed'))
+                    ORDER BY f.id FOR UPDATE OF f SKIP LOCKED LIMIT 1", ['after' => $after, 'cutoff' => $this->clock->now()->modify('-24 hours')->format('Y-m-d H:i:sP')])->fetchAssociative();
                 if (false === $file) {
                     return false;
                 }
+                $after = (string) $file['id'];
                 if ($dryRun) {
                     $output->writeln(sprintf('[dry-run] Removeria: id=%s key=%s', $file['id'], $file['storage_key']));
 

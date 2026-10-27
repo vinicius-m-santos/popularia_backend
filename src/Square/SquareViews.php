@@ -53,7 +53,7 @@ final readonly class SquareViews
             $comuna = $m->square->comuna;
             $mine = $m->author->getId()->equals($viewer->getId());
             $active = 'active' === $m->square->status && null !== $comuna && !$comuna->isArchived();
-            $canRemove = $shown && $active && null !== $comuna && $this->access->moderation->canRemoveContentBy($comuna, $memberships[$comuna->getId()->toRfc4122()] ?? null, $m->author);
+            $canRemove = $shown && $active && $this->access->moderation->canRemoveContentBy($comuna, $memberships[$comuna->getId()->toRfc4122()] ?? null, $m->author);
 
             return new MessageView(
                 $m->id->toRfc4122(), $m->square->id->toRfc4122(), $status,
@@ -62,7 +62,7 @@ final readonly class SquareViews
                 $shown && null !== $m->sticker ? self::sticker($m->sticker) : null,
                 $reply, $shown ? ($reactions[$m->id->toRfc4122()] ?? []) : [],
                 $m->createdAt, $m->editedAt, $m->revision, $mine ? $m->clientId : null,
-                ['isAuthor' => $shown && $mine, 'canDelete' => $shown && $mine && $active, 'canRemove' => $canRemove, 'canReport' => $shown && !$mine && $active, 'canReact' => $shown && $active && $viewer->isEmailVerified(), 'canReply' => $shown && $active && $viewer->isEmailVerified() && null !== $comuna && isset($memberships[$comuna->getId()->toRfc4122()])],
+                ['isAuthor' => $shown && $mine, 'canDelete' => $shown && $mine && $active, 'canRemove' => $canRemove, 'canReport' => $shown && !$mine && $active, 'canReact' => $shown && $active && $viewer->isEmailVerified(), 'canReply' => $shown && $active && $viewer->isEmailVerified() && isset($memberships[$comuna->getId()->toRfc4122()])],
             );
         }, $messages);
     }
@@ -90,14 +90,14 @@ final readonly class SquareViews
             $c = $s->comuna;
             $membership = null === $c ? null : ($memberships[$c->getId()->toRfc4122()] ?? null);
             $readable = null !== $c && ($c->isPublic() || null !== $membership);
-            $active = $readable && null !== $c && 'active' === $s->status && !$c->isArchived();
+            $active = $readable && 'active' === $s->status && !$c->isArchived();
             $stat = $stats[$s->id->toRfc4122()] ?? null;
             $manage = null !== $c && null !== $membership && $membership->getRole()->canModerate() && !$c->isArchived();
 
             return new SquareView(
                 $s->id->toRfc4122(),
                 null === $c ? null : ['id' => $c->getId()->toRfc4122(), 'slug' => $c->getSlug(), 'name' => $c->getName(), 'tone' => $c->getTone(), 'visibility' => $c->getVisibility()->value],
-                $readable ? ($s->title ?? $c?->getName() ?? 'Praça') : ($c?->getName() ?? 'Praça'),
+                $readable ? ($s->title ?? $c->getName()) : ($c?->getName() ?? 'Praça'),
                 $readable ? $s->status : null, $readable ? $s->closedAt : null,
                 $readable ? $s->version : null,
                 $readable ? ($stat['presence'] ?? 0) : null,

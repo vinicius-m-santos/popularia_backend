@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[AsMonologProcessor]
 final class LogContextProcessor implements ProcessorInterface
 {
-    private const string SENSITIVE_KEYS = '/pass(word)?|token|secret|authorization|cookie|(^|_)code$|e-?mail|cpf/i';
+    private const string SENSITIVE_KEYS = '/pass(word)?|token|secret|authorization|cookie|(^|_)code$|e-?mail|cpf|body|content|query|parameters|params|private.?key/i';
 
     public function __construct(
         private readonly RequestStack $requests,
@@ -32,7 +32,10 @@ final class LogContextProcessor implements ProcessorInterface
             $extra['request_id'] = $requestId;
         }
 
-        return $record->with(context: self::redact($record->context), extra: $extra);
+        $exception = $record->context['exception'] ?? null;
+        $message = $exception instanceof \Throwable ? 'Application exception: '.$exception::class : $record->message;
+
+        return $record->with(message: $message, context: self::redact($record->context), extra: $extra);
     }
 
     /**
@@ -45,6 +48,8 @@ final class LogContextProcessor implements ProcessorInterface
         foreach ($data as $key => $value) {
             if (\is_string($key) && 1 === preg_match(self::SENSITIVE_KEYS, $key)) {
                 $data[$key] = '[redacted]';
+            } elseif ($value instanceof \Throwable) {
+                $data[$key] = ['type' => $value::class, 'file' => $value->getFile(), 'line' => $value->getLine()];
             } elseif (\is_array($value) && $depth < 5) {
                 $data[$key] = self::redact($value, $depth + 1);
             }

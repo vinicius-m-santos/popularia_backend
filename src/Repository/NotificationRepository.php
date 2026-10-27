@@ -56,11 +56,11 @@ class NotificationRepository extends ServiceEntityRepository
 
     public function markAllRead(User $viewer, \DateTimeImmutable $now): void
     {
-        $this->createQueryBuilder('n')->update()->set('n.readAt', ':now')
-            ->leftJoin('n.squareMessage', 'sm')->leftJoin('sm.square', 'sq')->leftJoin('sm.replyTo', 'sp')->leftJoin('sp.author', 'spa')
-            ->where('n.recipient = :viewer')
-            ->andWhere('(sm.id IS NULL OR (sm.status = :published AND sp.status = :published AND spa.status = :active))')->andWhere('n.readAt IS NULL')
-            ->setParameter('viewer', $viewer)->setParameter('now', $now)->getQuery()->execute();
+        $ids = $this->visible($viewer)->select('n.id')->andWhere('n.readAt IS NULL')->getQuery()->getSingleColumnResult();
+        if ([] !== $ids) {
+            $this->createQueryBuilder('n')->update()->set('n.readAt', ':now')->where('n.id IN (:ids)')
+                ->setParameter('ids', $ids)->setParameter('now', $now)->getQuery()->execute();
+        }
     }
 
     private function visible(User $viewer): QueryBuilder

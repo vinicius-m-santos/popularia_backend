@@ -1,5 +1,7 @@
 # Infraestrutura do Popularia
 
+> Auditoria em 27/10/2026: estado efetivo e pendências em [beta-release-runbook.md](beta-release-runbook.md) e [data-inventory.md](data-inventory.md). As seções históricas abaixo incluem exemplos de provisionamento; não comprovam configuração remota. Domínios reais: api.popularia.com.br e api-stg.popularia.com.br; health atual /api/v1/health; email Brevo ativo e PDFs em Cloudflare R2. Frequência/retenção de backups não foram confirmadas: os números de plano abaixo não devem ser tratados como política vigente.
+
 Symfony 7.4 + FrankenPHP (PHP 8.4) → Railway · PostgreSQL 18
 
 ---

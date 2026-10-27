@@ -71,7 +71,7 @@ final readonly class LibraryViews
 
             return new DocumentView($id, 'available', $document->title, $document->description, $origin,
                 ['id' => $document->collection->id->toRfc4122(), 'name' => $document->collection->name],
-                ['id' => $author->getId()->toRfc4122(), 'handle' => $author->getHandle(), 'name' => $author->getDisplayName()],
+                \App\Enum\AccountStatus::Deleted === $author->getStatus() ? null : ['id' => $author->getId()->toRfc4122(), 'handle' => $author->getHandle(), 'name' => $author->getDisplayName()],
                 $document->createdAt, $document->file->byteSize, $document->file->pageCount, $document->topic?->value,
                 $document->access->value, $document->isPublic, isset($saved[$id]),
                 ['canEdit' => $manages && $active, 'canDelete' => $manages && ($active || $moderates), 'canPublicize' => ($personalOwner || $moderates) && $active, 'canShare' => $personalOwner,

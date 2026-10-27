@@ -88,7 +88,7 @@ final readonly class SquareProvider implements ProviderInterface
         $afterValue = $query?->get('after');
         $after = null;
         if (null !== $afterValue) {
-            if (!is_string($afterValue) || !ctype_digit($afterValue) || strlen($afterValue) > 15 || null !== $page->cursor) {
+            if (!ctype_digit($afterValue) || strlen($afterValue) > 15 || null !== $page->cursor) {
                 throw ApiProblem::badRequest('/errors/invalid-cursor', 'Cursor de alterações inválido.');
             }
             $after = (int) $afterValue;

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ blocks[0].text }} · Popularia</title>
+<style>
+:root{color-scheme:light}body{margin:0;background:#F4ECDD;color:#24221f;font:17px/1.65 system-ui,sans-serif}header,main,footer{max-width:760px;margin:auto;padding:24px}header{border-bottom:2px solid #24221f}nav{display:flex;flex-wrap:wrap;gap:12px}a{color:#9b2725;overflow-wrap:anywhere}h1{font-size:2rem;line-height:1.2}h2{font-size:1.25rem;margin-top:2rem}p{overflow-wrap:anywhere}footer{border-top:1px solid #24221f}
+</style>
+</head>
+<body>
+<!--email_off-->
+<header><strong>Popularia</strong><nav aria-label="Documentos e suporte"><a href="/privacidade">Privacidade</a><a href="/termos">Termos</a><a href="/regras">Regras</a><a href="/suporte">Suporte</a><a href="/excluir-conta">Excluir conta</a></nav></header>
+<main>{% for block in blocks %}{% if block.level == 1 %}<h1>{{ block.text }}</h1>{% elseif block.level == 2 %}<h2>{{ block.text }}</h2>{% else %}<p>{{ block.text }}</p>{% endif %}{% endfor %}</main>
+<footer><p>Contato: <a href="mailto:{{ contact }}">{{ contact }}</a></p><small>Documentos do beta · versão {{ version }}</small></footer>
+<!--/email_off-->
+</body></html>

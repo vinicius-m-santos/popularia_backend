@@ -32,6 +32,7 @@ final readonly class LibraryService
     public function __construct(
         private EntityManagerInterface $em,
         private LibraryAccess $policy,
+        private \App\Content\RemovedContentFilter $filter,
         private ComunaRepository $comunas,
         private ClockInterface $clock,
         private RateLimitGuard $rateLimit,
@@ -64,6 +65,7 @@ final readonly class LibraryService
         \assert(null !== $upload);
         $collection = $this->collection($input->collectionId ?? '');
         $this->assertAdd($collection, $actor);
+        $this->filter->assertPdf($info['checksum'], $collection->comuna);
         $access = Access::from($input->access ?? (null === $collection->comuna ? 'private' : 'members'));
         $this->validateAccess($collection, $access, $actor);
         if (($input->isPublic ?? false) && null !== $collection->comuna) {

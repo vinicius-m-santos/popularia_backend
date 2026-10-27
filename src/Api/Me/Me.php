@@ -57,6 +57,7 @@ final readonly class Me
         public bool $pendingOnboarding = false,
         /** false para contas criadas via Google/Apple sem senha definida. */
         public bool $hasPassword = true,
+        public bool $legalAccepted = false,
     ) {
     }
 
@@ -77,6 +78,7 @@ final readonly class Me
             $user->isPrivate(),
             $user->isPendingOnboarding(),
             $user->hasPassword(),
+            $user->hasAcceptedLegal(),
         );
     }
 }

@@ -142,3 +142,7 @@ rodando como `www-data`. Antes de publicar, siga o checklist de [docs/configurac
 Praça V1: arquitetura, privacidade, endpoints e execução em [docs/praca.md](docs/praca.md).
 
 Biblioteca V1: modelo, autorização, upload/S3, API, lifecycle, configuração e limitações de validação em [docs/biblioteca.md](docs/biblioteca.md).
+
+## Preparação do beta/TestFlight
+
+Estado, validações e bloqueadores: [relatório pré-TestFlight](docs/pre-testflight-report.md). Use a [checklist](docs/pre-testflight-checklist.md), o [runbook de build/review](docs/beta-release-runbook.md), o [inventário de dados](docs/data-inventory.md) e a [política de exclusão](docs/account-deletion.md). Textos públicos têm fonte única em `docs/legal`; não manter cópias manuais no mobile.

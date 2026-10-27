@@ -96,7 +96,7 @@ final readonly class DiscoveryProvider implements ProviderInterface
         $documents = [];
         if ($search && in_array($type, ['all', 'documents'], true)) {
             $libraryRequest = new Request(['scope' => 'public', 'q' => $term, 'topic' => $topic ?? '', 'limit' => (string) $limit, 'cursor' => $page->cursor?->toRfc4122() ?? '']);
-            $libraryRequest->attributes->set('library_rank', $request instanceof Request ? $request->attributes->get('library_rank') : null);
+            $libraryRequest->attributes->set('library_rank', $request->attributes->get('library_rank'));
             [$libraryRows, $libraryNext] = $this->libraryQueries->documents($viewer, $libraryRequest, Pagination::fromContext(['request' => $libraryRequest]));
             $documents = $this->libraryViews->many($libraryRows, $viewer);
             $next['documents'] = $libraryNext;

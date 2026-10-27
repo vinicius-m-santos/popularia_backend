@@ -36,9 +36,7 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
         }
 
         if ($this->users->handleExists($data->handle) && $user->getHandle() !== \App\Entity\User::normalizeHandle($data->handle)) {
-            throw new ValidationException(new ConstraintViolationList([
-                new ConstraintViolation('Esse nome já está em uso.', null, [], $data, 'handle', $data->handle),
-            ]));
+            throw new ValidationException(new ConstraintViolationList([new ConstraintViolation('Esse nome já está em uso.', null, [], $data, 'handle', $data->handle)]));
         }
 
         $now = $this->clock->now();
@@ -49,9 +47,7 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
             $this->em->flush();
         } catch (UniqueConstraintViolationException $e) {
             if (str_contains($e->getMessage(), 'uniq_app_user_handle')) {
-                throw new ValidationException(new ConstraintViolationList([
-                    new ConstraintViolation('Esse nome já está em uso.', null, [], $data, 'handle', $data->handle),
-                ]));
+                throw new ValidationException(new ConstraintViolationList([new ConstraintViolation('Esse nome já está em uso.', null, [], $data, 'handle', $data->handle)]));
             }
             throw $e;
         }

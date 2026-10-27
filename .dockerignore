@@ -6,4 +6,6 @@ var
 .phpunit.cache
 .php-cs-fixer.cache
 tests
-docs
+docs/*
+!docs/legal/
+!docs/legal/**

@@ -28,6 +28,7 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
     public function __construct(
         private CurrentUser $currentUser,
         private ContentPolicy $policy,
+        private \App\Content\RemovedContentFilter $filter,
         private CommentRepository $comments,
         private PostRepository $posts,
         private UserBlockRepository $blocks,
@@ -59,6 +60,7 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
         }
         $this->rateLimit->consume('content_creation', $author->getUserIdentifier());
 
+        $this->filter->assertText($data->body, $post->getComuna());
         $comment = new Comment($post, $parent, $author, TextNormalizer::normalize($data->body), $this->clock->now());
         $this->em->wrapInTransaction(function () use ($comment, $post): void {
             $this->em->persist($comment);

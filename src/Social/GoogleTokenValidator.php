@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Social;
 
 use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\Plain;
-use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -47,11 +48,21 @@ class GoogleTokenValidator implements ProviderTokenValidatorInterface
     public function validate(#[\SensitiveParameter] string $idToken, #[\SensitiveParameter] ?string $nonce = null): ProviderClaims
     {
         // Parse sem verificação primeiro para extrair o kid do header.
-        $raw = Configuration::forUnsecuredSigner()->parser()->parse($idToken);
+        if ('' === $idToken || '' === $this->googleClientId) {
+            throw new \InvalidArgumentException('Token ou audience ausente.');
+        }
+        try {
+            $raw = (new Parser(new JoseEncoder()))->parse($idToken);
+        } catch (\Throwable) {
+            throw new \InvalidArgumentException('Token malformado.');
+        }
         if (!$raw instanceof Plain) {
             throw new \InvalidArgumentException('Google ID token malformado.');
         }
 
+        if ('RS256' !== $raw->headers()->get('alg')) {
+            throw new \InvalidArgumentException('Algoritmo inválido.');
+        }
         $kid = $raw->headers()->get('kid');
         if (!\is_string($kid) || '' === $kid) {
             throw new \InvalidArgumentException('Google ID token sem kid no header.');
@@ -82,12 +93,15 @@ class GoogleTokenValidator implements ProviderTokenValidatorInterface
         $constraints = [
             new SignedWith(new Sha256(), $key),
             new PermittedFor($this->googleClientId),
-            new StrictValidAt($this->clock),
+            new LooseValidAt($this->clock),
         ];
 
-        $violations = $config->validator()->validate($token, ...$constraints);
-        if ($violations) {
-            throw new \InvalidArgumentException('Google ID token falhou na validação: '.implode(', ', array_map(fn ($v) => $v->getMessage(), iterator_to_array($violations->getIterator()))));
+        if (!$token->claims()->get('exp') instanceof \DateTimeImmutable || !$token->claims()->get('iat') instanceof \DateTimeImmutable) {
+            throw new \InvalidArgumentException('Token sem validade.');
+        }
+        $valid = $config->validator()->validate($token, ...$constraints);
+        if (!$valid) {
+            throw new \InvalidArgumentException('Google ID token falhou na validação.');
         }
 
         $subject = (string) $token->claims()->get('sub', '');
@@ -96,10 +110,11 @@ class GoogleTokenValidator implements ProviderTokenValidatorInterface
         }
 
         $email = $token->claims()->get('email');
-        $emailVerified = (bool) $token->claims()->get('email_verified', false);
+        $emailVerified = in_array($token->claims()->get('email_verified', false), [true, 'true'], true);
         $name = $token->claims()->get('name');
 
         return new ProviderClaims(
+            issuedAt: $token->claims()->get('iat'),
             subject: $subject,
             email: \is_string($email) && '' !== $email ? mb_strtolower(trim($email)) : null,
             emailVerified: $emailVerified,

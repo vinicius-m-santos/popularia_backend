@@ -281,7 +281,11 @@ final class LibraryTest extends ApiTestCase
         $id = $document->id->toRfc4122();
         $token = $this->login($reader->getEmail())['accessToken'];
         $this->request('PUT', '/library/documents/'.$id.'/saved', token: $token);
-        $this->em()->persist(new UserBlock($this->em()->getReference(User::class, $owner->getId()), $this->em()->getReference(User::class, $reader->getId()), new \DateTimeImmutable()));
+        $blocker = $this->em()->find(User::class, $owner->getId());
+        $blocked = $this->em()->find(User::class, $reader->getId());
+        self::assertNotNull($blocker);
+        self::assertNotNull($blocked);
+        $this->em()->persist(new UserBlock($blocker, $blocked, new \DateTimeImmutable()));
         $this->em()->flush();
         $this->request('GET', '/library/documents/'.$id, token: $token);
         $this->assertStatus(404);

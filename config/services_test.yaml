@@ -18,3 +18,7 @@ services:
     App\Social\AppleTokenValidator:
         class: App\Tests\Social\FakeAppleTokenValidator
         public: true
+    App\Social\AppleAuthorizationRevoker:
+        class: App\Tests\Social\FakeAppleAuthorizationRevoker
+        public: true
+        autowire: false

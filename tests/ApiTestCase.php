@@ -81,6 +81,7 @@ abstract class ApiTestCase extends WebTestCase
             $user->markEmailVerified($now);
         }
         $user->changePlatformRole($role, $now);
+        $user->acceptLegal($now);
         $this->em()->persist($user);
         $this->em()->flush();
 

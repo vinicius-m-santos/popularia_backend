@@ -197,7 +197,7 @@ final class SquareTest extends ApiTestCase
         self::assertNull($page['items'][0]['body']);
         self::assertGreaterThan(0, (int) $this->em()->getConnection()->fetchOne("SELECT COUNT(*) FROM admin_audit_log WHERE action = 'comuna.square_message_removed'"));
         // Moderadores não removem conteúdo do proprietário, como no feed.
-        $ownerMessage = $this->send(token: $this->ownerToken);
+        $ownerMessage = $this->send(token: $this->ownerToken, extra: ['body' => 'Conteúdo próprio do proprietário']);
         $this->request('POST', '/squares/'.$this->squareId.'/messages/'.$ownerMessage['id'].'/removal', ['reason' => 'Tentativa sem permissão'], $this->moderatorToken);
         $this->assertStatus(403);
     }
@@ -209,7 +209,7 @@ final class SquareTest extends ApiTestCase
         $this->request('PUT', '/squares/'.$this->squareId.'/messages/'.$reply['id'].'/reactions/'.rawurlencode('❤️'), token: $this->memberToken);
         $this->request('PUT', '/squares/'.$this->squareId.'/presence', token: $this->memberToken);
         $this->request('PUT', '/me/blocks/marina', token: $this->outsiderToken);
-        $this->assertStatus(200);
+        $this->assertStatus(204);
         $page = $this->request('GET', '/squares/'.$this->squareId.'/messages', token: $this->outsiderToken);
         $this->assertStatus(200);
         self::assertStringNotContainsString('CONTEUDO BLOQUEADO', json_encode($page, JSON_THROW_ON_ERROR));

@@ -99,6 +99,10 @@ framework:
             limit: 20
             interval: '1 hour'
             cache_pool: cache.rate_limiter
+        account_deletion:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
         social_auth:
             policy: sliding_window
             limit: 20

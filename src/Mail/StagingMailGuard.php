@@ -47,7 +47,7 @@ final readonly class StagingMailGuard
         }
 
         if ([] !== $dropped) {
-            $this->logger->info('StagingMailGuard: e-mail descartado (destinatário fora da allowlist).', ['dropped' => $dropped]);
+            $this->logger->info('StagingMailGuard: e-mail descartado (destinatário fora da allowlist).', ['dropped_count' => count($dropped)]);
         }
 
         if ([] === $allowed) {

@@ -31,6 +31,7 @@ class FakeAppleTokenValidator implements ProviderTokenValidatorInterface
         [, $sub, $email, $emailVerified] = $parts;
 
         return new ProviderClaims(
+            issuedAt: new \DateTimeImmutable(),
             subject: $sub,
             email: '' !== $email ? $email : null,
             emailVerified: '1' === $emailVerified,

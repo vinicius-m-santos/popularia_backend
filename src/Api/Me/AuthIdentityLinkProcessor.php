@@ -60,6 +60,7 @@ final readonly class AuthIdentityLinkProcessor implements ProcessorInterface
                 // Subject já vinculado a conta diferente: não é possível vincular.
                 throw ApiProblem::conflict('/errors/identity-already-linked', 'Esta conta '.$data->provider.' já está vinculada a outro usuário Popularia.');
             }
+
             // Já vinculado a esta mesma conta: idempotente.
             return AuthIdentitiesView::fromEntities($this->identities->findForUser($user));
         }

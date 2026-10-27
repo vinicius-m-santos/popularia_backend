@@ -1,5 +1,7 @@
 # Configuração de Social Login (Google + Apple)
 
+> Atualização pré-beta: o scheme Google iOS agora é derivado por `app.config.js` no mobile, sem edição manual entre ambientes. Exclusão Apple inclui revogação e exige p8/Team/Key ID no backend; Developer ainda aguarda efetivação. Consulte [beta-release-runbook.md](beta-release-runbook.md) para o estado atual, sem tratar checklists históricas abaixo como prova de configuração concluída.
+
 Guia passo a passo para configurar Google Sign-In e Sign in with Apple nos ambientes
 **staging** e **production**. Desenvolvimento local não requer credenciais reais — o app
 funciona em modo demonstração sem `EXPO_PUBLIC_API_URL` definida.

@@ -8,6 +8,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class ReportDecisionInput
 {
-    #[Assert\Choice(['dismissed', 'removed'])]
+    #[Assert\Choice(choices: ['dismissed', 'removed'])]
     public string $status = '';
 }

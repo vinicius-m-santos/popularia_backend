@@ -199,9 +199,7 @@ enquanto a conta está suspensa, mas a estrutura da comuna fica. A equipe pode t
 propriedade com `app:comuna:transfer-owner`. O comando `app:user:set-status` avisa quais
 comunas ativas a conta possui.
 
-**Exclusão de conta:** a exclusão de uma conta que ainda possui comunas é **bloqueada** pelo banco
-(FK `RESTRICT` na coluna `owner_id` da tabela `comunas`). A conta só pode ser excluída depois que
-todas as suas comunas forem arquivadas ou a propriedade for transferida.
+**Exclusão de conta:** o fluxo próprio agora recusa enquanto houver Comunas ativas sob propriedade da pessoa. Ela pode transferi-las ou arquivá-las antes. Comunas arquivadas permanecem, com owner nulo; a conta residual é descaracterizada para preservar integridade e auditoria. Não se usa DELETE direto no User. Ver [account-deletion.md](account-deletion.md).
 
 ## 7. Próximas etapas (desenho proposto — denúncias, restrições e recursos)
 

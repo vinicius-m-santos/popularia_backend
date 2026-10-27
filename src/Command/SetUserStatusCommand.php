@@ -46,7 +46,7 @@ final class SetUserStatusCommand
     ): int {
         $user = $this->users->findOneByHandle($handle);
         $newStatus = AccountStatus::tryFrom($status);
-        if (null === $user || null === $newStatus || mb_strlen(trim($reason)) < 5) {
+        if (null === $user || null === $newStatus || AccountStatus::Deleted === $newStatus || AccountStatus::Deleted === $user->getStatus() || mb_strlen(trim($reason)) < 5) {
             $io->error('Informe um handle existente, um estado válido e um motivo.');
 
             return Command::INVALID;

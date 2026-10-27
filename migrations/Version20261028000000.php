@@ -23,7 +23,7 @@ final class Version20261028000000 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // Coluna pending_onboarding para contas sociais sem handle/nome definidos ainda.
-        $this->addSql("ALTER TABLE app_user ADD pending_onboarding BOOLEAN DEFAULT FALSE NOT NULL");
+        $this->addSql('ALTER TABLE app_user ADD pending_onboarding BOOLEAN DEFAULT FALSE NOT NULL');
 
         // Tabela de identidades de provider.
         $this->addSql('CREATE TABLE user_auth_identity (id UUID NOT NULL, provider VARCHAR(20) NOT NULL, provider_subject VARCHAR(255) NOT NULL, provider_email VARCHAR(320) DEFAULT NULL, created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL, user_id UUID NOT NULL, PRIMARY KEY (id))');

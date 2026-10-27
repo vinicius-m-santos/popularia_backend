@@ -25,6 +25,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
         private CurrentUser $currentUser,
         private ComunaRepository $comunas,
         private ContentPolicy $policy,
+        private \App\Content\RemovedContentFilter $filter,
         private \App\Library\LibraryAccess $library,
         private PostViews $views,
         private RateLimitGuard $rateLimit,
@@ -47,6 +48,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             $this->policy->assertCanPostIn($comuna, $author);
             $this->rateLimit->consume('content_creation', $author->getUserIdentifier());
 
+            $this->filter->assertText($data->body, $comuna);
             $post = new Post($author, $comuna, TextNormalizer::normalize($data->body), $this->clock->now());
             $post->setTopic(null === $data->topic ? null : Topic::from($data->topic));
             if (null !== $data->documentId) {

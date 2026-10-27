@@ -22,6 +22,7 @@ final readonly class ProviderClaims
         public bool $emailVerified,
         /** Nome completo retornado pelo provider (nem sempre disponível, esp. em logins seguintes da Apple). */
         public ?string $name,
+        public ?\DateTimeImmutable $issuedAt = null,
     ) {
     }
 }

@@ -92,10 +92,7 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
                     $existingUser,
                     context: ['provider' => $data->provider],
                 );
-                throw ApiProblem::conflict(
-                    '/errors/account-email-conflict',
-                    'Já existe uma conta com este e-mail. Entre com e-mail e senha para vincular o '.$data->provider.'.',
-                );
+                throw ApiProblem::conflict('/errors/account-email-conflict', 'Já existe uma conta com este e-mail. Entre com e-mail e senha para vincular o '.$data->provider.'.');
             }
         }
 
@@ -112,6 +109,7 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
         };
     }
 
+    /** @param array<string, mixed> $context */
     private function loginExisting(User $user, ?string $deviceLabel, array $context): SocialTokens
     {
         if (!$user->isActive()) {
@@ -125,6 +123,7 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
         return SocialTokens::fromPair($pair, $user->isPendingOnboarding());
     }
 
+    /** @param array<string, mixed> $context */
     private function createAndLogin(SocialLogin $data, ProviderClaims $claims, array $context): SocialTokens
     {
         $now = $this->clock->now();

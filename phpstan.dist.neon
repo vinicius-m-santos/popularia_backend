@@ -1,6 +1,8 @@
 # Análise estática: vendor/bin/phpstan analyse (ou composer stan)
 parameters:
     level: 8
+    scanDirectories:
+        - migrations
     paths:
         - src
         - tests

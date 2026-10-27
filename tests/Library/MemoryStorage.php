@@ -14,6 +14,7 @@ final class MemoryStorage implements ObjectStorage
     public static int $puts = 0;
     public static int $reads = 0;
     public static bool $fail = false;
+    public static bool $failDeletes = false;
 
     public function put(string $key, string $path, string $checksum): void
     {
@@ -49,6 +50,9 @@ final class MemoryStorage implements ObjectStorage
 
     public function delete(string $key): void
     {
+        if (self::$failDeletes) {
+            throw ApiProblem::serviceUnavailable();
+        }
         unset(self::$objects[$key]);
     }
 }

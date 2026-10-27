@@ -115,7 +115,7 @@ final class AccountMailer implements ResetInterface
             try {
                 $this->mailer->send($email);
             } catch (TransportExceptionInterface $e) {
-                $this->logger->error('Falha ao enviar e-mail da conta.', ['subject' => $email->getSubject(), 'error' => $e->getMessage()]);
+                $this->logger->error('Falha ao enviar e-mail da conta.', ['subject' => $email->getSubject(), 'exception_class' => $e::class]);
             }
         }
     }

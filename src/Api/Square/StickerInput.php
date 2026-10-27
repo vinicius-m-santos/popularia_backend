@@ -15,9 +15,9 @@ final class StickerInput
     #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
     public string $label = '';
 
-    #[Assert\Choice(SquareService::SYMBOLS)]
+    #[Assert\Choice(choices: SquareService::SYMBOLS)]
     public string $symbol = '';
 
-    #[Assert\Choice(['red', 'black', 'cream'])]
+    #[Assert\Choice(choices: ['red', 'black', 'cream'])]
     public string $tone = 'red';
 }

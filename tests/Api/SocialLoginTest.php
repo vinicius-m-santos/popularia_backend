@@ -256,6 +256,8 @@ final class SocialLoginTest extends ApiTestCase
         $this->assertStatus(200);
         self::assertTrue($social['onboardingRequired']);
         $token = (string) $social['accessToken'];
+        $this->request('POST', '/me/legal-acceptance', ['version' => \App\Legal\LegalDocuments::VERSION, 'accepted' => true], $token);
+        $this->assertStatus(201);
 
         $me = $this->request('POST', '/me/complete-onboarding', [
             'handle' => 'camilanova',
@@ -277,6 +279,8 @@ final class SocialLoginTest extends ApiTestCase
             'idToken' => 'google_valid|g_sub_dup_handle|dup@exemplo.org|1',
         ]);
         $token = (string) $social['accessToken'];
+        $this->request('POST', '/me/legal-acceptance', ['version' => \App\Legal\LegalDocuments::VERSION, 'accepted' => true], $token);
+        $this->assertStatus(201);
 
         $body = $this->request('POST', '/me/complete-onboarding', [
             'handle' => 'handleexist',

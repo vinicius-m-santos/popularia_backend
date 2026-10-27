@@ -35,8 +35,8 @@ final class SentryBeforeSendTest extends TestCase
         return $req;
     }
 
-    /** @test */
-    public function it_passes_5xx_through(): void
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function itPasses5xxThrough(): void
     {
         $fn = $this->makeBeforeSend();
         $event = Event::createEvent();
@@ -45,8 +45,8 @@ final class SentryBeforeSendTest extends TestCase
         self::assertNotNull($fn($event, $hint));
     }
 
-    /** @test */
-    public function it_discards_404(): void
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function itDiscards404(): void
     {
         $fn = $this->makeBeforeSend();
         $event = Event::createEvent();
@@ -55,8 +55,8 @@ final class SentryBeforeSendTest extends TestCase
         self::assertNull($fn($event, $hint));
     }
 
-    /** @test */
-    public function it_discards_401(): void
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function itDiscards401(): void
     {
         $fn = $this->makeBeforeSend();
         $event = Event::createEvent();
@@ -65,8 +65,8 @@ final class SentryBeforeSendTest extends TestCase
         self::assertNull($fn($event, $hint));
     }
 
-    /** @test */
-    public function it_discards_api_problem_4xx(): void
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function itDiscardsApiProblem4xx(): void
     {
         $fn = $this->makeBeforeSend();
 
@@ -81,8 +81,8 @@ final class SentryBeforeSendTest extends TestCase
         }
     }
 
-    /** @test */
-    public function it_passes_503_through(): void
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function itPasses503Through(): void
     {
         $fn = $this->makeBeforeSend();
         $event = Event::createEvent();
@@ -91,8 +91,8 @@ final class SentryBeforeSendTest extends TestCase
         self::assertNotNull($fn($event, $hint));
     }
 
-    /** @test */
-    public function it_adds_request_id_tag(): void
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function itAddsRequestIdTag(): void
     {
         $fn = $this->makeBeforeSend($this->requestWithId('test-req-id-123'));
         $event = Event::createEvent();
@@ -103,8 +103,8 @@ final class SentryBeforeSendTest extends TestCase
         self::assertSame('test-req-id-123', $result->getTags()['request_id'] ?? null);
     }
 
-    /** @test */
-    public function it_passes_event_without_request(): void
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function itPassesEventWithoutRequest(): void
     {
         $fn = $this->makeBeforeSend();
         $event = Event::createEvent();
@@ -113,5 +113,19 @@ final class SentryBeforeSendTest extends TestCase
 
         self::assertNotNull($result);
         self::assertArrayNotHasKey('request_id', $result->getTags());
+    }
+
+    public function testPrivateRequestAndDiagnosticContextAreScrubbed(): void
+    {
+        $event = Event::createEvent();
+        $event->setRequest(['url' => 'https://api.example.org/webhooks/brevo/secret-token?email=private@example.org', 'method' => 'POST', 'data' => ['password' => 'private'], 'headers' => ['Authorization' => 'secret']]);
+        $event->setExtra(['private_content' => 'Texto político privado']);
+        $event->setUser(\Sentry\UserDataBag::createFromArray(['id' => 'uuid', 'email' => 'private@example.org', 'ip_address' => '203.0.113.5']));
+        $result = ($this->makeBeforeSend())($event, null);
+        self::assertNotNull($result);
+        self::assertSame(['url' => 'https://api.example.org/webhooks/brevo/[redacted]', 'method' => 'POST'], $result->getRequest());
+        self::assertSame([], $result->getExtra());
+        self::assertSame('0.0.0.0', $result->getUser()?->getIpAddress());
+        self::assertNull($result->getUser()->getEmail());
     }
 }

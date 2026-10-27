@@ -24,6 +24,45 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\UniqueConstraint(name: 'uniq_app_user_handle', columns: ['handle'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $legalVersion = null;
+
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $legalAcceptedAt = null;
+
+    public function hasAcceptedLegal(): bool
+    {
+        return \App\Legal\LegalDocuments::VERSION === $this->legalVersion && null !== $this->legalAcceptedAt;
+    }
+
+    public function acceptLegal(\DateTimeImmutable $now): void
+    {
+        $this->legalVersion = \App\Legal\LegalDocuments::VERSION;
+        $this->legalAcceptedAt = $now;
+    }
+
+    /** Mantém somente uma referência técnica para conversas, documentos coletivos e auditoria. */
+    public function eraseAccount(\DateTimeImmutable $now): void
+    {
+        $random = bin2hex(random_bytes(16));
+        $this->email = $random.'@deleted.invalid';
+        $this->handle = 'deleted_'.substr($random, 0, 12);
+        $this->displayName = 'Conta excluída';
+        $this->password = '';
+        $this->emailVerifiedAt = null;
+        $this->bio = '';
+        $this->city = null;
+        $this->interests = [];
+        $this->pendingOnboarding = false;
+        $this->isPrivate = true;
+        $this->platformRole = PlatformRole::User;
+        $this->status = AccountStatus::Deleted;
+        $this->legalVersion = null;
+        $this->legalAcceptedAt = null;
+        $this->lastComunaCreatedAt = null;
+        $this->updatedAt = $now;
+    }
+
     public const int HANDLE_MIN_LENGTH = 3;
     public const int HANDLE_MAX_LENGTH = 20;
     public const string HANDLE_PATTERN = '/^[a-z0-9._]{3,20}$/';
@@ -246,6 +285,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function changeStatus(AccountStatus $status, \DateTimeImmutable $now): void
     {
+        if (AccountStatus::Deleted === $this->status) {
+            throw new \LogicException('Uma conta excluída não pode ser reativada.');
+        }
         $this->status = $status;
         $this->updatedAt = $now;
     }

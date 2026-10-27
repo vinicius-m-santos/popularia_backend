@@ -32,7 +32,7 @@ final readonly class BrevoWebhookController
 
     public function __construct(
         private LoggerInterface $logger,
-        #[Autowire(env: 'default::BREVO_WEBHOOK_SECRET')]
+        #[Autowire('%env(default:app.empty_string:BREVO_WEBHOOK_SECRET)%')]
         private string $secret,
     ) {
     }
@@ -54,7 +54,6 @@ final readonly class BrevoWebhookController
             $this->logger->info('Brevo: evento de entrega recebido.', [
                 'event' => $event,
                 'message_id' => $payload['message-id'] ?? null,
-                'reason' => $payload['reason'] ?? null,
             ]);
         }
 

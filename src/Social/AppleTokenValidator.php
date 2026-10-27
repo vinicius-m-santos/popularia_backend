@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Social;
 
 use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Ecdsa\Sha256;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256;
+use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\Plain;
-use Lcobucci\JWT\Validation\Constraint\IssuedBy;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -60,7 +61,14 @@ class AppleTokenValidator implements ProviderTokenValidatorInterface
         }
 
         // Parse inicial para extrair kid e alg.
-        $raw = Configuration::forUnsecuredSigner()->parser()->parse($identityToken);
+        if ('' === $identityToken || '' === $this->appleBundleId) {
+            throw new \InvalidArgumentException('Token ou audience ausente.');
+        }
+        try {
+            $raw = (new Parser(new JoseEncoder()))->parse($identityToken);
+        } catch (\Throwable) {
+            throw new \InvalidArgumentException('Token malformado.');
+        }
         if (!$raw instanceof Plain) {
             throw new \InvalidArgumentException('Apple identity token malformado.');
         }
@@ -70,11 +78,10 @@ class AppleTokenValidator implements ProviderTokenValidatorInterface
             throw new \InvalidArgumentException('Apple identity token sem kid no header.');
         }
 
-        $alg = $raw->headers()->get('alg');
-        $signer = match ($alg) {
-            'ES256' => new Sha256(),
-            default => new RsaSha256(),
-        };
+        if ('RS256' !== $raw->headers()->get('alg')) {
+            throw new \InvalidArgumentException('Algoritmo inválido.');
+        }
+        $signer = new RsaSha256();
 
         $key = $this->jwks->getKey(self::JWKS_URL, $kid);
         if (null === $key) {
@@ -100,11 +107,14 @@ class AppleTokenValidator implements ProviderTokenValidatorInterface
         $constraints = [
             new SignedWith($signer, $key),
             new PermittedFor($this->appleBundleId),
-            new StrictValidAt($this->clock),
+            new LooseValidAt($this->clock),
         ];
 
-        $violations = $config->validator()->validate($token, ...$constraints);
-        if ($violations) {
+        if (!$token->claims()->get('exp') instanceof \DateTimeImmutable || !$token->claims()->get('iat') instanceof \DateTimeImmutable) {
+            throw new \InvalidArgumentException('Token sem validade.');
+        }
+        $valid = $config->validator()->validate($token, ...$constraints);
+        if (!$valid) {
             throw new \InvalidArgumentException('Apple identity token falhou na validação.');
         }
 
@@ -132,6 +142,7 @@ class AppleTokenValidator implements ProviderTokenValidatorInterface
         $emailVerifiedBool = ('true' === $emailVerified || true === $emailVerified);
 
         return new ProviderClaims(
+            issuedAt: $token->claims()->get('iat'),
             subject: $subject,
             email: \is_string($email) && '' !== $email ? mb_strtolower(trim($email)) : null,
             emailVerified: $emailVerifiedBool,

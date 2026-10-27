@@ -40,7 +40,7 @@ final readonly class LibraryAccess
 
     private static function base(): string
     {
-        return "d.status = 'published' AND f.status = 'ready' AND a.status = 'active' AND NOT EXISTS (SELECT 1 FROM user_block b WHERE (b.blocker_id = :viewer AND b.blocked_id = a.id) OR (b.blocked_id = :viewer AND b.blocker_id = a.id))";
+        return "d.status = 'published' AND f.status = 'ready' AND (a.status = 'active' OR (a.status = 'deleted' AND d.comuna_id IS NOT NULL)) AND NOT EXISTS (SELECT 1 FROM user_block b WHERE (b.blocker_id = :viewer AND b.blocked_id = a.id) OR (b.blocked_id = :viewer AND b.blocker_id = a.id))";
     }
 
     public function find(string $id): LibraryDocument

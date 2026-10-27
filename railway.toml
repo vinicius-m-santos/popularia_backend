@@ -8,7 +8,7 @@ buildTarget = "prod"
 
 [deploy]
 startCommand = "sh /app/docker/start.sh"
-healthcheckPath = "/api/health"
+healthcheckPath = "/api/v1/health"
 # Tempo máximo para a aplicação responder ao primeiro healthcheck após o deploy.
 # Cobre: build da imagem, warmup do cache, migrations, startup do FrankenPHP.
 healthcheckTimeout = 300

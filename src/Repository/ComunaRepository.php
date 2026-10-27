@@ -88,6 +88,7 @@ class ComunaRepository extends ServiceEntityRepository
         $em = $this->getEntityManager();
         $queries = [
             $em->createQueryBuilder()->select('1')->from(Post::class, 'x')->where('x.comuna = :comuna'),
+            $em->createQueryBuilder()->select('1')->from(\App\Entity\SquareMessage::class, 'x')->join('x.square', 'sq')->where('sq.comuna = :comuna'),
             $em->createQueryBuilder()->select('1')->from(Comment::class, 'x')->join('x.post', 'p')->where('p.comuna = :comuna'),
         ];
         foreach ($queries as $qb) {

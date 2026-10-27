@@ -54,8 +54,16 @@ class Notification
         #[ORM\ManyToOne]
         #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
         private ?ComunaOwnershipTransfer $transfer = null,
+        #[ORM\ManyToOne]
+        #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+        private ?SquareMessage $squareMessage = null,
     ) {
         $this->id = Uuid::v7();
+    }
+
+    public function getSquareMessage(): ?SquareMessage
+    {
+        return $this->squareMessage;
     }
 
     public function getId(): Uuid

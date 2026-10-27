@@ -138,3 +138,5 @@ docker/           Caddyfile e php.ini
 `docker build --target prod .` gera uma imagem sem dependências de desenvolvimento, com cache aquecido,
 rodando como `www-data`. Antes de publicar, siga o checklist de [docs/configuracao.md](docs/configuracao.md)
 (segredos, proxies confiáveis, e-mail, retenção validada juridicamente, backups).
+
+Praça V1: arquitetura, privacidade, endpoints e execução em [docs/praca.md](docs/praca.md).

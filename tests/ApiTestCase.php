@@ -90,7 +90,7 @@ abstract class ApiTestCase extends WebTestCase
     /** Sem $owner, é uma comuna da equipe; com $owner, a pessoa é proprietária e membro "founder". */
     protected function createComuna(string $slug, ComunaVisibility $visibility = ComunaVisibility::Public, ?User $owner = null): Comuna
     {
-        $comuna = new Comuna($slug, ucfirst($slug), 'Descrição de '.$slug, 'São Paulo · SP', $visibility, 'red', ['comun'], 2024, new \DateTimeImmutable());
+        $comuna = new Comuna($slug, ucfirst($slug), 'Descrição de '.$slug, 'São Paulo · SP', $visibility, 'red', ['comun'], 2024, new \DateTimeImmutable(), $owner);
         $comuna->addRule('Respeito sempre', 'Sem ataques pessoais.');
         $this->em()->persist($comuna);
         $this->em()->flush();

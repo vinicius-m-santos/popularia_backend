@@ -8,6 +8,7 @@ use App\Entity\Comment;
 use App\Entity\ComunaJoinRequest;
 use App\Entity\ComunaOwnershipTransfer;
 use App\Entity\Notification;
+use App\Entity\SquareMessage;
 use App\Entity\User;
 use App\Entity\UserFollow;
 use App\Enum\JoinRequestStatus;
@@ -30,6 +31,16 @@ final readonly class NotificationCreator
         private UserBlockRepository $blocks,
         private ComunaMembershipRepository $memberships,
     ) {
+    }
+
+    public function squareReplied(SquareMessage $message): void
+    {
+        $parent = $message->replyTo;
+        $comuna = $message->square->comuna;
+        if (null === $parent || null === $comuna || (!$comuna->isPublic() && null === $this->memberships->findMembership($comuna, $parent->author))) {
+            return;
+        }
+        $this->save($parent->author, $message->author, NotificationType::SquareReply, $message->id->toRfc4122(), squareMessage: $message);
     }
 
     public function followed(UserFollow $follow, User $actor, User $recipient): void
@@ -86,6 +97,7 @@ final readonly class NotificationCreator
         ?Comment $comment = null,
         ?ComunaJoinRequest $request = null,
         ?ComunaOwnershipTransfer $transfer = null,
+        ?SquareMessage $squareMessage = null,
     ): void {
         if (!$recipient->isActive() || (null !== $actor && ($recipient->getId()->equals($actor->getId()) || $this->blocks->isBlockedEitherWay($recipient, $actor)))) {
             return;
@@ -98,9 +110,10 @@ final readonly class NotificationCreator
             $this->clock->now(),
             $comment?->getPost(),
             $comment,
-            $comment?->getPost()->getComuna() ?? $request?->getComuna() ?? $transfer?->getComuna(),
+            $comment?->getPost()->getComuna() ?? $request?->getComuna() ?? $transfer?->getComuna() ?? $squareMessage?->square->comuna,
             $request,
             $transfer,
+            $squareMessage,
         ));
     }
 }

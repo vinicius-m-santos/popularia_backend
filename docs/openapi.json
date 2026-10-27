@@ -5236,6 +5236,2078 @@
                 "description": "Responde 200 quando tudo est\u00e1 ok e 503 quando o banco n\u00e3o responde.",
                 "parameters": []
             }
+        },
+        "/api/v1/squares/{id}/presence": {
+            "get": {
+                "operationId": "square_presence",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Presen\u00e7a recente aproximada e at\u00e9 12 pessoas; exclui bloqueios.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Presen\u00e7a recente aproximada e at\u00e9 12 pessoas; exclui bloqueios.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresenceView"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "square_heartbeat",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Renova presen\u00e7a; expira em 90s; no m\u00e1ximo uma escrita por 30s.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Renova presen\u00e7a; expira em 90s; no m\u00e1ximo uma escrita por 30s.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresenceView"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}/read": {
+            "put": {
+                "operationId": "square_read",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Avan\u00e7a leitura at\u00e9 mensagem efetivamente vista no final da conversa.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Avan\u00e7a leitura at\u00e9 mensagem efetivamente vista no final da conversa."
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SquareReadInput"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}/messages": {
+            "get": {
+                "operationId": "square_messages",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Recentes/cursor para anteriores; after para altera\u00e7\u00f5es incrementais (inclusive remo\u00e7\u00f5es e rea\u00e7\u00f5es).",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "1..50; padr\u00e3o 20.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 50
+                        }
+                    },
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "description": "changeCursor anterior; n\u00e3o usar com cursor.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "refreshIds",
+                        "in": "query",
+                        "description": "At\u00e9 200 UUIDs separados por v\u00edrgula; revalida conte\u00fado carregado, replies e bloqueios.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recentes/cursor para anteriores; after para altera\u00e7\u00f5es incrementais (inclusive remo\u00e7\u00f5es e rea\u00e7\u00f5es).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessagePage"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "square_send",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Envia texto OU figurinha; clientId deduplica retries.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Envia texto OU figurinha; clientId deduplica retries.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageView"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SquareMessageInput"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}/messages/{messageId}/reactions/{emoji}": {
+            "put": {
+                "operationId": "square_react",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Adiciona rea\u00e7\u00e3o idempotente; conjunto limitado.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "emoji",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Adiciona rea\u00e7\u00e3o idempotente; conjunto limitado.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageView"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "square_unreact",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Remove a rea\u00e7\u00e3o pr\u00f3pria; idempotente.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "emoji",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Remove a rea\u00e7\u00e3o pr\u00f3pria; idempotente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageView"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}": {
+            "get": {
+                "operationId": "square_detail",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Obt\u00e9m metadados; privada sem acesso retorna somente o estado bloqueado.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Obt\u00e9m metadados; privada sem acesso retorna somente o estado bloqueado.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SquareView"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/square": {
+            "get": {
+                "operationId": "square_comuna",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Pra\u00e7a estrutural criada automaticamente com a Comuna, conforme acesso.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pra\u00e7a V1 da comuna; 404 quando ainda n\u00e3o criada.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SquareView"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}/stickers/{stickerId}": {
+            "delete": {
+                "operationId": "square_delete_sticker",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Desativa figurinha da comuna; mant\u00e9m mensagens hist\u00f3ricas.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "stickerId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Desativa figurinha da comuna; mant\u00e9m mensagens hist\u00f3ricas."
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/reports/{reportId}": {
+            "patch": {
+                "operationId": "square_resolve_report",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Decide den\u00fancia: dismissed ou removed.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Decide den\u00fancia: dismissed ou removed."
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/merge-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SquareReportDecisionInput"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares": {
+            "get": {
+                "operationId": "square_list",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Suas Pra\u00e7as ou p\u00fablicas descobr\u00edveis; nunca retorna privadas de terceiros.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "1..50; padr\u00e3o 20.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 50
+                        }
+                    },
+                    {
+                        "name": "section",
+                        "in": "query",
+                        "description": "mine ou discover; padr\u00e3o discover.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Suas Pra\u00e7as ou p\u00fablicas descobr\u00edveis; nunca retorna privadas de terceiros.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SquarePage"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/reports": {
+            "get": {
+                "operationId": "square_reports",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Fila paginada de den\u00fancias da comuna; s\u00f3 modera\u00e7\u00e3o.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "1..50; padr\u00e3o 20.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 50
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fila paginada de den\u00fancias da comuna; s\u00f3 modera\u00e7\u00e3o.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportPage"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}/messages/{messageId}": {
+            "delete": {
+                "operationId": "square_delete",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Exclui a pr\u00f3pria mensagem.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Exclui a pr\u00f3pria mensagem."
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}/messages/{messageId}/removal": {
+            "post": {
+                "operationId": "square_remove",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Remove pela modera\u00e7\u00e3o, com motivo auditado.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Remove pela modera\u00e7\u00e3o, com motivo auditado."
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SquareRemovalInput"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}/messages/{messageId}/reports": {
+            "post": {
+                "operationId": "square_report",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Registra den\u00fancia persistente, sem copiar conte\u00fado privado.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Registra den\u00fancia persistente, sem copiar conte\u00fado privado."
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SquareRemovalInput"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}/sticker-packs": {
+            "get": {
+                "operationId": "square_stickers",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Pacote Popularia e da comuna; exige acesso.",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pacote Popularia e da comuna; exige acesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StickerPage"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/squares/{id}/stickers": {
+            "post": {
+                "operationId": "square_add_sticker",
+                "tags": [
+                    "Pra\u00e7as"
+                ],
+                "summary": "Adiciona figurinha simb\u00f3lica da comuna (modera\u00e7\u00e3o, at\u00e9 40).",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Adiciona figurinha simb\u00f3lica da comuna (modera\u00e7\u00e3o, at\u00e9 40).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StickerPage"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limited",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SquareStickerInput"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -6836,6 +8908,523 @@
                         "type": "integer"
                     }
                 }
+            },
+            "SquareSticker": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "packId": {
+                        "type": "string"
+                    },
+                    "symbol": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "tone": {
+                        "type": "string",
+                        "enum": [
+                            "red",
+                            "black",
+                            "cream"
+                        ]
+                    }
+                }
+            },
+            "SquareReaction": {
+                "type": "object",
+                "properties": {
+                    "emoji": {
+                        "type": "string"
+                    },
+                    "count": {
+                        "type": "integer"
+                    },
+                    "mine": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "MessageView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "squareId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "published",
+                            "deleted",
+                            "removed",
+                            "hidden"
+                        ]
+                    },
+                    "body": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "author": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AuthorView"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "sticker": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SquareSticker"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "replyTo": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "author": {
+                                        "anyOf": [
+                                            {
+                                                "$ref": "#/components/schemas/AuthorView"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ]
+                                    },
+                                    "body": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "reactions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SquareReaction"
+                        }
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "editedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "revision": {
+                        "type": "integer"
+                    },
+                    "clientId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "viewer": {
+                        "type": "object",
+                        "properties": {
+                            "isAuthor": {
+                                "type": "boolean"
+                            },
+                            "canDelete": {
+                                "type": "boolean"
+                            },
+                            "canRemove": {
+                                "type": "boolean"
+                            },
+                            "canReport": {
+                                "type": "boolean"
+                            },
+                            "canReact": {
+                                "type": "boolean"
+                            },
+                            "canReply": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            },
+            "SquareView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "comuna": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "slug": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "tone": {
+                                        "type": "string"
+                                    },
+                                    "visibility": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "closedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "version": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "presence": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "unread": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "lastReadId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastMessage": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MessageView"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "viewer": {
+                        "type": "object",
+                        "properties": {
+                            "canRead": {
+                                "type": "boolean"
+                            },
+                            "canWrite": {
+                                "type": "boolean"
+                            },
+                            "canManage": {
+                                "type": "boolean"
+                            },
+                            "isMember": {
+                                "type": "boolean"
+                            },
+                            "joinRequest": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "SquarePage": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SquareView"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "MessagePage": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MessageView"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "changeCursor": {
+                        "type": "integer"
+                    },
+                    "hasMoreChanges": {
+                        "type": "boolean"
+                    },
+                    "refreshed": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MessageView"
+                        }
+                    },
+                    "square": {
+                        "$ref": "#/components/schemas/SquareView"
+                    }
+                }
+            },
+            "PresenceView": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "integer"
+                    },
+                    "people": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuthorView"
+                        }
+                    }
+                }
+            },
+            "StickerPage": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "scope": {
+                                    "type": "string"
+                                },
+                                "stickers": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SquareSticker"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ReportPage": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "reason": {
+                                    "type": "string"
+                                },
+                                "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "message": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/MessageView"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "SquareMessageInput": {
+                "type": "object",
+                "properties": {
+                    "body": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    },
+                    "stickerId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "uuid"
+                    },
+                    "replyToId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "uuid"
+                    },
+                    "clientId": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9_-]{8,64}$"
+                    }
+                },
+                "required": [
+                    "clientId"
+                ]
+            },
+            "SquareReadInput": {
+                "type": "object",
+                "properties": {
+                    "messageId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "messageId"
+                ]
+            },
+            "SquareStickerInput": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "maxLength": 24
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "enum": [
+                            "\u270a",
+                            "\ud83d\udce2",
+                            "\u2764\ufe0f",
+                            "\ud83e\udd1d",
+                            "\ud83d\udd25",
+                            "\ud83d\udcda",
+                            "\ud83c\udf31",
+                            "\u2615",
+                            "\ud83d\udcaa",
+                            "\ud83c\udf89",
+                            "\u2b50",
+                            "\ud83d\udca1"
+                        ]
+                    },
+                    "tone": {
+                        "type": "string",
+                        "enum": [
+                            "red",
+                            "black",
+                            "cream"
+                        ]
+                    }
+                },
+                "required": [
+                    "label",
+                    "symbol"
+                ]
+            },
+            "SquareReportDecisionInput": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "dismissed",
+                            "removed"
+                        ]
+                    }
+                },
+                "required": [
+                    "status"
+                ]
+            },
+            "SquareRemovalInput": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 500
+                    }
+                },
+                "required": [
+                    "reason"
+                ]
             }
         },
         "responses": {},

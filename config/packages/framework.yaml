@@ -69,6 +69,16 @@ framework:
             limit: 60
             interval: '1 minute'
             cache_pool: cache.rate_limiter
+        square_message:
+            policy: sliding_window
+            limit: 30
+            interval: '1 minute'
+            cache_pool: cache.rate_limiter
+        square_interaction:
+            policy: sliding_window
+            limit: 120
+            interval: '1 minute'
+            cache_pool: cache.rate_limiter
         content_creation:
             policy: sliding_window
             limit: 30

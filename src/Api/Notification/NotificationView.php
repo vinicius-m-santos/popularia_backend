@@ -56,6 +56,7 @@ final readonly class NotificationView
         $comuna = $notification->getComuna();
         $post = $notification->getPost();
         $target = match ($notification->getType()) {
+            NotificationType::SquareReply => ['kind' => 'square', 'id' => $notification->getSquareMessage()?->square->id->toRfc4122() ?? ''],
             NotificationType::Follow => ['kind' => 'profile', 'id' => $actor?->getHandle() ?? ''],
             NotificationType::Comment, NotificationType::Reply => ['kind' => 'post', 'id' => $post?->getId()->toRfc4122() ?? ''],
             NotificationType::JoinRequested => ['kind' => 'join_requests', 'id' => $comuna?->getSlug() ?? ''],
@@ -67,7 +68,7 @@ final readonly class NotificationView
             $notification->getType()->value,
             null === $actor ? null : AuthorView::fromUser($actor),
             $comuna?->getName(),
-            null === $notification->getComment() ? null : mb_substr($notification->getComment()->getBody(), 0, 160),
+            null !== $notification->getSquareMessage() ? mb_substr($notification->getSquareMessage()->body ?? 'Figurinha', 0, 160) : (null === $notification->getComment() ? null : mb_substr($notification->getComment()->getBody(), 0, 160)),
             $notification->getCreatedAt(),
             $notification->getReadAt(),
             $target,

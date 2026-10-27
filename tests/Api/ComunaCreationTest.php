@@ -7,6 +7,8 @@ namespace App\Tests\Api;
 use App\Entity\AdminAuditLog;
 use App\Entity\Comuna;
 use App\Entity\ComunaMembership;
+use App\Entity\Square;
+use App\Entity\StickerPack;
 use App\Entity\User;
 use App\Enum\AccountStatus;
 use App\Enum\ComunaRole;
@@ -49,11 +51,23 @@ final class ComunaCreationTest extends ApiTestCase
 
         $saved = $this->fresh(Comuna::class, $comuna['id']);
         self::assertTrue($saved->isOwnedBy($camila));
+        $square = $this->em()->getRepository(Square::class)->findOneBy(['comuna' => $saved]);
+        self::assertNotNull($square);
+        self::assertSame('active', $square->status);
+        self::assertNull($square->closedAt);
+        self::assertNotNull($square->createdBy);
+        self::assertTrue($camila->getId()->equals($square->createdBy->getId()));
+        self::assertNotNull($this->em()->getRepository(StickerPack::class)->findOneBy(['comuna' => $saved]));
+
         $membership = $this->em()->getRepository(ComunaMembership::class)->findOneBy(['comuna' => $saved]);
         self::assertSame(ComunaRole::Founder, $membership?->getRole());
         self::assertNotNull($this->fresh(User::class, $camila->getId())->getLastComunaCreatedAt());
         $audit = $this->em()->getRepository(AdminAuditLog::class)->findOneBy(['action' => 'comuna.created']);
         self::assertSame($comuna['id'], $audit?->getDetails()['comuna_id']);
+        $immediate = $this->request('GET', '/comunas/'.$comuna['slug'].'/square', token: $token);
+        $this->assertStatus(200);
+        self::assertSame($square->id->toRfc4122(), $immediate['id']);
+
     }
 
     public function testClientCannotChooseOwnerSlugStatusOrCounters(): void

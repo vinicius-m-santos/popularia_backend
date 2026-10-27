@@ -113,6 +113,7 @@ final readonly class ComunaGovernance
                     $comuna->addRule(TextNormalizer::normalize($rule['title']), TextNormalizer::normalize($rule['body']));
                 }
                 $owner->recordComunaCreation($now);
+                // ComunaSquareLifecycle inclui Praça e pacote neste mesmo flush/transação.
                 $this->em->persist($comuna);
                 $this->em->persist(new ComunaMembership($comuna, $owner, ComunaRole::Founder, $now));
                 $this->em->flush();
@@ -174,6 +175,7 @@ final readonly class ComunaGovernance
                 return;
             }
             $now = $this->clock->now();
+            // O mesmo flush sincroniza status/closedAt da Praça estrutural.
             $comuna->archive($now);
             foreach ($this->joinRequests->findBy(['comuna' => $comuna, 'status' => JoinRequestStatus::Pending]) as $request) {
                 $request->close(JoinRequestStatus::Cancelled, $now);

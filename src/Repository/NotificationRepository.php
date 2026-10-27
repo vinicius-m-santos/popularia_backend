@@ -57,7 +57,9 @@ class NotificationRepository extends ServiceEntityRepository
     public function markAllRead(User $viewer, \DateTimeImmutable $now): void
     {
         $this->createQueryBuilder('n')->update()->set('n.readAt', ':now')
-            ->where('n.recipient = :viewer')->andWhere('n.readAt IS NULL')
+            ->leftJoin('n.squareMessage', 'sm')->leftJoin('sm.square', 'sq')->leftJoin('sm.replyTo', 'sp')->leftJoin('sp.author', 'spa')
+            ->where('n.recipient = :viewer')
+            ->andWhere('(sm.id IS NULL OR (sm.status = :published AND sp.status = :published AND spa.status = :active))')->andWhere('n.readAt IS NULL')
             ->setParameter('viewer', $viewer)->setParameter('now', $now)->getQuery()->execute();
     }
 
@@ -66,12 +68,14 @@ class NotificationRepository extends ServiceEntityRepository
         $membership = sprintf('SELECT 1 FROM %s nm WHERE nm.comuna = c AND nm.user = :viewer', ComunaMembership::class);
         $moderation = sprintf('SELECT 1 FROM %s modm WHERE modm.comuna = c AND modm.user = :viewer AND modm.role IN (:moderatorRoles)', ComunaMembership::class);
         $qb = $this->createQueryBuilder('n')
-            ->addSelect('a', 'p', 'pa', 'cm', 'cp', 'c', 'jr', 'tr')
+            ->addSelect('a', 'p', 'pa', 'cm', 'cp', 'c', 'jr', 'tr', 'sm', 'sq', 'sp', 'spa')
             ->leftJoin('n.actor', 'a')->leftJoin('n.post', 'p')->leftJoin('p.author', 'pa')
             ->leftJoin('n.comment', 'cm')->leftJoin('cm.parent', 'cp')->leftJoin('n.comuna', 'c')
             ->leftJoin('cp.author', 'cpa')
             ->leftJoin('n.joinRequest', 'jr')->leftJoin('n.transfer', 'tr')
+            ->leftJoin('n.squareMessage', 'sm')->leftJoin('sm.square', 'sq')->leftJoin('sm.replyTo', 'sp')->leftJoin('sp.author', 'spa')
             ->where('n.recipient = :viewer')
+            ->andWhere('(sm.id IS NULL OR (sm.status = :published AND sp.status = :published AND spa.status = :active))')
             ->andWhere('(a.id IS NULL OR a.status = :active)')
             ->andWhere('(p.id IS NULL OR (p.status = :published AND pa.status = :active))')
             ->andWhere('(cm.id IS NULL OR (cm.status = :published AND (cp.id IS NULL OR (cp.status = :published AND cpa.status = :active))))')
@@ -89,6 +93,8 @@ class NotificationRepository extends ServiceEntityRepository
         // The post's author can differ from the replying actor. Both block relationships matter.
         $qb->andWhere(sprintf('NOT EXISTS (SELECT 1 FROM %s pb WHERE (pb.blocker = :viewer AND pb.blocked = pa) OR (pb.blocker = pa AND pb.blocked = :viewer))', \App\Entity\UserBlock::class));
         $qb->andWhere(sprintf('NOT EXISTS (SELECT 1 FROM %s cb WHERE (cb.blocker = :viewer AND cb.blocked = cpa) OR (cb.blocker = cpa AND cb.blocked = :viewer))', \App\Entity\UserBlock::class));
+
+        $qb->andWhere(sprintf('NOT EXISTS (SELECT 1 FROM %s sb WHERE (sb.blocker = :viewer AND sb.blocked = spa) OR (sb.blocker = spa AND sb.blocked = :viewer))', \App\Entity\UserBlock::class));
 
         return $qb;
     }

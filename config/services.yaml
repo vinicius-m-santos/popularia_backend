@@ -4,6 +4,7 @@ parameters:
     app.access_token_ttl: '%env(int:ACCESS_TOKEN_TTL)%'
     app.refresh_token_ttl: '%env(int:REFRESH_TOKEN_TTL)%'
     app.security_event_retention_days: '%env(int:SECURITY_EVENT_RETENTION_DAYS)%'
+    app.empty_string: ''
 
 services:
     _defaults:
@@ -23,3 +24,7 @@ services:
             - '../src/Enum/'
 
     App\Library\ObjectStorage: '@App\Library\S3Storage'
+
+    App\Mail\StagingMailGuard:
+        arguments:
+            $allowlist: '%env(default:app.empty_string:MAILER_STAGING_ALLOWLIST)%'

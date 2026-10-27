@@ -6,12 +6,12 @@ namespace App\Mail;
 
 use App\Entity\User;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -21,7 +21,7 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 final class AccountMailer implements ResetInterface
 {
-    /** @var list<Email> */
+    /** @var list<TemplatedEmail> */
     private array $queue = [];
 
     public function __construct(
@@ -32,32 +32,52 @@ final class AccountMailer implements ResetInterface
 
     public function sendVerificationCode(User $user, #[\SensitiveParameter] string $code): void
     {
-        $this->queue($user, 'Seu código de confirmação da Popularia', <<<TXT
-            Olá, {$user->getDisplayName()}!
+        $name = $user->getDisplayName();
+        $this->queue(
+            $user,
+            'Seu código de confirmação da Popularia',
+            'emails/verification.html.twig',
+            ['name' => $name, 'code' => $code],
+            <<<TXT
+            Olá, {$name}!
 
             Seu código para confirmar o e-mail na Popularia é:
 
                 {$code}
 
             Ele vale por 24 horas. Se não foi você quem criou a conta, ignore esta mensagem.
-            TXT);
+            TXT,
+        );
     }
 
     public function sendAccountAlreadyExists(User $user): void
     {
-        $this->queue($user, 'Tentativa de cadastro com o seu e-mail', <<<TXT
-            Olá, {$user->getDisplayName()}!
+        $name = $user->getDisplayName();
+        $this->queue(
+            $user,
+            'Tentativa de cadastro com o seu e-mail',
+            'emails/account_already_exists.html.twig',
+            ['name' => $name],
+            <<<TXT
+            Olá, {$name}!
 
             Alguém tentou criar uma conta na Popularia com este e-mail, mas você já tem uma.
             Se foi você, entre com sua senha ou use "Esqueci minha senha" no app.
             Se não foi você, não precisa fazer nada: sua conta continua protegida.
-            TXT);
+            TXT,
+        );
     }
 
     public function sendPasswordResetCode(User $user, #[\SensitiveParameter] string $code): void
     {
-        $this->queue($user, 'Código para redefinir sua senha da Popularia', <<<TXT
-            Olá, {$user->getDisplayName()}!
+        $name = $user->getDisplayName();
+        $this->queue(
+            $user,
+            'Código para redefinir sua senha da Popularia',
+            'emails/password_reset.html.twig',
+            ['name' => $name, 'code' => $code],
+            <<<TXT
+            Olá, {$name}!
 
             Seu código para criar uma nova senha é:
 
@@ -65,17 +85,25 @@ final class AccountMailer implements ResetInterface
 
             Ele vale por 30 minutos e só pode ser usado uma vez.
             Se você não pediu isso, ignore esta mensagem: sua senha continua a mesma.
-            TXT);
+            TXT,
+        );
     }
 
     public function sendPasswordChanged(User $user): void
     {
-        $this->queue($user, 'Sua senha da Popularia foi alterada', <<<TXT
-            Olá, {$user->getDisplayName()}!
+        $name = $user->getDisplayName();
+        $this->queue(
+            $user,
+            'Sua senha da Popularia foi alterada',
+            'emails/password_changed.html.twig',
+            ['name' => $name],
+            <<<TXT
+            Olá, {$name}!
 
             A senha da sua conta acabou de ser alterada e as outras sessões foram encerradas.
             Se não foi você, use "Esqueci minha senha" no app agora mesmo.
-            TXT);
+            TXT,
+        );
     }
 
     #[AsEventListener(KernelEvents::TERMINATE)]
@@ -87,7 +115,6 @@ final class AccountMailer implements ResetInterface
             try {
                 $this->mailer->send($email);
             } catch (TransportExceptionInterface $e) {
-                // Sem o endereço no log: só o tipo de mensagem e o erro do transporte.
                 $this->logger->error('Falha ao enviar e-mail da conta.', ['subject' => $email->getSubject(), 'error' => $e->getMessage()]);
             }
         }
@@ -98,11 +125,16 @@ final class AccountMailer implements ResetInterface
         $this->queue = [];
     }
 
-    private function queue(User $user, string $subject, string $text): void
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function queue(User $user, string $subject, string $template, array $context, string $text): void
     {
-        $this->queue[] = (new Email())
+        $this->queue[] = (new TemplatedEmail())
             ->to($user->getEmail())
             ->subject($subject)
+            ->htmlTemplate($template)
+            ->context($context)
             ->text($text);
     }
 }

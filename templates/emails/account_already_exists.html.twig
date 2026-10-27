@@ -1,0 +1,19 @@
+{% extends 'emails/base.html.twig' %}
+{% set subject = 'Tentativa de cadastro com o seu e-mail' %}
+
+{% block body %}
+<p style="margin:0 0 16px;font-size:16px;color:#1A1A1A;line-height:1.5">Olá, {{ name }}!</p>
+<p style="margin:0 0 24px;font-size:15px;color:#444444;line-height:1.6">
+  Alguém tentou criar uma nova conta na Popularia usando este endereço de e-mail, mas você já possui uma conta.
+</p>
+<p style="margin:0 0 16px;font-size:15px;color:#444444;line-height:1.6">
+  <strong>Se foi você:</strong> entre com sua senha no aplicativo ou use &ldquo;Esqueci minha senha&rdquo; para recuperar o acesso.
+</p>
+<p style="margin:0 0 24px;font-size:15px;color:#444444;line-height:1.6">
+  <strong>Se não foi você:</strong> nenhuma ação é necessária. Sua conta continua protegida e nenhuma alteração foi feita.
+</p>
+<hr style="border:none;border-top:1px solid #EEEEEE;margin:24px 0">
+<p style="margin:0;font-size:13px;color:#888888;line-height:1.5">
+  Por segurança, nunca compartilhe sua senha com ninguém.
+</p>
+{% endblock %}

@@ -37,9 +37,9 @@ final class ApiProblem extends \RuntimeException implements ProblemExceptionInte
         return new self(401, '/errors/invalid-refresh-token', 'Sua sessão terminou. Entre novamente.');
     }
 
-    public static function unauthorized(): self
+    public static function unauthorized(string $type = '/errors/unauthorized', string $title = 'É preciso entrar na conta.'): self
     {
-        return new self(401, '/errors/unauthorized', 'É preciso entrar na conta.');
+        return new self(401, $type, $title);
     }
 
     public static function accountInactive(): self

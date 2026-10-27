@@ -27,8 +27,8 @@ sentry:
         # enable_tracing: false (padrão)
 
         # Filtro: descarta 4xx esperados, adiciona request_id como tag.
-        before_send: '@App\Sentry\SentryBeforeSend'
+        before_send: 'App\Sentry\SentryBeforeSend'
 
         # Cabeçalhos sempre excluídos do contexto HTTP capturado.
-        ignored_exceptions:
+        ignore_exceptions:
             - 'Symfony\Component\Security\Core\Exception\AuthenticationException'

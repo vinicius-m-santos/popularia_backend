@@ -53,6 +53,10 @@ final readonly class Me
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $updatedAt,
         public bool $isPrivate = false,
+        /** true quando a conta foi criada via social login e ainda não completou o onboarding. */
+        public bool $pendingOnboarding = false,
+        /** false para contas criadas via Google/Apple sem senha definida. */
+        public bool $hasPassword = true,
     ) {
     }
 
@@ -71,6 +75,8 @@ final readonly class Me
             $user->getCreatedAt(),
             $user->getUpdatedAt(),
             $user->isPrivate(),
+            $user->isPendingOnboarding(),
+            $user->hasPassword(),
         );
     }
 }

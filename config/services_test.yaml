@@ -2,3 +2,19 @@ services:
     App\Tests\Library\MemoryStorage:
         public: true
     App\Library\ObjectStorage: '@App\Tests\Library\MemoryStorage'
+
+    # Stubs dos validadores JWT para não chamar APIs externas nos testes.
+    App\Tests\Social\FakeGoogleTokenValidator:
+        public: true
+        autowire: false
+        autoconfigure: false
+    App\Tests\Social\FakeAppleTokenValidator:
+        public: true
+        autowire: false
+        autoconfigure: false
+    App\Social\GoogleTokenValidator:
+        class: App\Tests\Social\FakeGoogleTokenValidator
+        public: true
+    App\Social\AppleTokenValidator:
+        class: App\Tests\Social\FakeAppleTokenValidator
+        public: true

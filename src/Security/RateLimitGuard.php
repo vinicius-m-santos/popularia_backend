@@ -37,6 +37,7 @@ final class RateLimitGuard
             'content_creation' => new Autowire(service: 'limiter.content_creation'),
             'comuna_name_check' => new Autowire(service: 'limiter.comuna_name_check'),
             'comuna_join_request' => new Autowire(service: 'limiter.comuna_join_request'),
+            'social_auth' => new Autowire(service: 'limiter.social_auth'),
         ])]
         private readonly ContainerInterface $limiters,
         private readonly SecurityEventRecorder $events,

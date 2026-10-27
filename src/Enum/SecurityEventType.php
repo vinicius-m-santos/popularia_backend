@@ -23,4 +23,6 @@ enum SecurityEventType: string
     case PasswordChanged = 'password_changed';
     case RateLimitExceeded = 'rate_limit_exceeded';
     case AccountStatusChanged = 'account_status_changed';
+    case SocialAuthEmailConflict = 'social_auth_email_conflict';
+    case SocialAuthIdentityLinked = 'social_auth_identity_linked';
 }

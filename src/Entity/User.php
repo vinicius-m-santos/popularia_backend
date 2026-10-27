@@ -100,8 +100,40 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return mb_strtolower(trim($handle));
     }
 
+    /**
+     * true quando a conta foi criada via social login e ainda não passou pelo onboarding
+     * (escolha de handle e nome). Nenhuma operação é bloqueada, mas o app deve mostrar o
+     * fluxo de configuração antes de levar ao feed.
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $pendingOnboarding = false;
+
     #[ORM\Column(options: ['default' => false])]
     private bool $isPrivate = false;
+
+    public function hasPassword(): bool
+    {
+        return '' !== $this->password;
+    }
+
+    public function isPendingOnboarding(): bool
+    {
+        return $this->pendingOnboarding;
+    }
+
+    public function markPendingOnboarding(\DateTimeImmutable $now): void
+    {
+        $this->pendingOnboarding = true;
+        $this->updatedAt = $now;
+    }
+
+    public function completeOnboarding(string $handle, string $displayName, \DateTimeImmutable $now): void
+    {
+        $this->handle = self::normalizeHandle($handle);
+        $this->displayName = trim($displayName);
+        $this->pendingOnboarding = false;
+        $this->updatedAt = $now;
+    }
 
     public function isPrivate(): bool
     {

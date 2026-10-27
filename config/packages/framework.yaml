@@ -108,6 +108,11 @@ framework:
             limit: 20
             interval: '15 minutes'
             cache_pool: cache.rate_limiter
+        waitlist:
+            policy: sliding_window
+            limit: 5
+            interval: '1 hour'
+            cache_pool: cache.rate_limiter
 
 when@test:
     framework:

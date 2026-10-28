@@ -1,0 +1,8 @@
+# Desenvolvimento local: mantém a proteção contra rajadas, sem deixar o aparelho
+# bloqueado por 15 minutos depois de corrigir uma falha da API ou do banco.
+framework:
+    rate_limiter:
+        login_ip:
+            interval: '1 minute'
+        login_account:
+            interval: '1 minute'

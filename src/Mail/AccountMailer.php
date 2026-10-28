@@ -22,7 +22,7 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 final class AccountMailer implements ResetInterface
 {
-    /** @var list<TemplatedEmail> */
+    /** @var list<Email> */
     private array $queue = [];
 
     public function __construct(

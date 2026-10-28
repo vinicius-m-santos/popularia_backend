@@ -34,29 +34,45 @@ final class PdfValidator
             throw new ApiProblem(422, '/errors/pdf-format', 'Esse arquivo não é um PDF. Exporte como PDF e tente de novo.');
         }
         // Um parser real valida a estrutura; magic bytes sozinhos não detectam corrupção.
-        $process = @proc_open(['timeout', '--signal=KILL', '20s', 'prlimit', '--as=268435456', '--cpu=20', '--', 'qpdf', '--check', $path], [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
-        if (!is_resource($process)) {
-            throw ApiProblem::serviceUnavailable();
+        // A consulta separada evita apresentar um PDF protegido como se estivesse corrompido.
+        $password = $this->qpdf($path, '--requires-password');
+        if (0 === $password['exit']) {
+            throw new ApiProblem(422, '/errors/pdf-password-protected', 'Este PDF está protegido por senha. Remova a senha e tente novamente.');
         }
-        stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
-        $exit = proc_close($process);
-        if (127 === $exit) {
-            throw ApiProblem::serviceUnavailable();
+        $check = $this->qpdf($path, '--check');
+        // qpdf usa 3 para avisos recuperáveis. Esses PDFs continuam íntegros e podem ser lidos.
+        if (!in_array($check['exit'], [0, 3], true)) {
+            throw new ApiProblem(422, '/errors/pdf-corrupt', 'Este PDF está corrompido. Exporte uma nova cópia e tente novamente.');
         }
-        if (0 !== $exit) {
-            throw new ApiProblem(422, '/errors/pdf-corrupt', 'Este PDF está corrompido ou protegido por senha. Envie uma versão que possa ser aberta.');
-        }
-        $process = proc_open(['timeout', '--signal=KILL', '20s', 'prlimit', '--as=268435456', '--cpu=20', '--', 'qpdf', '--show-npages', $path], [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
-        if (!is_resource($process)) {
-            throw ApiProblem::serviceUnavailable();
-        }
-        $pages = (int) stream_get_contents($pipes[1]);
-        fclose($pipes[1]);
-        if (0 !== proc_close($process) || $pages < 1) {
-            throw new ApiProblem(422, '/errors/pdf-corrupt', 'Não foi possível ler este PDF.');
+        $pageResult = $this->qpdf($path, '--show-npages');
+        $pages = (int) trim($pageResult['stdout']);
+        if (!in_array($pageResult['exit'], [0, 3], true) || $pages < 1) {
+            throw new ApiProblem(422, '/errors/pdf-unreadable', 'O PDF parece válido, mas não conseguimos interpretar suas páginas. Exporte-o novamente em um formato PDF padrão.');
         }
 
         return ['checksum' => hash_file('sha256', $path) ?: throw ApiProblem::serviceUnavailable(), 'byteSize' => $size, 'pageCount' => $pages];
+    }
+
+    /** @return array{exit: int, stdout: string} */
+    private function qpdf(string $path, string $operation): array
+    {
+        $process = @proc_open(['timeout', '--signal=KILL', '20s', 'prlimit', '--as=268435456', '--cpu=20', '--', 'qpdf', $operation, $path], [
+            0 => ['file', '/dev/null', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ], $pipes);
+        if (!is_resource($process)) {
+            throw ApiProblem::serviceUnavailable();
+        }
+        $stdout = (string) stream_get_contents($pipes[1]);
+        stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $exit = proc_close($process);
+        if (in_array($exit, [124, 127], true)) {
+            throw ApiProblem::serviceUnavailable();
+        }
+
+        return ['exit' => $exit, 'stdout' => $stdout];
     }
 }

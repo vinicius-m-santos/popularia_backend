@@ -17,6 +17,7 @@ use App\Square\SquareQueries;
 use App\Square\SquareService;
 use App\Square\SquareViews;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Uid\Uuid;
 
@@ -39,14 +40,18 @@ final readonly class SquareProvider implements ProviderInterface
         $viewer = $this->currentUser->get();
         $page = Pagination::fromContext($context);
         $request = $context['request'] ?? null;
-        $query = $request instanceof Request ? $request->query : null;
+        $query = $request instanceof Request ? $request->query : new InputBag();
         $name = $operation->getName();
         if ('square_list' === $name) {
-            $section = (string) $query?->get('section', 'discover');
+            $section = (string) $query->get('section', 'discover');
             if (!in_array($section, ['mine', 'discover'], true)) {
                 throw ApiProblem::badRequest('/errors/invalid-section', 'Seção inválida.');
             }
-            $rows = $this->queries->list($viewer, 'mine' === $section, $page->cursor, $page->limit + 1);
+            $term = trim((string) $query->get('q', ''));
+            if (mb_strlen($term) > 100) {
+                throw ApiProblem::badRequest('/errors/square-search', 'A busca é longa demais.');
+            }
+            $rows = $this->queries->list($viewer, 'mine' === $section, $page->cursor, $page->limit + 1, $term);
             [$items, $next] = $page->slice($rows, static fn (Square $s) => $s->id);
 
             return new SquarePage($this->views->squares($items, $viewer), $next);
@@ -85,15 +90,16 @@ final readonly class SquareProvider implements ProviderInterface
         if ('square_presence' === $name) {
             return new PresenceView($this->queries->stats([$square], $viewer)[$square->id->toRfc4122()]['presence'], $this->queries->presence($square, $viewer));
         }
-        $afterValue = $query?->get('after');
+        $afterValue = $query->get('after');
         $after = null;
         if (null !== $afterValue) {
+            $afterValue = (string) $afterValue;
             if (!ctype_digit($afterValue) || strlen($afterValue) > 15 || null !== $page->cursor) {
                 throw ApiProblem::badRequest('/errors/invalid-cursor', 'Cursor de alterações inválido.');
             }
             $after = (int) $afterValue;
         }
-        $refresh = (string) $query?->get('refreshIds', '');
+        $refresh = (string) $query->get('refreshIds', '');
         $ids = '' === $refresh ? [] : explode(',', $refresh);
         if (count($ids) > 200 || count(array_filter($ids, static fn (string $id) => !Uuid::isValid($id))) > 0) {
             throw ApiProblem::badRequest('/errors/invalid-ids', 'Lista de mensagens inválida.');

@@ -16,6 +16,12 @@ final class DocumentInput
     #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
     public ?string $title = null;
 
+    #[Assert\Length(max: 200)]
+    #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
+    public ?string $author = null;
+
+    public bool $clearAuthor = false;
+
     #[Assert\Length(max: 1000)]
     #[Assert\Regex(pattern: TextRules::MULTI_LINE, message: TextRules::MESSAGE)]
     public ?string $description = null;

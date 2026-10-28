@@ -67,11 +67,11 @@ final class UploadTest extends ApiTestCase
     }
 
     /** @return array<string, mixed> */
-    private function upload(?UploadedFile $file, string $token, string $collection, ?string $clientId = null, bool $public = false, string $access = 'private'): array
+    private function upload(?UploadedFile $file, string $token, string $collection, ?string $clientId = null, bool $public = false, string $access = 'private', ?string $author = null): array
     {
         $this->client->request('POST', '/api/v1/library/documents', parameters: ['metadata' => json_encode([
             'title' => 'Cartilha de trabalho', 'description' => 'Material para estudo', 'collectionId' => $collection,
-            'access' => $access, 'topic' => 'trab', 'isPublic' => $public, 'clientId' => $clientId ?? Uuid::v7()->toRfc4122(),
+            'author' => $author, 'access' => $access, 'topic' => 'trab', 'isPublic' => $public, 'clientId' => $clientId ?? Uuid::v7()->toRfc4122(),
         ], JSON_THROW_ON_ERROR)], files: null === $file ? [] : ['file' => $file], server: ['HTTP_ACCEPT' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer '.$token, 'CONTENT_TYPE' => 'multipart/form-data']);
 
         return (array) json_decode((string) $this->client->getResponse()->getContent(), true, flags: JSON_THROW_ON_ERROR);
@@ -98,6 +98,7 @@ final class UploadTest extends ApiTestCase
         $second = $this->upload($this->file(), $token, $collection, $clientId);
         $this->assertStatus(201);
         self::assertSame($first['id'], $second['id']);
+        self::assertNull($first['author']);
         self::assertSame(1, MemoryStorage::$puts);
         self::assertCount(1, MemoryStorage::$objects);
         self::assertSame(1, $first['pageCount']);
@@ -106,6 +107,24 @@ final class UploadTest extends ApiTestCase
         $this->assertStatus(302);
         self::assertNotEmpty($this->client->getResponse()->headers->get('Location'));
         self::assertStringContainsString('no-store', $this->client->getResponse()->headers->get('Cache-Control') ?? '');
+    }
+
+    public function testUploadAcceptsOptionalAuthor(): void
+    {
+        [$token, $collection] = $this->prepare();
+        $uploaded = $this->upload($this->file(), $token, $collection, author: 'Nise da Silveira');
+
+        $this->assertStatus(201);
+        self::assertSame('Nise da Silveira', $uploaded['author']);
+    }
+
+    public function testUploadRejectsAnAuthorLongerThanTheLimit(): void
+    {
+        [$token, $collection] = $this->prepare();
+        $this->upload($this->file(), $token, $collection, author: str_repeat('a', 201));
+
+        $this->assertStatus(422);
+        self::assertSame(0, MemoryStorage::$puts);
     }
 
     public function testInvalidMimeFakeExtensionMissingAndInterruptedUploadsLeaveNoFinalEntity(): void
@@ -138,8 +157,27 @@ final class UploadTest extends ApiTestCase
     public function testCorruptPdfIsRejectedByParser(): void
     {
         [$token, $collection] = $this->prepare();
-        $this->upload($this->file(content: "%PDF-1.4\ntruncated file\n%%EOF"), $token, $collection);
+        $problem = $this->upload($this->file(content: "%PDF-1.4\ntruncated file\n%%EOF"), $token, $collection);
         $this->assertStatus(422);
+        self::assertSame('/errors/pdf-corrupt', $problem['type']);
+        self::assertSame(0, MemoryStorage::$puts);
+    }
+
+    public function testPasswordProtectedPdfHasSpecificError(): void
+    {
+        [$token, $collection] = $this->prepare();
+        $plain = $this->file();
+        $encryptedPath = tempnam(sys_get_temp_dir(), 'popularia-pdf-encrypted-');
+        self::assertIsString($encryptedPath);
+        $this->paths[] = $encryptedPath;
+        $process = proc_open(['qpdf', '--encrypt', 'segredo', 'segredo', '256', '--', $plain->getPathname(), $encryptedPath], [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
+        self::assertIsResource($process);
+        self::assertSame(0, proc_close($process));
+
+        $problem = $this->upload(new UploadedFile($encryptedPath, 'protegido.pdf', 'application/pdf', UPLOAD_ERR_OK, true), $token, $collection);
+
+        $this->assertStatus(422);
+        self::assertSame('/errors/pdf-password-protected', $problem['type']);
         self::assertSame(0, MemoryStorage::$puts);
     }
 

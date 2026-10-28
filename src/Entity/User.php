@@ -72,7 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public const int HANDLE_MAX_LENGTH = 20;
     public const string HANDLE_PATTERN = '/^[a-z0-9._]{3,20}$/';
     public const int DISPLAY_NAME_MAX_LENGTH = 50;
-    public const int BIO_MAX_LENGTH = 160;
+    public const int BIO_MAX_LENGTH = 150;
     public const int CITY_MAX_LENGTH = 80;
     public const int STATE_MAX_LENGTH = 80;
     public const int COUNTRY_MAX_LENGTH = 80;
@@ -266,11 +266,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->city;
     }
 
-    public function getState(): ?string { return $this->state; }
-    public function getCountry(): ?string { return $this->country; }
-    public function getCountryCode(): string { return $this->countryCode; }
-    public function getStateIbgeCode(): ?string { return $this->stateIbgeCode; }
-    public function getMunicipalityIbgeCode(): ?string { return $this->municipalityIbgeCode; }
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function getCountryCode(): string
+    {
+        return $this->countryCode;
+    }
+
+    public function getStateIbgeCode(): ?string
+    {
+        return $this->stateIbgeCode;
+    }
+
+    public function getMunicipalityIbgeCode(): ?string
+    {
+        return $this->municipalityIbgeCode;
+    }
 
     /** @return list<string> */
     public function getInterests(): array
@@ -286,7 +305,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function updateProfile(?string $displayName, ?string $bio, ?string $city, ?array $interests, \DateTimeImmutable $now, ?string $handle = null, ?string $state = null, ?string $country = null, ?string $countryCode = null, ?string $stateIbgeCode = null, ?string $municipalityIbgeCode = null): void
     {
-        if (null !== $handle) $this->handle = self::normalizeHandle($handle);
+        if (null !== $handle) {
+            $this->handle = self::normalizeHandle($handle);
+        }
         if (null !== $displayName) {
             $this->displayName = trim($displayName);
         }
@@ -297,11 +318,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $city = trim($city);
             $this->city = '' === $city ? null : $city;
         }
-        if (null !== $state) { $state = trim($state); $this->state = '' === $state ? null : $state; }
-        if (null !== $country) { $country = trim($country); $this->country = '' === $country ? null : $country; }
-        if (null !== $countryCode) $this->countryCode = strtoupper(trim($countryCode));
-        if (null !== $stateIbgeCode) $this->stateIbgeCode = '' === trim($stateIbgeCode) ? null : trim($stateIbgeCode);
-        if (null !== $municipalityIbgeCode) $this->municipalityIbgeCode = '' === trim($municipalityIbgeCode) ? null : trim($municipalityIbgeCode);
+        if (null !== $state) {
+            $state = trim($state);
+            $this->state = '' === $state ? null : $state;
+        }
+        if (null !== $country) {
+            $country = trim($country);
+            $this->country = '' === $country ? null : $country;
+        }
+        if (null !== $countryCode) {
+            $this->countryCode = strtoupper(trim($countryCode));
+        }
+        if (null !== $stateIbgeCode) {
+            $this->stateIbgeCode = '' === trim($stateIbgeCode) ? null : trim($stateIbgeCode);
+        }
+        if (null !== $municipalityIbgeCode) {
+            $this->municipalityIbgeCode = '' === trim($municipalityIbgeCode) ? null : trim($municipalityIbgeCode);
+        }
         if (null !== $interests) {
             $this->interests = array_values(array_unique($interests));
         }

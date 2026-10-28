@@ -10,6 +10,7 @@ use ApiPlatform\Validator\Exception\ValidationException;
 use App\Content\ContentPolicy;
 use App\Content\TextNormalizer;
 use App\Entity\Comment;
+use App\Entity\CommentSupport;
 use App\Notification\NotificationCreator;
 use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
@@ -62,13 +63,15 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
 
         $this->filter->assertText($data->body, $post->getComuna());
         $comment = new Comment($post, $parent, $author, TextNormalizer::normalize($data->body), $this->clock->now());
-        $this->em->wrapInTransaction(function () use ($comment, $post): void {
+        $this->em->wrapInTransaction(function () use ($comment, $post, $author): void {
             $this->em->persist($comment);
+            // Todo comentário começa com o apoio persistente de quem escreveu.
+            $this->em->persist(new CommentSupport($comment, $author));
             $this->notifications->commented($comment);
             $this->em->flush();
             $this->posts->incrementCommentCount($post);
         });
 
-        return CommentView::fromComment($comment, false, $author->getId()->toRfc4122());
+        return CommentView::fromComment($comment, false, $author->getId()->toRfc4122(), false, 1, true);
     }
 }

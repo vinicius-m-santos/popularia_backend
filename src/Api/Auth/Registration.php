@@ -61,10 +61,22 @@ final class Registration
     #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
     public ?string $city = null;
 
+    #[Assert\Length(max: User::STATE_MAX_LENGTH)]
+    #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
     public ?string $state = null;
+
+    #[Assert\Length(max: User::COUNTRY_MAX_LENGTH)]
+    #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
     public ?string $country = null;
+
+    #[Assert\Length(max: 2)]
+    #[Assert\Regex(pattern: '/^[A-Za-z]{2}$/', message: 'Código de país inválido.')]
     public ?string $countryCode = 'BR';
+
+    #[Assert\Regex(pattern: '/^\\d{1,3}$/', message: 'Código de estado inválido.')]
     public ?string $stateIbgeCode = null;
+
+    #[Assert\Regex(pattern: '/^\\d{7}$/', message: 'Código de município inválido.')]
     public ?string $municipalityIbgeCode = null;
 
     /** @var list<string> */

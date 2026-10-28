@@ -44,7 +44,12 @@ final readonly class SquareViews
 
         return array_map(function (SquareMessage $m) use ($viewer, $hidden, $reactions, $memberships, $visible): MessageView {
             $shown = $visible($m);
-            $status = isset($hidden[$m->author->getId()->toRfc4122()]) || !$m->author->isActive() ? 'hidden' : $m->status->value;
+            $authorHidden = isset($hidden[$m->author->getId()->toRfc4122()]) || !$m->author->isActive();
+            $status = $authorHidden ? 'hidden' : $m->status->value;
+            // Exclusão voluntária preserva autoria e horário para a conversa continuar legível,
+            // sem devolver texto, figurinha, resposta, reações ou ações. Bloqueio/conta inativa
+            // continua ocultando a autoria, e remoção da moderação continua sendo só marcador.
+            $showDeletedAuthor = !$authorHidden && ContentStatus::Deleted === $m->status;
             $parent = $m->replyTo;
             $reply = null;
             if ($shown && null !== $parent) {
@@ -58,11 +63,11 @@ final readonly class SquareViews
             return new MessageView(
                 $m->id->toRfc4122(), $m->square->id->toRfc4122(), $status,
                 $shown ? $m->body : null,
-                $shown ? AuthorView::fromUser($m->author) : null,
+                $shown || $showDeletedAuthor ? AuthorView::fromUser($m->author) : null,
                 $shown && null !== $m->sticker ? self::sticker($m->sticker) : null,
                 $reply, $shown ? ($reactions[$m->id->toRfc4122()] ?? []) : [],
                 $m->createdAt, $m->editedAt, $m->revision, $mine ? $m->clientId : null,
-                ['isAuthor' => $shown && $mine, 'canDelete' => $shown && $mine && $active, 'canRemove' => $canRemove, 'canReport' => $shown && !$mine && $active, 'canReact' => $shown && $active && $viewer->isEmailVerified(), 'canReply' => $shown && $active && $viewer->isEmailVerified() && isset($memberships[$comuna->getId()->toRfc4122()])],
+                ['isAuthor' => ($shown || $showDeletedAuthor) && $mine, 'canDelete' => $shown && $mine && $active, 'canRemove' => $canRemove, 'canReport' => $shown && !$mine && $active, 'canReact' => $shown && $active && $viewer->isEmailVerified(), 'canReply' => $shown && $active && $viewer->isEmailVerified() && isset($memberships[$comuna->getId()->toRfc4122()])],
             );
         }, $messages);
     }

@@ -15,10 +15,10 @@ use App\Auth\SecurityEventRecorder;
 use App\Entity\User;
 use App\Enum\AccountTokenPurpose;
 use App\Enum\SecurityEventType;
+use App\Location\LocationCatalog;
 use App\Mail\AccountMailer;
 use App\Repository\UserRepository;
 use App\Security\RateLimitGuard;
-use App\Location\LocationCatalog;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
@@ -51,7 +51,7 @@ final readonly class RegistrationProcessor implements ProcessorInterface
         }
 
         $now = $this->clock->now();
-        if ('BR' === strtoupper((string) ($data->countryCode ?? 'BR')) && (null === $data->stateIbgeCode || null === $data->municipalityIbgeCode || !$this->locations->hasMunicipality($data->stateIbgeCode, $data->municipalityIbgeCode))) {
+        if ('BR' === strtoupper((string) ($data->countryCode ?? 'BR')) && (null !== $data->stateIbgeCode || null !== $data->municipalityIbgeCode) && (null === $data->stateIbgeCode || null === $data->municipalityIbgeCode || !$this->locations->hasMunicipality($data->stateIbgeCode, $data->municipalityIbgeCode))) {
             throw ApiProblem::badRequest('/errors/invalid-location', 'Escolha uma cidade válida para o estado selecionado.');
         }
         $user = new User($data->email, $data->handle, $data->displayName, $now);

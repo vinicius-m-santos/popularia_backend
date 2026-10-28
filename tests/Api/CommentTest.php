@@ -20,13 +20,36 @@ final class CommentTest extends ApiTestCase
 
         $first = $this->request('POST', $uri, ['body' => 'Primeiro!'], $token);
         $this->assertStatus(201);
+        self::assertSame(1, $first['supportCount']);
+        self::assertTrue($first['viewer']['supported']);
         $reply = $this->request('POST', $uri, ['body' => 'Resposta', 'parentId' => $first['id']], $token);
         $this->assertStatus(201);
 
-        $page = $this->request('GET', $uri);
+        $page = $this->request('GET', $uri, token: $token);
         $this->assertStatus(200);
         self::assertSame([[$first['id'], null], [$reply['id'], $first['id']]], array_map(static fn ($c) => [$c['id'], $c['parentId']], $page['items']));
         self::assertSame(2, $this->fresh(Post::class, $post->getId())->getCommentCount());
+    }
+
+    public function testAuthorCanRemoveAndRestoreAutomaticSupportIdempotently(): void
+    {
+        $author = $this->createUser('camila');
+        $post = $this->createPost($author, null);
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+        $comment = $this->request('POST', '/posts/'.$post->getId()->toRfc4122().'/comments', ['body' => 'Comentário'], $token);
+        $uri = '/comments/'.$comment['id'].'/support';
+
+        $removed = $this->request('DELETE', $uri, token: $token);
+        $this->assertStatus(200);
+        self::assertSame(0, $removed['supportCount']);
+        self::assertFalse($removed['viewer']['supported']);
+
+        $supported = $this->request('PUT', $uri, [], $token);
+        $this->assertStatus(200);
+        self::assertSame(1, $supported['supportCount']);
+        self::assertTrue($supported['viewer']['supported']);
+        $again = $this->request('PUT', $uri, [], $token);
+        self::assertSame(1, $again['supportCount']);
     }
 
     public function testParentMustBelongToSamePost(): void

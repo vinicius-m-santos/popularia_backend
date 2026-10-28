@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Api\Me;
 
+use App\Api\Constraint\HandleRequirements;
 use App\Api\Constraint\TextRules;
 use App\Entity\User;
-use App\Api\Constraint\HandleRequirements;
 use App\Enum\Topic;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** Campos que a pessoa pode mudar no próprio perfil. Null = não mudar; "" em bio/cidade = apagar. */
 final class MeUpdate
 {
-    #[HandleRequirements]
+    #[Assert\Length(min: User::HANDLE_MIN_LENGTH, max: User::HANDLE_MAX_LENGTH, minMessage: 'Use pelo menos {{ limit }} caracteres.', maxMessage: 'Use até {{ limit }} caracteres.')]
+    #[Assert\Regex(pattern: User::HANDLE_PATTERN, message: 'Use de 3 a 20 caracteres: letras minúsculas, números, ponto ou sublinhado.')]
+    #[Assert\Choice(choices: HandleRequirements::RESERVED, match: false, message: 'Esse nome já está em uso.')]
     public ?string $handle = null;
     public ?bool $isPrivate = null;
 

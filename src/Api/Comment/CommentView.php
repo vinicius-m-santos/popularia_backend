@@ -6,8 +6,10 @@ namespace App\Api\Comment;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post as PostOperation;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Api\Post\ContentRemovalInput;
 use App\Api\Post\PostView;
@@ -36,6 +38,30 @@ use App\Entity\Comment;
                 summary: 'Comenta numa publicação ou responde a um comentário (parentId).',
                 description: 'Mesmas regras de publicar: e-mail confirmado e participar da comuna. O comentário pai precisa ser da mesma publicação.',
             ),
+        ),
+        new Put(
+            uriTemplate: '/comments/{id}/support',
+            name: 'comment_support',
+            security: "is_granted('ROLE_USER')",
+            read: false,
+            input: false,
+            deserialize: false,
+            validate: false,
+            processor: CommentSupportProcessor::class,
+            openapi: new Operation(tags: ['Comentários'], summary: 'Apoia um comentário; operação idempotente.'),
+        ),
+        new Delete(
+            uriTemplate: '/comments/{id}/support',
+            name: 'comment_unsupport',
+            status: 200,
+            security: "is_granted('ROLE_USER')",
+            read: false,
+            input: false,
+            output: CommentView::class,
+            deserialize: false,
+            validate: false,
+            processor: CommentSupportProcessor::class,
+            openapi: new Operation(tags: ['Comentários'], summary: 'Remove o próprio apoio de um comentário; operação idempotente.'),
         ),
         new PostOperation(
             uriTemplate: '/comments/{id}/removal',
@@ -66,12 +92,13 @@ final readonly class CommentView
         public ?string $body,
         public ?AuthorView $author,
         public \DateTimeImmutable $createdAt,
+        public int $supportCount,
         public array $viewer,
     ) {
     }
 
     /** $canRemove: quem vê modera a comuna e pode remover este comentário (dica; a operação confere de novo). */
-    public static function fromComment(Comment $comment, bool $hiddenByBlock, ?string $viewerId, bool $canRemove = false): self
+    public static function fromComment(Comment $comment, bool $hiddenByBlock, ?string $viewerId, bool $canRemove = false, int $supportCount = 0, bool $supported = false): self
     {
         $status = $hiddenByBlock && $comment->isPublished() ? 'hidden' : $comment->getStatus()->value;
         $visible = 'published' === $status;
@@ -84,9 +111,11 @@ final readonly class CommentView
             $visible ? $comment->getBody() : null,
             $visible ? AuthorView::fromUser($comment->getAuthor()) : null,
             $comment->getCreatedAt(),
+            $visible ? $supportCount : 0,
             [
                 'isAuthor' => $visible && $comment->getAuthor()->getId()->toRfc4122() === $viewerId,
                 'canRemove' => $visible && $canRemove,
+                'supported' => $visible && $supported,
             ],
         );
     }

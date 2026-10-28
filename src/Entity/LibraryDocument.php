@@ -41,6 +41,9 @@ class LibraryDocument
     #[ORM\Column(length: 500, nullable: true)]
     public ?string $removalReason = null;
 
+    #[ORM\Column(length: 200, nullable: true)]
+    public ?string $author = null;
+
     public function __construct(
         #[ORM\OneToOne]
         #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
@@ -66,8 +69,10 @@ class LibraryDocument
         public ?Topic $topic,
         #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
         public \DateTimeImmutable $createdAt,
+        ?string $author = null,
     ) {
         $this->id = Uuid::v7();
         $this->updatedAt = $createdAt;
+        $this->author = $author;
     }
 }

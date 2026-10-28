@@ -20,13 +20,13 @@ use App\Tests\ApiTestCase;
 /** Requisições reais: autorização antes dos DTOs, referências e revogação pelo estado atual. */
 final class LibraryTest extends ApiTestCase
 {
-    private function document(User $owner, ?\App\Entity\Comuna $comuna = null, LibraryAccess $access = LibraryAccess::Private, bool $public = false, string $title = 'Cartilha de organização'): LibraryDocument
+    private function document(User $owner, ?\App\Entity\Comuna $comuna = null, LibraryAccess $access = LibraryAccess::Private, bool $public = false, string $title = 'Cartilha de organização', ?string $author = null): LibraryDocument
     {
         $now = new \DateTimeImmutable();
         $collection = new LibraryCollection(null === $comuna ? $owner : null, $comuna, $owner, 'Formação popular', 'Coleção de estudo', $now);
         $file = new LibraryFile($owner, \Symfony\Component\Uid\Uuid::v7()->toRfc4122(), 'library/'.bin2hex(random_bytes(16)).'.pdf', 'original-privado.pdf', str_repeat('a', 64), 1024, 4, $now);
         $file->status = 'ready';
-        $document = new LibraryDocument($file, $collection, $collection->user, $collection->comuna, $title, 'Descrição confidencial do material', $access, $public, Topic::Trab, $now);
+        $document = new LibraryDocument($file, $collection, $collection->user, $collection->comuna, $title, 'Descrição confidencial do material', $access, $public, Topic::Trab, $now, $author);
         foreach ([$collection, $file, $document] as $entity) {
             $this->em()->persist($entity);
         }
@@ -60,7 +60,7 @@ final class LibraryTest extends ApiTestCase
         $visible = $this->request('GET', '/posts/'.$post['id'], token: $otherToken);
         $this->assertStatus(200);
         self::assertSame('locked', $visible['document']['state']);
-        foreach (['title', 'description', 'origin', 'collection', 'responsible', 'pageCount', 'byteSize', 'distributions'] as $field) {
+        foreach (['title', 'author', 'description', 'origin', 'collection', 'responsible', 'pageCount', 'byteSize', 'distributions'] as $field) {
             self::assertNull($visible['document'][$field]);
         }
         self::assertFalse($this->fresh(LibraryDocument::class, $document->id)->isPublic);
@@ -230,9 +230,9 @@ final class LibraryTest extends ApiTestCase
         $owner = $this->createUser('camila');
         $reader = $this->createUser('marina');
         for ($i = 0; $i < 3; ++$i) {
-            $this->document($owner, public: true, title: 'Organização trabalhista '.$i);
+            $this->document($owner, public: true, title: 'Organização trabalhista '.$i, author: 0 === $i ? 'Nise da Silveira' : null);
         }
-        $this->document($owner, title: 'Organização secreta');
+        $this->document($owner, title: 'Organização secreta', author: 'Autoria privada');
         $token = $this->login($reader->getEmail())['accessToken'];
         foreach (['ORGANIZACAO', 'confidencial', 'Formacao', 'camila', 'trabalho'] as $term) {
             $list = $this->request('GET', '/library/documents?scope=public&q='.urlencode($term).'&topic=trab&origin=people&limit=2', token: $token);
@@ -244,10 +244,30 @@ final class LibraryTest extends ApiTestCase
             self::assertNull($next['nextCursor']);
             self::assertNotSame($list['items'][0]['id'], $next['items'][0]['id']);
         }
+        $authorSearch = $this->request('GET', '/library/documents?scope=public&q='.urlencode('Nise da Silveira'), token: $token);
+        self::assertCount(1, $authorSearch['items']);
+        self::assertSame('Nise da Silveira', $authorSearch['items'][0]['author']);
+        $privateAuthorSearch = $this->request('GET', '/library/documents?scope=public&q='.urlencode('Autoria privada'), token: $token);
+        self::assertSame([], $privateAuthorSearch['items']);
         $global = $this->request('GET', '/search?q=organizacao&type=all', token: $token);
         self::assertCount(3, $global['documents']);
         $comunas = $this->request('GET', '/library/documents?scope=public&origin=comunas', token: $token);
         self::assertSame([], $comunas['items']);
+    }
+
+    public function testAuthorCanBeUpdatedAndCleared(): void
+    {
+        $owner = $this->createUser('camila');
+        $document = $this->document($owner, public: true, author: 'Autora inicial');
+        $token = $this->login($owner->getEmail())['accessToken'];
+        $id = $document->id->toRfc4122();
+
+        $view = $this->request('GET', '/library/documents/'.$id, token: $token);
+        self::assertSame('Autora inicial', $view['author']);
+        $updated = $this->request('PATCH', '/library/documents/'.$id, ['author' => 'Autora revisada'], $token);
+        self::assertSame('Autora revisada', $updated['author']);
+        $cleared = $this->request('PATCH', '/library/documents/'.$id, ['clearAuthor' => true], $token);
+        self::assertNull($cleared['author']);
     }
 
     public function testSoftDeletionLeavesPostAndSaveAsUnavailableAndNeverGrantsHistoricalAccess(): void

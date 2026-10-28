@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\ApiProblem;
 use App\Repository\UserBlockRepository;
+use App\Repository\UserFollowRepository;
 use App\Repository\UserRepository;
 use App\Security\CurrentUser;
 
@@ -18,6 +19,7 @@ final readonly class PublicProfileProvider implements ProviderInterface
         private UserRepository $users,
         private UserBlockRepository $blocks,
         private CurrentUser $currentUser,
+        private UserFollowRepository $follows,
     ) {
     }
 
@@ -28,6 +30,6 @@ final readonly class PublicProfileProvider implements ProviderInterface
             throw ApiProblem::notFound('Perfil não encontrado.');
         }
 
-        return PublicProfile::fromUser($user);
+        return PublicProfile::fromUser($user, $this->follows->countApprovedFollowers($user));
     }
 }

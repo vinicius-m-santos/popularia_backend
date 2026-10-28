@@ -65,6 +65,17 @@ final class EmailVerificationTest extends ApiTestCase
         $this->assertStatus(204);
     }
 
+    public function testResendHasSixtySecondCooldown(): void
+    {
+        [, $token] = $this->registerAndLogin();
+
+        $this->request('POST', '/me/email-verification/resend', token: $token);
+        $this->assertStatus(202);
+        $problem = $this->request('POST', '/me/email-verification/resend', token: $token);
+        $this->assertStatus(429);
+        self::assertSame('/errors/too-many-requests', $problem['type']);
+    }
+
     public function testVerificationRequiresAuthentication(): void
     {
         $this->request('POST', '/me/email-verification', ['code' => '123456']);

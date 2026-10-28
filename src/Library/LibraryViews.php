@@ -69,7 +69,7 @@ final readonly class LibraryViews
                 ? ['kind' => 'personal', 'id' => $document->user?->getId()->toRfc4122(), 'name' => 'Biblioteca de '.$document->user?->getDisplayName()]
                 : ['kind' => 'comuna', 'id' => $document->comuna->getId()->toRfc4122(), 'slug' => $document->comuna->getSlug(), 'name' => 'c/ '.$document->comuna->getName()];
 
-            return new DocumentView($id, 'available', $document->title, $document->description, $origin,
+            return new DocumentView($id, 'available', $document->title, $document->author, $document->description, $origin,
                 ['id' => $document->collection->id->toRfc4122(), 'name' => $document->collection->name],
                 \App\Enum\AccountStatus::Deleted === $author->getStatus() ? null : ['id' => $author->getId()->toRfc4122(), 'handle' => $author->getHandle(), 'name' => $author->getDisplayName()],
                 $document->createdAt, $document->file->byteSize, $document->file->pageCount, $document->topic?->value,

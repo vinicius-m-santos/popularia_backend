@@ -113,7 +113,8 @@ final readonly class LibraryService
                 }
                 $document = new LibraryDocument($file, $collection, $collection->user, $collection->comuna,
                     TextNormalizer::normalize($input->title ?? ''), TextNormalizer::normalize($input->description ?? ''), $access,
-                    $input->isPublic ?? false, null === $input->topic ? null : Topic::from($input->topic), $this->clock->now());
+                    $input->isPublic ?? false, null === $input->topic ? null : Topic::from($input->topic), $this->clock->now(),
+                    $this->normalizeAuthor($input->author));
                 if ('' === $document->title) {
                     throw new ApiProblem(422, '/errors/library-title', 'Dê um nome ao documento.');
                 }
@@ -156,6 +157,11 @@ final readonly class LibraryService
             }
             if (null !== $input->description) {
                 $document->description = TextNormalizer::normalize($input->description);
+            }
+            if ($input->clearAuthor) {
+                $document->author = null;
+            } elseif (null !== $input->author) {
+                $document->author = $this->normalizeAuthor($input->author);
             }
             if (null !== $input->collectionId) {
                 $collection = $this->collection($input->collectionId);
@@ -343,6 +349,16 @@ final readonly class LibraryService
         if (!in_array($access, $allowed, true)) {
             throw new ApiProblem(422, '/errors/library-access', 'Este acesso não é permitido na biblioteca de origem.');
         }
+    }
+
+    private function normalizeAuthor(?string $author): ?string
+    {
+        if (null === $author) {
+            return null;
+        }
+        $normalized = TextNormalizer::normalize($author);
+
+        return '' === $normalized ? null : $normalized;
     }
 
     public function report(string $id, User $actor, string $reason, ?string $slug): void

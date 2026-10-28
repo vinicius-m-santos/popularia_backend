@@ -20,8 +20,8 @@ use ApiPlatform\OpenApi\Model\Operation;
     cacheHeaders: ['max_age' => 0, 'shared_max_age' => 0, 'public' => false],
     operations: [
         new Get(uriTemplate: '/library/documents/{id}', provider: LibraryProvider::class, name: 'library_document', openapi: new Operation(tags: ['Biblioteca'], summary: 'Documento autorizado ou cartão mínimo bloqueado.')),
-        new Post(uriTemplate: '/library/documents', inputFormats: ['multipart' => ['multipart/form-data']], controller: UploadController::class, deserialize: false, validate: false, read: false, input: false, status: 201, openapi: new Operation(tags: ['Biblioteca'], summary: 'Envia PDF (25 MiB) e metadados; somente cria documento após validar e armazenar.', requestBody: new \ApiPlatform\OpenApi\Model\RequestBody(content: new \ArrayObject(['multipart/form-data' => ['schema' => ['type' => 'object', 'required' => ['file', 'metadata'], 'properties' => ['file' => ['type' => 'string', 'format' => 'binary'], 'metadata' => ['type' => 'string', 'description' => 'JSON: title, description, collectionId, access, topic, isPublic, sharedWith (slugs), clientId (UUID de idempotência).']]]]])))),
-        new Patch(uriTemplate: '/library/documents/{id}', name: 'library_edit', input: DocumentInput::class, read: false, processor: LibraryProcessor::class, openapi: new Operation(tags: ['Biblioteca'], summary: 'Edita metadados e acesso, sem substituir arquivo.')),
+        new Post(uriTemplate: '/library/documents', inputFormats: ['multipart' => ['multipart/form-data']], controller: UploadController::class, deserialize: false, validate: false, read: false, input: false, status: 201, openapi: new Operation(tags: ['Biblioteca'], summary: 'Envia PDF (25 MiB) e metadados; somente cria documento após validar e armazenar.', requestBody: new \ApiPlatform\OpenApi\Model\RequestBody(content: new \ArrayObject(['multipart/form-data' => ['schema' => ['type' => 'object', 'required' => ['file', 'metadata'], 'properties' => ['file' => ['type' => 'string', 'format' => 'binary'], 'metadata' => ['type' => 'string', 'description' => 'JSON: title, author (opcional), description, collectionId, access, topic, isPublic, sharedWith (slugs), clientId (UUID de idempotência).']]]]])))),
+        new Patch(uriTemplate: '/library/documents/{id}', name: 'library_edit', input: DocumentInput::class, read: false, processor: LibraryProcessor::class, openapi: new Operation(tags: ['Biblioteca'], summary: 'Edita metadados e acesso, sem substituir arquivo. Use clearAuthor para remover a autoria.')),
         new Delete(uriTemplate: '/library/documents/{id}', name: 'library_delete', read: false, output: false, processor: LibraryProcessor::class, openapi: new Operation(tags: ['Biblioteca'], summary: 'Exclusão lógica do original.')),
         new Get(uriTemplate: '/library/documents/{id}/file', name: 'library_file', controller: DownloadController::class, read: false, output: false, openapi: new Operation(tags: ['Biblioteca'], summary: 'Entrega bytes PDF com autorização atual, sem URL pública e sem cache.')),
         new Put(uriTemplate: '/library/documents/{id}/saved', name: 'library_save', read: false, deserialize: false, validate: false, output: false, status: 204, processor: LibraryProcessor::class, openapi: new Operation(tags: ['Biblioteca'], summary: 'Salva referência; idempotente.')),
@@ -44,6 +44,7 @@ final readonly class DocumentView
         #[ApiProperty(identifier: true)] public string $id,
         public string $state,
         public ?string $title = null,
+        public ?string $author = null,
         public ?string $description = null,
         public ?array $origin = null,
         public ?array $collection = null,

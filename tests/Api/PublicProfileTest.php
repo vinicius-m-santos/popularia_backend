@@ -18,7 +18,7 @@ final class PublicProfileTest extends ApiTestCase
         $profile = $this->request('GET', '/users/camila');
 
         $this->assertStatus(200);
-        self::assertSame(['id', 'handle', 'displayName', 'bio', 'city', 'memberSince', 'isPrivate'], array_keys($profile));
+        self::assertSame(['id', 'handle', 'displayName', 'bio', 'city', 'memberSince', 'isPrivate', 'followerCount'], array_keys($profile));
         $json = (string) $this->client->getResponse()->getContent();
         foreach (['camila@exemplo.org', 'lgbt', 'interests', 'email', 'password', 'platformRole', 'status'] as $private) {
             self::assertStringNotContainsString($private, $json);

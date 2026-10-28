@@ -35,9 +35,10 @@ interface ObjectStorage {
 
 Implementações:
 - `S3Storage` — produção/staging, SigV4 nativo sem SDK externo
+- `LocalFilesystemStorage` — desenvolvimento local (`APP_ENV=dev`), arquivos privados em `var/library/` e downloads por URL HMAC temporária
 - `MemoryStorage` — testes unitários/integração, estado estático
 
-A aplicação nunca acopla regras de negócio ao SDK específico do provider.
+A aplicação nunca acopla regras de negócio ao SDK específico do provider. O filesystem local é somente uma conveniência de desenvolvimento; staging e produção continuam usando S3.
 
 ## Buckets e Isolamento
 

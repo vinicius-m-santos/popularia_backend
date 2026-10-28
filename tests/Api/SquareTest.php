@@ -103,6 +103,20 @@ final class SquareTest extends ApiTestCase
         $this->assertStatus(201);
     }
 
+    public function testListSearchesJoinedAndDiscoverableSquares(): void
+    {
+        $mine = $this->request('GET', '/squares?section=mine&q=privada', token: $this->memberToken);
+        $this->assertStatus(200);
+        self::assertSame([$this->privateId], array_column($mine['items'], 'id'));
+
+        $discover = $this->request('GET', '/squares?section=discover&q=publica', token: $this->outsiderToken);
+        $this->assertStatus(200);
+        self::assertSame([$this->squareId], array_column($discover['items'], 'id'));
+
+        $empty = $this->request('GET', '/squares?section=mine&q=inexistente', token: $this->memberToken);
+        self::assertSame([], $empty['items']);
+    }
+
     public function testPrivateSquareDoesNotLeakThroughAnyEndpointAndJoinRequestStillWorks(): void
     {
         $this->send($this->privateId, extra: ['body' => 'SEGREDO PRIVADO']);
@@ -159,8 +173,11 @@ final class SquareTest extends ApiTestCase
             if ($m['id'] === $parent['id']) {
                 self::assertSame('deleted', $m['status']);
                 self::assertNull($m['body']);
-                self::assertNull($m['author']);
+                self::assertSame('Marina', $m['author']['displayName']);
                 self::assertSame([], $m['reactions']);
+                self::assertFalse($m['viewer']['canReply']);
+                self::assertFalse($m['viewer']['canReact']);
+                self::assertFalse($m['viewer']['canReport']);
             } else {
                 self::assertNull($m['replyTo']['author']);
                 self::assertNull($m['replyTo']['body']);

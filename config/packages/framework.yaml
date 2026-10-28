@@ -40,9 +40,9 @@ framework:
             interval: '15 minutes'
             cache_pool: cache.rate_limiter
         email_verification_resend:
-            policy: sliding_window
-            limit: 3
-            interval: '15 minutes'
+            policy: fixed_window
+            limit: 1
+            interval: '60 seconds'
             cache_pool: cache.rate_limiter
         password_reset_ip:
             policy: sliding_window

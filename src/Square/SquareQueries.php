@@ -145,16 +145,20 @@ final readonly class SquareQueries
     }
 
     /** @return list<Square> */
-    public function list(User $viewer, bool $mine, ?Uuid $before, int $limit): array
+    public function list(User $viewer, bool $mine, ?Uuid $before, int $limit, string $term = ''): array
     {
         $membership = 'EXISTS (SELECT 1 FROM comuna_membership mm WHERE mm.comuna_id = c.id AND mm.user_id = :viewer)';
         $params = ['viewer' => $viewer->getId()->toRfc4122()];
+        $search = '' === $term ? '' : " AND popularia_search_text(c.name || ' ' || COALESCE(c.description, '') || ' ' || COALESCE(c.place, '')) LIKE popularia_search_text(:term) ESCAPE '!'";
+        if ('' !== $term) {
+            $params['term'] = '%'.strtr($term, ['!' => '!!', '%' => '!%', '_' => '!_']).'%';
+        }
         if (null !== $before) {
             $params['before'] = $before->toRfc4122();
         }
         if ($mine) {
             $cursor = null === $before ? '' : ' AND s.id < :before';
-            $sql = "SELECT s.id FROM square s JOIN comuna c ON c.id = s.comuna_id WHERE $membership $cursor ORDER BY s.id DESC LIMIT $limit";
+            $sql = "SELECT s.id FROM square s JOIN comuna c ON c.id = s.comuna_id WHERE $membership $search $cursor ORDER BY s.id DESC LIMIT $limit";
         } else {
             // Satura presença e atividade: o tamanho histórico da comuna não pesa no ranking.
             $presence = self::unblocked('v.user_id');
@@ -168,7 +172,7 @@ final readonly class SquareQueries
                         + LEAST(4, (SELECT COUNT(*) FROM square_message m JOIN app_user a ON a.id = m.author_id WHERE m.square_id = s.id AND m.created_at > :recent AND m.status = 'published' AND a.status = 'active' AND $activity))
                         + CASE WHEN EXISTS (SELECT 1 FROM jsonb_array_elements_text(c.topics) AS topic(value) WHERE topic.value IN (SELECT jsonb_array_elements_text(CAST(:interests AS jsonb)))) THEN 2 ELSE 0 END AS score
                     FROM square s JOIN comuna c ON c.id = s.comuna_id
-                    WHERE c.visibility = 'public' AND c.status = 'active' AND s.status = 'active' AND NOT $membership
+                    WHERE c.visibility = 'public' AND c.status = 'active' AND s.status = 'active' AND NOT $membership $search
                 ) SELECT id FROM ranked $cursor ORDER BY score DESC, id DESC LIMIT $limit
                 SQL;
         }

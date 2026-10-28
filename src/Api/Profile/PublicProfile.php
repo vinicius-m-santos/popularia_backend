@@ -40,10 +40,11 @@ final readonly class PublicProfile
         public ?string $city,
         public \DateTimeImmutable $memberSince,
         public bool $isPrivate = false,
+        public int $followerCount = 0,
     ) {
     }
 
-    public static function fromUser(User $user): self
+    public static function fromUser(User $user, int $followerCount = 0): self
     {
         return new self(
             $user->getId()->toRfc4122(),
@@ -53,6 +54,7 @@ final readonly class PublicProfile
             $user->getCity(),
             $user->getCreatedAt(),
             $user->isPrivate(),
+            $followerCount,
         );
     }
 }

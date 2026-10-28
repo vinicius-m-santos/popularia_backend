@@ -63,10 +63,11 @@ final readonly class Me
         /** false para contas criadas via Google/Apple sem senha definida. */
         public bool $hasPassword = true,
         public bool $legalAccepted = false,
+        public int $followerCount = 0,
     ) {
     }
 
-    public static function fromUser(User $user): self
+    public static function fromUser(User $user, int $followerCount = 0): self
     {
         return new self(
             $user->getId()->toRfc4122(),
@@ -89,6 +90,7 @@ final readonly class Me
             $user->isPendingOnboarding(),
             $user->hasPassword(),
             $user->hasAcceptedLegal(),
+            $followerCount,
         );
     }
 }

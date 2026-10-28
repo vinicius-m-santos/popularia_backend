@@ -28,7 +28,7 @@ final class MeTest extends ApiTestCase
 
         $this->assertStatus(200);
         self::assertSame(
-            ['id', 'handle', 'displayName', 'email', 'emailVerified', 'bio', 'city', 'interests', 'platformRole', 'createdAt', 'updatedAt', 'isPrivate', 'pendingOnboarding', 'hasPassword', 'legalAccepted'],
+            ['id', 'handle', 'displayName', 'email', 'emailVerified', 'bio', 'city', 'state', 'country', 'countryCode', 'stateIbgeCode', 'municipalityIbgeCode', 'interests', 'platformRole', 'createdAt', 'updatedAt', 'isPrivate', 'pendingOnboarding', 'hasPassword', 'legalAccepted', 'followerCount'],
             array_keys($me),
         );
         self::assertSame('camila@exemplo.org', $me['email']);
@@ -58,7 +58,7 @@ final class MeTest extends ApiTestCase
         $user = $this->createUser('camila');
         $token = $this->login('camila@exemplo.org')['accessToken'];
 
-        foreach ([['email' => 'outro@exemplo.org'], ['handle' => 'outro'], ['platformRole' => 'admin'], ['id' => '00000000-0000-0000-0000-000000000001'], ['emailVerified' => true], ['status' => 'active']] as $patch) {
+        foreach ([['email' => 'outro@exemplo.org'], ['platformRole' => 'admin'], ['id' => '00000000-0000-0000-0000-000000000001'], ['emailVerified' => true], ['status' => 'active']] as $patch) {
             $this->request('PATCH', '/me', $patch, $token, 'application/merge-patch+json');
             $this->assertStatus(400);
         }
@@ -74,10 +74,25 @@ final class MeTest extends ApiTestCase
         $this->createUser('camila');
         $token = $this->login('camila@exemplo.org')['accessToken'];
 
-        $body = $this->request('PATCH', '/me', ['displayName' => '', 'bio' => str_repeat('a', 161), 'interests' => ['xyz']], $token, 'application/merge-patch+json');
+        $body = $this->request('PATCH', '/me', ['displayName' => '', 'bio' => str_repeat('a', 151), 'interests' => ['xyz']], $token, 'application/merge-patch+json');
 
         $this->assertStatus(422);
         self::assertEqualsCanonicalizing(['displayName', 'bio', 'interests[0]'], array_column((array) $body['violations'], 'propertyPath'));
+    }
+
+    public function testHandleCanChangeButRemainsUniqueAtSave(): void
+    {
+        $this->createUser('camila');
+        $this->createUser('joana');
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+
+        $updated = $this->request('PATCH', '/me', ['handle' => 'camila.nova'], $token, 'application/merge-patch+json');
+        $this->assertStatus(200);
+        self::assertSame('camila.nova', $updated['handle']);
+
+        $problem = $this->request('PATCH', '/me', ['handle' => 'joana'], $token, 'application/merge-patch+json');
+        $this->assertStatus(409);
+        self::assertSame('/errors/handle-taken', $problem['type']);
     }
 
     public function testSessionsListShowsOnlyOwnSessionsWithoutSecrets(): void

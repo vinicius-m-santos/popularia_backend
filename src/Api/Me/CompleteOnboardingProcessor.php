@@ -8,9 +8,10 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\ApiProblem;
+use App\Location\LocationCatalog;
+use App\Repository\UserFollowRepository;
 use App\Repository\UserRepository;
 use App\Security\CurrentUser;
-use App\Location\LocationCatalog;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
@@ -26,6 +27,7 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
         private EntityManagerInterface $em,
         private ClockInterface $clock,
         private LocationCatalog $locations,
+        private UserFollowRepository $follows,
     ) {
     }
 
@@ -36,7 +38,7 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
         if (!$user->isPendingOnboarding()) {
             throw ApiProblem::forbidden('/errors/onboarding-already-complete', 'O onboarding já foi concluído.');
         }
-        if ('BR' === strtoupper((string) ($data->countryCode ?? 'BR')) && (null === $data->stateIbgeCode || null === $data->municipalityIbgeCode || !$this->locations->hasMunicipality($data->stateIbgeCode, $data->municipalityIbgeCode))) {
+        if ('BR' === strtoupper((string) ($data->countryCode ?? 'BR')) && (null !== $data->stateIbgeCode || null !== $data->municipalityIbgeCode) && (null === $data->stateIbgeCode || null === $data->municipalityIbgeCode || !$this->locations->hasMunicipality($data->stateIbgeCode, $data->municipalityIbgeCode))) {
             throw ApiProblem::badRequest('/errors/invalid-location', 'Escolha uma cidade válida para o estado selecionado.');
         }
 
@@ -57,6 +59,6 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
             throw $e;
         }
 
-        return Me::fromUser($user);
+        return Me::fromUser($user, $this->follows->countApprovedFollowers($user));
     }
 }

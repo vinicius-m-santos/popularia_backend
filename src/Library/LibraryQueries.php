@@ -71,6 +71,7 @@ final readonly class LibraryQueries
             }
             $topicLabels .= "ELSE '' END";
             $where .= ' AND (('.LibraryAccess::readable().") AND (popularia_search_text(d.title || ' ' || d.description) LIKE popularia_search_text(:q) ESCAPE '!'
+                OR popularia_search_text(COALESCE(d.author, '')) LIKE popularia_search_text(:q) ESCAPE '!'
                 OR popularia_search_text(col.name) LIKE popularia_search_text(:q) ESCAPE '!'
                 OR popularia_search_text(a.display_name || ' ' || a.handle) LIKE popularia_search_text(:q) ESCAPE '!'
                 OR popularia_search_text(COALESCE(c.name, '')) LIKE popularia_search_text(:q) ESCAPE '!'

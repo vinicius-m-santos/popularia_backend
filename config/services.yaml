@@ -23,8 +23,19 @@ services:
             - '../src/Entity/'
             - '../src/Enum/'
 
+    App\Library\LocalFilesystemStorage:
+        arguments:
+            $root: '%kernel.project_dir%/var/library'
+
     App\Library\ObjectStorage: '@App\Library\S3Storage'
 
     App\Mail\StagingMailGuard:
         arguments:
             $allowlist: '%env(default:app.empty_string:MAILER_STAGING_ALLOWLIST)%'
+
+when@dev:
+    services:
+        App\Library\ObjectStorage: '@App\Library\LocalFilesystemStorage'
+        App\Api\Library\LocalFileController:
+            arguments:
+                $appSecret: '%kernel.secret%'

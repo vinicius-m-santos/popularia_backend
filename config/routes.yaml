@@ -9,3 +9,9 @@
 
 controllers:
     resource: routing.controllers
+
+when@dev:
+    dev_library_file:
+        path: /api/dev/library-files
+        controller: App\Api\Library\LocalFileController
+        methods: [GET]

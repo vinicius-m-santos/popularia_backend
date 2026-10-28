@@ -22,6 +22,16 @@ class UserFollowRepository extends ServiceEntityRepository
         return $this->findOneBy(['follower' => $follower, 'followed' => $followed]);
     }
 
+    public function countApprovedFollowers(User $user): int
+    {
+        return (int) $this->createQueryBuilder('f')
+            ->select('COUNT(f.id)')
+            ->where('f.followed = :user')
+            ->andWhere('f.approved = true')
+            ->setParameter('user', $user)
+            ->getQuery()->getSingleScalarResult();
+    }
+
     /**
      * @param list<User> $people
      *

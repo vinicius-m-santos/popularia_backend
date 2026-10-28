@@ -52,6 +52,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->emailVerifiedAt = null;
         $this->bio = '';
         $this->city = null;
+        $this->state = null;
+        $this->country = null;
+        $this->countryCode = 'BR';
+        $this->stateIbgeCode = null;
+        $this->municipalityIbgeCode = null;
         $this->interests = [];
         $this->pendingOnboarding = false;
         $this->isPrivate = true;
@@ -69,6 +74,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public const int DISPLAY_NAME_MAX_LENGTH = 50;
     public const int BIO_MAX_LENGTH = 160;
     public const int CITY_MAX_LENGTH = 80;
+    public const int STATE_MAX_LENGTH = 80;
+    public const int COUNTRY_MAX_LENGTH = 80;
+    public const int COUNTRY_CODE_MAX_LENGTH = 2;
 
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME)]
@@ -95,6 +103,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: self::CITY_MAX_LENGTH, nullable: true)]
     private ?string $city = null;
+
+    #[ORM\Column(length: self::STATE_MAX_LENGTH, nullable: true)]
+    private ?string $state = null;
+
+    #[ORM\Column(length: self::COUNTRY_MAX_LENGTH, nullable: true)]
+    private ?string $country = null;
+
+    #[ORM\Column(length: self::COUNTRY_CODE_MAX_LENGTH, options: ['default' => 'BR'])]
+    private string $countryCode = 'BR';
+
+    #[ORM\Column(length: 3, nullable: true)]
+    private ?string $stateIbgeCode = null;
+
+    #[ORM\Column(length: 7, nullable: true)]
+    private ?string $municipalityIbgeCode = null;
 
     /** @var list<string> Códigos de App\Enum\Topic. Dado privado. */
     #[ORM\Column(type: Types::JSON, options: ['jsonb' => true, 'default' => '[]'])]
@@ -243,6 +266,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->city;
     }
 
+    public function getState(): ?string { return $this->state; }
+    public function getCountry(): ?string { return $this->country; }
+    public function getCountryCode(): string { return $this->countryCode; }
+    public function getStateIbgeCode(): ?string { return $this->stateIbgeCode; }
+    public function getMunicipalityIbgeCode(): ?string { return $this->municipalityIbgeCode; }
+
     /** @return list<string> */
     public function getInterests(): array
     {
@@ -255,8 +284,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @param list<string>|null $interests
      */
-    public function updateProfile(?string $displayName, ?string $bio, ?string $city, ?array $interests, \DateTimeImmutable $now): void
+    public function updateProfile(?string $displayName, ?string $bio, ?string $city, ?array $interests, \DateTimeImmutable $now, ?string $handle = null, ?string $state = null, ?string $country = null, ?string $countryCode = null, ?string $stateIbgeCode = null, ?string $municipalityIbgeCode = null): void
     {
+        if (null !== $handle) $this->handle = self::normalizeHandle($handle);
         if (null !== $displayName) {
             $this->displayName = trim($displayName);
         }
@@ -267,6 +297,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $city = trim($city);
             $this->city = '' === $city ? null : $city;
         }
+        if (null !== $state) { $state = trim($state); $this->state = '' === $state ? null : $state; }
+        if (null !== $country) { $country = trim($country); $this->country = '' === $country ? null : $country; }
+        if (null !== $countryCode) $this->countryCode = strtoupper(trim($countryCode));
+        if (null !== $stateIbgeCode) $this->stateIbgeCode = '' === trim($stateIbgeCode) ? null : trim($stateIbgeCode);
+        if (null !== $municipalityIbgeCode) $this->municipalityIbgeCode = '' === trim($municipalityIbgeCode) ? null : trim($municipalityIbgeCode);
         if (null !== $interests) {
             $this->interests = array_values(array_unique($interests));
         }

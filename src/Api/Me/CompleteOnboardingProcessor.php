@@ -10,6 +10,7 @@ use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\ApiProblem;
 use App\Repository\UserRepository;
 use App\Security\CurrentUser;
+use App\Location\LocationCatalog;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
@@ -24,6 +25,7 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
         private UserRepository $users,
         private EntityManagerInterface $em,
         private ClockInterface $clock,
+        private LocationCatalog $locations,
     ) {
     }
 
@@ -34,6 +36,9 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
         if (!$user->isPendingOnboarding()) {
             throw ApiProblem::forbidden('/errors/onboarding-already-complete', 'O onboarding já foi concluído.');
         }
+        if ('BR' === strtoupper((string) ($data->countryCode ?? 'BR')) && (null === $data->stateIbgeCode || null === $data->municipalityIbgeCode || !$this->locations->hasMunicipality($data->stateIbgeCode, $data->municipalityIbgeCode))) {
+            throw ApiProblem::badRequest('/errors/invalid-location', 'Escolha uma cidade válida para o estado selecionado.');
+        }
 
         if ($this->users->handleExists($data->handle) && $user->getHandle() !== \App\Entity\User::normalizeHandle($data->handle)) {
             throw new ValidationException(new ConstraintViolationList([new ConstraintViolation('Esse nome já está em uso.', null, [], $data, 'handle', $data->handle)]));
@@ -41,7 +46,7 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
 
         $now = $this->clock->now();
         $user->completeOnboarding($data->handle, $data->displayName, $now);
-        $user->updateProfile(null, $data->bio, $data->city, $data->interests, $now);
+        $user->updateProfile(null, $data->bio, $data->city, $data->interests, $now, null, $data->state, $data->country, $data->countryCode, $data->stateIbgeCode, $data->municipalityIbgeCode);
 
         try {
             $this->em->flush();

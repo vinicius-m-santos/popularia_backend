@@ -50,6 +50,18 @@ final class CompleteOnboarding
     #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
     public ?string $city = null;
 
+    #[Assert\Length(max: User::STATE_MAX_LENGTH)]
+    #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
+    public ?string $state = null;
+
+    #[Assert\Length(max: User::COUNTRY_MAX_LENGTH)]
+    #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
+    public ?string $country = null;
+
+    public ?string $countryCode = null;
+    public ?string $stateIbgeCode = null;
+    public ?string $municipalityIbgeCode = null;
+
     /** @var list<string>|null */
     public ?array $interests = null;
 }

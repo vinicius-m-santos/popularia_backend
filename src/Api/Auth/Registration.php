@@ -61,6 +61,12 @@ final class Registration
     #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
     public ?string $city = null;
 
+    public ?string $state = null;
+    public ?string $country = null;
+    public ?string $countryCode = 'BR';
+    public ?string $stateIbgeCode = null;
+    public ?string $municipalityIbgeCode = null;
+
     /** @var list<string> */
     #[Assert\Count(max: 18)]
     #[Assert\All([new Assert\Choice(callback: [Topic::class, 'values'], message: 'Assunto desconhecido.')])]

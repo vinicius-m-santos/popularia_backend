@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\Accepted;
+use App\Api\ApiProblem;
 use App\Api\RequestContext;
 use App\Auth\AccountCodes;
 use App\Auth\SecurityEventRecorder;
@@ -17,6 +18,7 @@ use App\Enum\SecurityEventType;
 use App\Mail\AccountMailer;
 use App\Repository\UserRepository;
 use App\Security\RateLimitGuard;
+use App\Location\LocationCatalog;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
@@ -36,6 +38,7 @@ final readonly class RegistrationProcessor implements ProcessorInterface
         private SecurityEventRecorder $events,
         private RateLimitGuard $rateLimit,
         private ClockInterface $clock,
+        private LocationCatalog $locations,
     ) {
     }
 
@@ -48,6 +51,9 @@ final readonly class RegistrationProcessor implements ProcessorInterface
         }
 
         $now = $this->clock->now();
+        if ('BR' === strtoupper((string) ($data->countryCode ?? 'BR')) && (null === $data->stateIbgeCode || null === $data->municipalityIbgeCode || !$this->locations->hasMunicipality($data->stateIbgeCode, $data->municipalityIbgeCode))) {
+            throw ApiProblem::badRequest('/errors/invalid-location', 'Escolha uma cidade válida para o estado selecionado.');
+        }
         $user = new User($data->email, $data->handle, $data->displayName, $now);
         // O hash é calculado nos dois caminhos, para o tempo de resposta não revelar se o e-mail existe.
         $passwordHash = $this->passwordHasher->hashPassword($user, $data->password);
@@ -60,7 +66,7 @@ final readonly class RegistrationProcessor implements ProcessorInterface
             return self::accepted();
         }
 
-        $user->updateProfile(null, $data->bio, $data->city, $data->interests, $now);
+        $user->updateProfile(null, $data->bio, $data->city, $data->interests, $now, null, $data->state, $data->country, $data->countryCode, $data->stateIbgeCode, $data->municipalityIbgeCode);
         $user->setPasswordHash($passwordHash, $now);
         $this->em->persist($user);
         try {

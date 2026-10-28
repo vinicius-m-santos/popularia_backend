@@ -9,7 +9,7 @@ defina **variáveis de ambiente reais** (ou use `bin/console secrets:set`); nunc
 | `APP_SECRET` | valor fixo em `.env.dev` | **obrigatório**: `openssl rand -hex 32`. Também é a chave do HMAC dos códigos por e-mail (trocá-lo invalida códigos pendentes) |
 | `DATABASE_URL` | definida no `compose.yaml` | PostgreSQL gerenciado, com TLS (`?sslmode=require`) e usuário com permissões mínimas |
 | `MAILER_DSN` | `smtp://mailer:1025` (Mailpit) | provedor SMTP/API, com SPF/DKIM/DMARC no domínio |
-| `MAILER_FROM` | `no-reply@mail.popularia.com.br` | endereço do domínio real |
+| `MAILER_FROM` | `no-reply@popularia.com.br` | endereço do domínio real |
 | `TRUSTED_PROXIES` | vazio | IPs/CIDR do balanceador. Vazio se não houver proxy. Nunca `0.0.0.0/0` |
 | `CORS_ALLOW_ORIGIN` | localhost | só origens próprias (o app nativo não precisa) |
 | `ACCESS_TOKEN_TTL` | `900` | `900` (15 min) |

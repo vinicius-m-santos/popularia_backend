@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -104,6 +105,15 @@ final class AccountMailer implements ResetInterface
             Se não foi você, use "Esqueci minha senha" no app agora mesmo.
             TXT,
         );
+    }
+
+    public function sendSupportMessage(User $user, string $message): void
+    {
+        $this->queue[] = (new Email())
+            ->to('vinicius.m.dos.s@gmail.com')
+            ->replyTo($user->getEmail())
+            ->subject('Mensagem pelo app Popularia')
+            ->text("Conta: {$user->getEmail()} (@{$user->getHandle()})\n\n{$message}");
     }
 
     #[AsEventListener(KernelEvents::TERMINATE)]

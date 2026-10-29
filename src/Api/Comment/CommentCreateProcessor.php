@@ -11,6 +11,7 @@ use App\Content\ContentPolicy;
 use App\Content\TextNormalizer;
 use App\Entity\Comment;
 use App\Entity\CommentSupport;
+use App\Mention\MentionBinder;
 use App\Notification\NotificationCreator;
 use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
@@ -37,6 +38,7 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
         private EntityManagerInterface $em,
         private ClockInterface $clock,
         private NotificationCreator $notifications,
+        private MentionBinder $mentions,
     ) {
     }
 
@@ -62,16 +64,22 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
         $this->rateLimit->consume('content_creation', $author->getUserIdentifier());
 
         $this->filter->assertText($data->body, $post->getComuna());
-        $comment = new Comment($post, $parent, $author, TextNormalizer::normalize($data->body), $this->clock->now());
-        $this->em->wrapInTransaction(function () use ($comment, $post, $author): void {
+        $body = TextNormalizer::normalize($data->body);
+        $comment = new Comment($post, $parent, $author, $body, $this->clock->now());
+        $mentions = $this->mentions->attach($body, $data->mentions, $comment);
+        $this->em->wrapInTransaction(function () use ($comment, $post, $author, $mentions): void {
             $this->em->persist($comment);
+            foreach ($mentions as $mention) {
+                $this->em->persist($mention);
+            }
             // Todo comentário começa com o apoio persistente de quem escreveu.
             $this->em->persist(new CommentSupport($comment, $author));
             $this->notifications->commented($comment);
+            $this->notifications->mentionedInComment($comment, array_map(static fn ($mention) => $mention->getMentionedUser(), $mentions));
             $this->em->flush();
             $this->posts->incrementCommentCount($post);
         });
 
-        return CommentView::fromComment($comment, false, $author->getId()->toRfc4122(), false, 1, true);
+        return CommentView::fromComment($comment, false, $author->getId()->toRfc4122(), false, 1, true, $mentions);
     }
 }

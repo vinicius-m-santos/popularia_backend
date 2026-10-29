@@ -13,6 +13,7 @@ use App\Entity\Comment;
 use App\Repository\CommentRepository;
 use App\Repository\CommentSupportRepository;
 use App\Repository\ComunaMembershipRepository;
+use App\Repository\ContentMentionRepository;
 use App\Repository\UserBlockRepository;
 use App\Security\CurrentUser;
 
@@ -27,6 +28,7 @@ final readonly class CommentPageProvider implements ProviderInterface
         private ComunaMembershipRepository $memberships,
         private ComunaModerationPolicy $moderation,
         private CommentSupportRepository $supports,
+        private ContentMentionRepository $mentions,
     ) {
     }
 
@@ -43,6 +45,7 @@ final readonly class CommentPageProvider implements ProviderInterface
         $comuna = $post->getComuna();
         $membership = null === $comuna ? null : $this->memberships->findMembership($comuna, $viewer);
         $supportStats = $this->supports->stats($comments, $viewer);
+        $mentions = $this->mentions->groupedByComment($comments);
 
         return new CommentPage(
             array_map(fn (Comment $c) => CommentView::fromComment(
@@ -52,6 +55,7 @@ final readonly class CommentPageProvider implements ProviderInterface
                 null !== $comuna && $this->moderation->canRemoveContentBy($comuna, $membership, $c->getAuthor()),
                 $supportStats[$c->getId()->toRfc4122()]['count'] ?? 0,
                 $supportStats[$c->getId()->toRfc4122()]['mine'] ?? false,
+                $mentions[$c->getId()->toRfc4122()] ?? [],
             ), $comments),
             $next,
         );

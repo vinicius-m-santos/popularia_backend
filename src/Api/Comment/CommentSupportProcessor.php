@@ -12,6 +12,7 @@ use App\Entity\Comment;
 use App\Notification\NotificationCreator;
 use App\Repository\CommentRepository;
 use App\Repository\CommentSupportRepository;
+use App\Repository\ContentMentionRepository;
 use App\Repository\UserBlockRepository;
 use App\Security\CurrentUser;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,7 +21,7 @@ use Symfony\Component\Uid\Uuid;
 /** @implements ProcessorInterface<mixed, CommentView> */
 final readonly class CommentSupportProcessor implements ProcessorInterface
 {
-    public function __construct(private CurrentUser $currentUser, private CommentRepository $comments, private CommentSupportRepository $supports, private ContentPolicy $policy, private UserBlockRepository $blocks, private EntityManagerInterface $em, private NotificationCreator $notifications)
+    public function __construct(private CurrentUser $currentUser, private CommentRepository $comments, private CommentSupportRepository $supports, private ContentPolicy $policy, private UserBlockRepository $blocks, private EntityManagerInterface $em, private NotificationCreator $notifications, private ContentMentionRepository $mentions)
     {
     }
 
@@ -56,6 +57,6 @@ final readonly class CommentSupportProcessor implements ProcessorInterface
         });
         $stats = $this->supports->stats([$comment], $actor)[$id] ?? ['count' => 0, 'mine' => false];
 
-        return CommentView::fromComment($comment, false, $actor->getId()->toRfc4122(), false, $stats['count'], $stats['mine']);
+        return CommentView::fromComment($comment, false, $actor->getId()->toRfc4122(), false, $stats['count'], $stats['mine'], $this->mentions->groupedByComment([$comment])[$comment->getId()->toRfc4122()] ?? []);
     }
 }

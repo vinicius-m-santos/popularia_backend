@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Post;
 
+use App\Api\Mention\MentionView;
 use App\Api\Profile\AuthorView;
 use App\Content\ComunaModerationPolicy;
 use App\Entity\Comuna;
@@ -12,6 +13,7 @@ use App\Entity\Post;
 use App\Entity\User;
 use App\Poll\PollPercents;
 use App\Repository\ComunaMembershipRepository;
+use App\Repository\ContentMentionRepository;
 use App\Repository\PollVoteRepository;
 
 /**
@@ -28,6 +30,7 @@ final readonly class PostViews
         private \App\Library\ObjectStorage $storage,
         private PollVoteRepository $votes,
         private \App\Repository\SavedPostRepository $saves,
+        private ContentMentionRepository $mentions,
     ) {
     }
 
@@ -60,8 +63,9 @@ final readonly class PostViews
         }
         $choices = null === $viewer ? [] : $this->votes->choicesFor($viewer, $polls);
         $saved = null === $viewer ? [] : $this->saves->flagsFor($viewer, $posts);
+        $mentions = $this->mentions->groupedByPost($posts);
 
-        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved): PostView {
+        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved, $mentions): PostView {
             $comuna = $post->getComuna();
             $membership = null === $comuna ? null : ($memberOf[$comuna->getId()->toRfc4122()] ?? null);
             $isAuthor = null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());
@@ -86,6 +90,7 @@ final readonly class PostViews
                     $this->storage->signedUrl($post->media->storageKey, 300, $post->media->mimeType, 'inline'),
                 ),
                 null === $post->getPoll() ? null : self::poll($post->getPoll(), $choices[$post->getPoll()->getId()->toRfc4122()] ?? null),
+                array_map(MentionView::fromMention(...), $mentions[$post->getId()->toRfc4122()] ?? []),
             );
         }, $posts);
     }

@@ -13,6 +13,8 @@ use App\Content\TextNormalizer;
 use App\Entity\Poll;
 use App\Entity\Post;
 use App\Enum\Topic;
+use App\Mention\MentionBinder;
+use App\Notification\NotificationCreator;
 use App\Repository\ComunaRepository;
 use App\Security\CurrentUser;
 use App\Security\RateLimitGuard;
@@ -35,6 +37,8 @@ final readonly class PostCreateProcessor implements ProcessorInterface
         private RateLimitGuard $rateLimit,
         private EntityManagerInterface $em,
         private ClockInterface $clock,
+        private MentionBinder $mentions,
+        private NotificationCreator $notifications,
     ) {
     }
 
@@ -53,7 +57,8 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             $this->rateLimit->consume('content_creation', $author->getUserIdentifier());
 
             $this->filter->assertText($data->body, $comuna);
-            $post = new Post($author, $comuna, TextNormalizer::normalize($data->body), $this->clock->now());
+            $body = TextNormalizer::normalize($data->body);
+            $post = new Post($author, $comuna, $body, $this->clock->now());
             $post->setTopic(null === $data->topic ? null : Topic::from($data->topic));
             if (null !== $data->documentId) {
                 $document = $this->library->find($data->documentId);
@@ -78,7 +83,12 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             if (null !== $data->poll) {
                 $this->attachPoll($post, $data->poll);
             }
+            $mentions = $this->mentions->attach($body, $data->mentions, $post);
             $this->em->persist($post);
+            foreach ($mentions as $mention) {
+                $this->em->persist($mention);
+            }
+            $this->notifications->mentionedInPost($post, array_map(static fn ($mention) => $mention->getMentionedUser(), $mentions));
             $this->em->flush();
 
             return $this->views->one($post, $author);

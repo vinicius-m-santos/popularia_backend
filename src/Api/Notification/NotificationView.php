@@ -58,7 +58,7 @@ final readonly class NotificationView
         $target = match ($notification->getType()) {
             NotificationType::SquareReply => ['kind' => 'square', 'id' => $notification->getSquareMessage()?->square->id->toRfc4122() ?? ''],
             NotificationType::Follow => ['kind' => 'profile', 'id' => $actor?->getHandle() ?? ''],
-            NotificationType::Comment, NotificationType::Reply, NotificationType::CommentSupport => ['kind' => 'post', 'id' => $post?->getId()->toRfc4122() ?? ''],
+            NotificationType::Comment, NotificationType::Reply, NotificationType::CommentSupport, NotificationType::MentionPost, NotificationType::MentionComment => ['kind' => 'post', 'id' => $post?->getId()->toRfc4122() ?? ''],
             NotificationType::JoinRequested => ['kind' => 'join_requests', 'id' => $comuna?->getSlug() ?? ''],
             default => ['kind' => 'comuna', 'id' => $comuna?->getSlug() ?? ''],
         };
@@ -68,10 +68,25 @@ final readonly class NotificationView
             $notification->getType()->value,
             null === $actor ? null : AuthorView::fromUser($actor),
             $comuna?->getName(),
-            null !== $notification->getSquareMessage() ? mb_substr($notification->getSquareMessage()->body ?? 'Figurinha', 0, 160) : (null === $notification->getComment() ? null : mb_substr($notification->getComment()->getBody(), 0, 160)),
+            self::quote($notification),
             $notification->getCreatedAt(),
             $notification->getReadAt(),
             $target,
         );
+    }
+
+    private static function quote(Notification $notification): ?string
+    {
+        if (null !== $notification->getSquareMessage()) {
+            return mb_substr($notification->getSquareMessage()->body ?? 'Figurinha', 0, 160);
+        }
+        if (NotificationType::MentionPost === $notification->getType()) {
+            $body = $notification->getPost()?->getBody() ?? '';
+
+            return '' === $body ? null : mb_substr($body, 0, 160);
+        }
+        $comment = $notification->getComment();
+
+        return null === $comment ? null : mb_substr($comment->getBody(), 0, 160);
     }
 }

@@ -11039,6 +11039,12 @@
                         "additionalProperties": {
                             "type": "boolean"
                         }
+                    },
+                    "mentions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MentionView"
+                        }
                     }
                 }
             },
@@ -11065,6 +11071,14 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "mentions": {
+                        "maxItems": 10,
+                        "description": "Men\u00e7\u00f5es escolhidas no editor. Texto com @ sem este v\u00ednculo continua texto comum.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MentionInput"
+                        }
                     }
                 }
             },
@@ -12929,6 +12943,60 @@
                     }
                 }
             },
+            "MentionInput": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "userId"
+                ],
+                "properties": {
+                    "userId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "default": "",
+                        "type": "string"
+                    },
+                    "start": {
+                        "minimum": 0,
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "end": {
+                        "minimum": 0,
+                        "exclusiveMinimum": 0,
+                        "default": 0,
+                        "type": "integer"
+                    }
+                }
+            },
+            "MentionView": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string"
+                    },
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "avatarUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "start": {
+                        "type": "integer"
+                    },
+                    "end": {
+                        "type": "integer"
+                    }
+                }
+            },
             "MessagePage": {
                 "type": "object",
                 "properties": {
@@ -13473,6 +13541,12 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "mentions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MentionView"
+                        }
                     }
                 }
             },
@@ -13586,6 +13660,14 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "mentions": {
+                        "maxItems": 10,
+                        "description": "Men\u00e7\u00f5es escolhidas no editor. Texto com @ sem este v\u00ednculo continua texto comum.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MentionInput"
+                        }
                     }
                 }
             },

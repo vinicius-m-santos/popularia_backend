@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Api\Post;
 
 use App\Api\Constraint\TextRules;
+use App\Api\Mention\MentionInput;
+use App\Entity\ContentMention;
 use App\Entity\Post;
 use App\Enum\Topic;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -32,4 +34,13 @@ final class PostInput
 
     #[Assert\Valid]
     public ?PollInput $poll = null;
+
+    /**
+     * Menções escolhidas no editor. Texto com @ sem este vínculo continua texto comum.
+     *
+     * @var list<MentionInput>
+     */
+    #[Assert\Valid]
+    #[Assert\Count(max: ContentMention::MAX_PER_CONTENT, maxMessage: 'Mencione no máximo {{ limit }} pessoas.')]
+    public array $mentions = [];
 }

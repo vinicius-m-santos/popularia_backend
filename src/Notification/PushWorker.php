@@ -214,6 +214,8 @@ final readonly class PushWorker
             NotificationType::Follow => 'Você tem um novo seguidor.',
             NotificationType::Comment => 'Sua publicação recebeu um comentário.',
             NotificationType::Reply, NotificationType::SquareReply => 'Você recebeu uma resposta.',
+            NotificationType::MentionPost => 'Você foi mencionado em uma publicação.',
+            NotificationType::MentionComment => 'Você foi mencionado em um comentário.',
             NotificationType::CommentSupport => 'Seu comentário recebeu um apoio.',
             NotificationType::JoinRequested => 'Há uma solicitação de participação para você analisar.',
             default => 'Você tem uma atualização de participação em comuna.',
@@ -224,7 +226,7 @@ final readonly class PushWorker
     {
         return match ($type) {
             NotificationType::Follow => 'follows',
-            NotificationType::Comment, NotificationType::Reply, NotificationType::SquareReply, NotificationType::CommentSupport => 'interactions',
+            NotificationType::Comment, NotificationType::Reply, NotificationType::SquareReply, NotificationType::CommentSupport, NotificationType::MentionPost, NotificationType::MentionComment => 'interactions',
             default => 'comunas',
         };
     }

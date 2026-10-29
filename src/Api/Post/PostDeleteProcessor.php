@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\ApiProblem;
 use App\Content\ContentPolicy;
+use App\Repository\ContentMentionRepository;
 use App\Security\CurrentUser;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -18,6 +19,7 @@ final readonly class PostDeleteProcessor implements ProcessorInterface
         private CurrentUser $currentUser,
         private ContentPolicy $policy,
         private EntityManagerInterface $em,
+        private ContentMentionRepository $mentions,
     ) {
     }
 
@@ -32,6 +34,7 @@ final readonly class PostDeleteProcessor implements ProcessorInterface
         $post->deleteByAuthor();
         // A enquete, as opções e os votos saem junto. A remoção por moderação conserva o registro.
         $post->detachPoll();
+        $this->mentions->deleteForPost($post);
         $this->em->flush();
 
         return null;

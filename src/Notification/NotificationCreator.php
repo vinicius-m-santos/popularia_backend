@@ -8,6 +8,7 @@ use App\Entity\Comment;
 use App\Entity\ComunaJoinRequest;
 use App\Entity\ComunaOwnershipTransfer;
 use App\Entity\Notification;
+use App\Entity\Post;
 use App\Entity\SquareMessage;
 use App\Entity\User;
 use App\Entity\UserFollow;
@@ -68,6 +69,47 @@ final readonly class NotificationCreator
         }
     }
 
+    /**
+     * Uma notificação por pessoa mencionada na publicação, mesmo que o nome apareça duas vezes.
+     *
+     * @param list<User> $mentioned
+     */
+    public function mentionedInPost(Post $post, array $mentioned): void
+    {
+        $seen = [];
+        foreach ($mentioned as $user) {
+            $id = $user->getId()->toRfc4122();
+            if (isset($seen[$id])) {
+                continue;
+            }
+            $seen[$id] = true;
+            $this->save($user, $post->getAuthor(), NotificationType::MentionPost, $post->getId()->toRfc4122().':'.$id, post: $post);
+        }
+    }
+
+    /**
+     * Resposta e comentário na própria publicação têm precedência sobre a menção da mesma interação.
+     *
+     * @param list<User> $mentioned
+     */
+    public function mentionedInComment(Comment $comment, array $mentioned): void
+    {
+        $post = $comment->getPost();
+        $parent = $comment->getParent();
+        $postAuthorId = $post->getAuthor()->getId()->toRfc4122();
+        $parentAuthorId = $parent?->getAuthor()->getId()->toRfc4122();
+        $commentNotifiesPostAuthor = null === $parentAuthorId || $parentAuthorId !== $postAuthorId;
+        $seen = [];
+        foreach ($mentioned as $user) {
+            $id = $user->getId()->toRfc4122();
+            if (isset($seen[$id]) || $id === $parentAuthorId || ($commentNotifiesPostAuthor && $id === $postAuthorId)) {
+                continue;
+            }
+            $seen[$id] = true;
+            $this->save($user, $comment->getAuthor(), NotificationType::MentionComment, $comment->getId()->toRfc4122().':'.$id, $comment);
+        }
+    }
+
     public function joinRequested(ComunaJoinRequest $request): void
     {
         foreach ($this->memberships->findModeration($request->getComuna()) as $membership) {
@@ -104,6 +146,7 @@ final readonly class NotificationCreator
         ?ComunaJoinRequest $request = null,
         ?ComunaOwnershipTransfer $transfer = null,
         ?SquareMessage $squareMessage = null,
+        ?Post $post = null,
     ): void {
         if (!$recipient->isActive() || (null !== $actor && ($recipient->getId()->equals($actor->getId()) || $this->blocks->isBlockedEitherWay($recipient, $actor)))) {
             return;
@@ -117,15 +160,16 @@ final readonly class NotificationCreator
                 return;
             }
         }
+        $linkedPost = $comment?->getPost() ?? $post;
         $this->em->persist(new Notification(
             $recipient,
             $actor,
             $type,
             $eventKey,
             $this->clock->now(),
-            $comment?->getPost(),
+            $linkedPost,
             $comment,
-            $comment?->getPost()->getComuna() ?? $request?->getComuna() ?? $transfer?->getComuna() ?? $squareMessage?->square->comuna,
+            $linkedPost?->getComuna() ?? $request?->getComuna() ?? $transfer?->getComuna() ?? $squareMessage?->square->comuna,
             $request,
             $transfer,
             $squareMessage,

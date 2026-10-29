@@ -11,10 +11,12 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post as PostOperation;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Api\Mention\MentionView;
 use App\Api\Post\ContentRemovalInput;
 use App\Api\Post\PostView;
 use App\Api\Profile\AuthorView;
 use App\Entity\Comment;
+use App\Entity\ContentMention;
 
 /**
  * Comentário em lista plana (o app monta a árvore pelo parentId, como já faz com os mocks).
@@ -81,7 +83,10 @@ use App\Entity\Comment;
 )]
 final readonly class CommentView
 {
-    /** @param array{isAuthor: bool, canRemove: bool} $viewer */
+    /**
+     * @param array{isAuthor: bool, canRemove: bool, supported: bool} $viewer
+     * @param list<MentionView>                                       $mentions
+     */
     public function __construct(
         #[ApiProperty(identifier: true)]
         public string $id,
@@ -94,11 +99,16 @@ final readonly class CommentView
         public \DateTimeImmutable $createdAt,
         public int $supportCount,
         public array $viewer,
+        public array $mentions = [],
     ) {
     }
 
-    /** $canRemove: quem vê modera a comuna e pode remover este comentário (dica; a operação confere de novo). */
-    public static function fromComment(Comment $comment, bool $hiddenByBlock, ?string $viewerId, bool $canRemove = false, int $supportCount = 0, bool $supported = false): self
+    /**
+     * $canRemove: quem vê modera a comuna e pode remover este comentário (dica; a operação confere de novo).
+     *
+     * @param list<ContentMention> $mentions
+     */
+    public static function fromComment(Comment $comment, bool $hiddenByBlock, ?string $viewerId, bool $canRemove = false, int $supportCount = 0, bool $supported = false, array $mentions = []): self
     {
         $status = $hiddenByBlock && $comment->isPublished() ? 'hidden' : $comment->getStatus()->value;
         $visible = 'published' === $status;
@@ -117,6 +127,7 @@ final readonly class CommentView
                 'canRemove' => $visible && $canRemove,
                 'supported' => $visible && $supported,
             ],
+            $visible ? array_map(MentionView::fromMention(...), $mentions) : [],
         );
     }
 }

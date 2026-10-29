@@ -11,6 +11,8 @@ enum NotificationType: string
     case Follow = 'follow';
     case Comment = 'comment';
     case Reply = 'reply';
+    case MentionPost = 'mention_post';
+    case MentionComment = 'mention_comment';
     case JoinRequested = 'join_requested';
     case JoinApproved = 'join_approved';
     case JoinRejected = 'join_rejected';

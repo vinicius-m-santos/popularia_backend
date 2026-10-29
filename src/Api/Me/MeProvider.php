@@ -22,6 +22,8 @@ final readonly class MeProvider implements ProviderInterface
     {
         $user = $this->currentUser->get();
 
-        return Me::fromUser($user, $this->follows->countApprovedFollowers($user));
+        $counts = $this->follows->socialCounts($user);
+
+        return Me::fromUser($user, $counts['followers'], $counts['following']);
     }
 }

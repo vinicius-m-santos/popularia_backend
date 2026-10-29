@@ -49,7 +49,9 @@ final readonly class MeUpdateProcessor implements ProcessorInterface
                 }
                 $this->em->flush();
 
-                return Me::fromUser($user, $this->follows->countApprovedFollowers($user));
+                $counts = $this->follows->socialCounts($user);
+
+                return Me::fromUser($user, $counts['followers'], $counts['following']);
             });
         } catch (UniqueConstraintViolationException) {
             throw ApiProblem::conflict('/errors/handle-taken', 'Esse nome de usuário já está em uso.');

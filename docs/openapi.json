@@ -3628,6 +3628,63 @@
                 ]
             }
         },
+        "/api/v1/media/comuna-covers/{comunaId}/{fileId}": {
+            "get": {
+                "operationId": "api_mediacomuna-covers_comunaId_fileId_get",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ProfileMedia resource"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Bytes da capa atual da comuna. A URL muda quando a capa muda e pode ser cacheada.",
+                "description": "Bytes da capa atual da comuna. A URL muda quando a capa muda e pode ser cacheada.",
+                "parameters": [
+                    {
+                        "name": "comunaId",
+                        "in": "path",
+                        "description": "ProfileMedia identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "description": "ProfileMedia identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/me": {
             "get": {
                 "operationId": "api_me_get",
@@ -3994,6 +4051,90 @@
                         }
                     },
                     "required": true
+                }
+            }
+        },
+        "/api/v1/me/avatar": {
+            "post": {
+                "operationId": "api_meavatar_post",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Me resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Troca a foto de perfil da conta autenticada.",
+                "description": "Somente a pr\u00f3pria conta. JPEG, PNG ou WebP est\u00e1ticos, at\u00e9 10 MB, com as mesmas regras das imagens de publica\u00e7\u00e3o. A URL devolvida muda a cada troca.",
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": false
                 }
             }
         },
@@ -5179,6 +5320,103 @@
                         }
                     },
                     "required": true
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/cover": {
+            "post": {
+                "operationId": "api_comunas_slugcover_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comuna resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Troca a capa da comuna (s\u00f3 o propriet\u00e1rio).",
+                "description": "JPEG, PNG ou WebP est\u00e1ticos, at\u00e9 10 MB. Comuna arquivada: 409 /errors/comuna-archived. Quem n\u00e3o \u00e9 propriet\u00e1rio: 403 /errors/not-comuna-owner. A URL devolvida muda a cada troca.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Comuna identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": false
                 }
             }
         },
@@ -6434,6 +6672,158 @@
                 }
             }
         },
+        "/api/v1/me/notification-preferences": {
+            "get": {
+                "operationId": "api_menotification-preferences_get",
+                "tags": [
+                    "NotificationPreferences"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "NotificationPreferences resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationPreferences"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retrieves a NotificationPreferences resource.",
+                "description": "Retrieves a NotificationPreferences resource.",
+                "parameters": []
+            },
+            "put": {
+                "operationId": "api_menotification-preferences_put",
+                "tags": [
+                    "NotificationPreferences"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "NotificationPreferences resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationPreferences"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Replaces the NotificationPreferences resource.",
+                "description": "Replaces the NotificationPreferences resource.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The updated NotificationPreferences resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NotificationPreferences"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/me/notifications": {
             "get": {
                 "operationId": "api_menotifications_get",
@@ -6846,6 +7236,177 @@
                 }
             }
         },
+        "/api/v1/me/push-devices/{id}": {
+            "put": {
+                "operationId": "api_mepush-devices_id_put",
+                "tags": [
+                    "Notifica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PushDeviceView resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PushDeviceView"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Registra/atualiza esta instala\u00e7\u00e3o e sua sess\u00e3o.",
+                "description": "Registra/atualiza esta instala\u00e7\u00e3o e sua sess\u00e3o.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "PushDeviceView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated PushDeviceView resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PushDeviceView.PushDeviceInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            },
+            "delete": {
+                "operationId": "api_mepush-devices_id_delete",
+                "tags": [
+                    "Notifica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "PushDeviceView resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Desativa uma instala\u00e7\u00e3o pr\u00f3pria (idempotente).",
+                "description": "Desativa uma instala\u00e7\u00e3o pr\u00f3pria (idempotente).",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "PushDeviceView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/handles/{handle}/availability": {
             "get": {
                 "operationId": "api_handles_handleavailability_get",
@@ -7106,6 +7667,63 @@
                         "name": "id",
                         "in": "path",
                         "description": "FollowRequests identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/media/avatars/{userId}/{fileId}": {
+            "get": {
+                "operationId": "api_mediaavatars_userId_fileId_get",
+                "tags": [
+                    "Perfis"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ProfileMedia resource"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Bytes da foto de perfil atual. A URL muda quando a foto muda e pode ser cacheada.",
+                "description": "Bytes da foto de perfil atual. A URL muda quando a foto muda e pode ser cacheada.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ProfileMedia identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "description": "ProfileMedia identifier",
                         "required": true,
                         "deprecated": false,
                         "schema": {
@@ -7391,6 +8009,186 @@
                 "summary": "Deixa de seguir uma pessoa (idempotente).",
                 "description": "Deixa de seguir uma pessoa (idempotente).",
                 "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "PublicProfile identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/users/{handle}/followers": {
+            "get": {
+                "operationId": "user_followers",
+                "tags": [
+                    "Perfis"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "FollowList resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FollowList"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Seguidores aprovados de um perfil.",
+                "description": "Paginado por cursor (id da rela\u00e7\u00e3o, do mais novo). Cada item traz a rela\u00e7\u00e3o de quem consulta, sem pedido extra. Perfil privado sem follow aprovado: 403 /errors/follow-list-private.",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "PublicProfile identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/users/{handle}/following": {
+            "get": {
+                "operationId": "user_following",
+                "tags": [
+                    "Perfis"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "FollowList resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FollowList"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Pessoas que este perfil segue, com follow aprovado.",
+                "description": "Mesma pagina\u00e7\u00e3o e a mesma regra de perfil privado de /followers. Pedidos pendentes n\u00e3o entram.",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
                     {
                         "name": "handle",
                         "in": "path",
@@ -9175,19 +9973,20 @@
                     }
                 },
                 "summary": "Feed da pessoa logada.",
-                "description": "tab=para-voce (padr\u00e3o): comunas p\u00fablicas, comunas de que participa e publica\u00e7\u00f5es em perfis. tab=minhas: s\u00f3 comunas de que participa. Ordem cronol\u00f3gica. Sem publica\u00e7\u00f5es de quem tem bloqueio com voc\u00ea.",
+                "description": "tab=para-voce (padr\u00e3o): comunas p\u00fablicas, comunas de que participa e publica\u00e7\u00f5es em perfis. tab=minhas: s\u00f3 comunas de que participa. tab=seguindo: s\u00f3 publica\u00e7\u00f5es de pessoas com follow aprovado; pedido pendente n\u00e3o inclui, e comuna privada continua exigindo participa\u00e7\u00e3o. Ordem cronol\u00f3gica. Sem publica\u00e7\u00f5es de quem tem bloqueio com voc\u00ea.",
                 "parameters": [
                     {
                         "name": "tab",
                         "in": "query",
-                        "description": "para-voce ou minhas.",
+                        "description": "para-voce, minhas ou seguindo.",
                         "required": false,
                         "deprecated": false,
                         "schema": {
                             "type": "string",
                             "enum": [
                                 "para-voce",
-                                "minhas"
+                                "minhas",
+                                "seguindo"
                             ]
                         },
                         "style": "form",
@@ -9620,6 +10419,79 @@
                 }
             }
         },
+        "/api/v1/push-devices/{id}/revocation": {
+            "post": {
+                "operationId": "api_push-devices_idrevocation_post",
+                "tags": [
+                    "PushDeviceRevocation"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "PushDeviceRevocation resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Creates a PushDeviceRevocation resource.",
+                "description": "Creates a PushDeviceRevocation resource.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "PushDeviceRevocation identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new PushDeviceRevocation resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PushDeviceRevocation"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/health": {
             "get": {
                 "operationId": "api_health_get",
@@ -9728,402 +10600,6 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/ContactMessage"
-                            }
-                        }
-                    },
-                    "required": true
-                }
-            }
-        },
-        "/api/v1/me/notification-preferences": {
-            "get": {
-                "operationId": "api_menotification-preferences_get",
-                "tags": [
-                    "NotificationPreferences"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "NotificationPreferences resource",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotificationPreferences"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "404": {
-                        "description": "Not found",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    }
-                },
-                "summary": "Retrieves a NotificationPreferences resource.",
-                "description": "Retrieves a NotificationPreferences resource.",
-                "parameters": []
-            },
-            "put": {
-                "operationId": "api_menotification-preferences_put",
-                "tags": [
-                    "NotificationPreferences"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "NotificationPreferences resource updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotificationPreferences"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "400": {
-                        "description": "Invalid input",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "422": {
-                        "description": "An error occurred",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ConstraintViolation"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ConstraintViolation"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "404": {
-                        "description": "Not found",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    }
-                },
-                "summary": "Replaces the NotificationPreferences resource.",
-                "description": "Replaces the NotificationPreferences resource.",
-                "parameters": [],
-                "requestBody": {
-                    "description": "The updated NotificationPreferences resource",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/NotificationPreferences"
-                            }
-                        }
-                    },
-                    "required": true
-                }
-            }
-        },
-        "/api/v1/me/push-devices/{id}": {
-            "put": {
-                "operationId": "api_mepush-devices_id_put",
-                "tags": [
-                    "Notifica\u00e7\u00f5es"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "PushDeviceView resource updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PushDeviceView"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "400": {
-                        "description": "Invalid input",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "422": {
-                        "description": "An error occurred",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ConstraintViolation"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ConstraintViolation"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "404": {
-                        "description": "Not found",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    }
-                },
-                "summary": "Registra/atualiza esta instala\u00e7\u00e3o e sua sess\u00e3o.",
-                "description": "Registra/atualiza esta instala\u00e7\u00e3o e sua sess\u00e3o.",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "PushDeviceView identifier",
-                        "required": true,
-                        "deprecated": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "style": "simple",
-                        "explode": false
-                    }
-                ],
-                "requestBody": {
-                    "description": "The updated PushDeviceView resource",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PushDeviceView.PushDeviceInput"
-                            }
-                        }
-                    },
-                    "required": true
-                }
-            },
-            "delete": {
-                "operationId": "api_mepush-devices_id_delete",
-                "tags": [
-                    "Notifica\u00e7\u00f5es"
-                ],
-                "responses": {
-                    "204": {
-                        "description": "PushDeviceView resource deleted"
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "404": {
-                        "description": "Not found",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    }
-                },
-                "summary": "Desativa uma instala\u00e7\u00e3o pr\u00f3pria (idempotente).",
-                "description": "Desativa uma instala\u00e7\u00e3o pr\u00f3pria (idempotente).",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "PushDeviceView identifier",
-                        "required": true,
-                        "deprecated": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "style": "simple",
-                        "explode": false
-                    }
-                ]
-            }
-        },
-        "/api/v1/push-devices/{id}/revocation": {
-            "post": {
-                "operationId": "api_push-devices_idrevocation_post",
-                "tags": [
-                    "PushDeviceRevocation"
-                ],
-                "responses": {
-                    "204": {
-                        "description": "PushDeviceRevocation resource created",
-                        "links": {}
-                    },
-                    "400": {
-                        "description": "Invalid input",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                }
-                            }
-                        },
-                        "links": {}
-                    },
-                    "422": {
-                        "description": "An error occurred",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ConstraintViolation"
-                                }
-                            },
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ConstraintViolation"
-                                }
-                            }
-                        },
-                        "links": {}
-                    }
-                },
-                "summary": "Creates a PushDeviceRevocation resource.",
-                "description": "Creates a PushDeviceRevocation resource.",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "PushDeviceRevocation identifier",
-                        "required": true,
-                        "deprecated": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "style": "simple",
-                        "explode": false
-                    }
-                ],
-                "requestBody": {
-                    "description": "The new PushDeviceRevocation resource",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PushDeviceRevocation"
                             }
                         }
                     },
@@ -10247,6 +10723,13 @@
                     },
                     "displayName": {
                         "type": "string"
+                    },
+                    "avatarUrl": {
+                        "description": "URL est\u00e1vel da foto atual. Muda s\u00f3 quando a foto \u00e9 trocada; null s\u00e3o as iniciais.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -10560,6 +11043,16 @@
                     },
                     "followerCount": {
                         "type": "integer"
+                    },
+                    "followingCount": {
+                        "type": "integer"
+                    },
+                    "avatarUrl": {
+                        "description": "URL da foto atual. Null quando a pessoa ainda n\u00e3o enviou uma foto.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -10655,6 +11148,13 @@
                             {
                                 "type": "null"
                             }
+                        ]
+                    },
+                    "coverUrl": {
+                        "description": "URL da capa atual. Null usa a arte padr\u00e3o do app. Muda s\u00f3 quando a capa \u00e9 trocada.",
+                        "type": [
+                            "string",
+                            "null"
                         ]
                     }
                 }
@@ -10796,6 +11296,12 @@
                     "joinedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "avatarUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -10836,6 +11342,12 @@
                     "joinedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "avatarUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -11075,6 +11587,18 @@
                     },
                     "following": {
                         "type": "boolean"
+                    },
+                    "avatarUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "requested": {
+                        "type": "boolean"
+                    },
+                    "isPrivate": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -11217,6 +11741,53 @@
                         "maxLength": 1000,
                         "default": "",
                         "type": "string"
+                    }
+                }
+            },
+            "FollowList": {
+                "type": "object",
+                "description": "Seguidores e seguindo de um perfil. Perfil privado: s\u00f3 a pr\u00f3pria pessoa e\nseguidores j\u00e1 aprovados. Bloqueio nos dois sentidos responde 404, como o perfil.",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FollowListPerson"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "FollowListPerson": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "isPrivate": {
+                        "type": "boolean"
+                    },
+                    "following": {
+                        "type": "boolean"
+                    },
+                    "requested": {
+                        "type": "boolean"
+                    },
+                    "avatarUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -11429,6 +12000,16 @@
                     },
                     "followerCount": {
                         "type": "integer"
+                    },
+                    "followingCount": {
+                        "type": "integer"
+                    },
+                    "avatarUrl": {
+                        "description": "URL da foto atual. Null quando a pessoa ainda n\u00e3o enviou uma foto.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -11965,6 +12546,16 @@
                     },
                     "followerCount": {
                         "type": "integer"
+                    },
+                    "followingCount": {
+                        "type": "integer"
+                    },
+                    "avatarUrl": {
+                        "description": "URL da foto atual. Null quando a pessoa ainda n\u00e3o enviou uma foto.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -12298,6 +12889,24 @@
                             "string",
                             "null"
                         ]
+                    }
+                }
+            },
+            "NotificationPreferences": {
+                "type": "object",
+                "properties": {
+                    "pushCategories": {
+                        "maxItems": 4,
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "interactions",
+                                "follows",
+                                "comunas",
+                                "followed_content"
+                            ]
+                        }
                     }
                 }
             },
@@ -12857,6 +13466,76 @@
                     },
                     "followerCount": {
                         "type": "integer"
+                    },
+                    "followingCount": {
+                        "type": "integer"
+                    },
+                    "viewerFollowing": {
+                        "description": "Rela\u00e7\u00e3o de quem consulta. Falso na pr\u00f3pria conta e para quem n\u00e3o est\u00e1 autenticado.",
+                        "type": "boolean"
+                    },
+                    "viewerRequested": {
+                        "type": "boolean"
+                    },
+                    "avatarUrl": {
+                        "description": "URL da foto atual. Null quando a pessoa ainda n\u00e3o enviou uma foto.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "PushDeviceRevocation": {
+                "type": "object",
+                "description": "Revocation-only capability: allows an offline logout to be completed without an account session.",
+                "additionalProperties": false,
+                "required": [
+                    "revocationSecret"
+                ],
+                "properties": {
+                    "revocationSecret": {
+                        "minLength": 36,
+                        "maxLength": 128,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "PushDeviceView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PushDeviceView.PushDeviceInput": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "token",
+                    "revocationSecret"
+                ],
+                "properties": {
+                    "token": {
+                        "maxLength": 255,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "revocationSecret": {
+                        "minLength": 36,
+                        "maxLength": 128,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "platform": {
+                        "enum": [
+                            "ios",
+                            "android"
+                        ],
+                        "default": "",
+                        "type": "string"
                     }
                 }
             },
@@ -13570,77 +14249,6 @@
                         "type": "string"
                     }
                 }
-            },
-            "NotificationPreferences": {
-                "type": "object",
-                "properties": {
-                    "pushCategories": {
-                        "maxItems": 4,
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "enum": [
-                                "interactions",
-                                "follows",
-                                "comunas",
-                                "followed_content"
-                            ]
-                        }
-                    }
-                }
-            },
-            "PushDeviceRevocation": {
-                "type": "object",
-                "description": "Revocation-only capability: allows an offline logout to be completed without an account session.",
-                "additionalProperties": false,
-                "required": [
-                    "revocationSecret"
-                ],
-                "properties": {
-                    "revocationSecret": {
-                        "minLength": 36,
-                        "maxLength": 128,
-                        "default": "",
-                        "type": "string"
-                    }
-                }
-            },
-            "PushDeviceView": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    }
-                }
-            },
-            "PushDeviceView.PushDeviceInput": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "token",
-                    "revocationSecret"
-                ],
-                "properties": {
-                    "token": {
-                        "maxLength": 255,
-                        "default": "",
-                        "type": "string"
-                    },
-                    "revocationSecret": {
-                        "minLength": 36,
-                        "maxLength": 128,
-                        "default": "",
-                        "type": "string"
-                    },
-                    "platform": {
-                        "enum": [
-                            "ios",
-                            "android"
-                        ],
-                        "default": "",
-                        "type": "string"
-                    }
-                }
             }
         },
         "responses": {},
@@ -13704,6 +14312,10 @@
             "description": "Resource 'LegalAcceptance' operations."
         },
         {
+            "name": "Perfis",
+            "description": "Perfil p\u00fablico de uma pessoa. S\u00f3 campos que ela escolheu mostrar: nunca e-mail,\ninteresses, estado da conta, papel ou datas internas al\u00e9m do \"na Popularia desde\"."
+        },
+        {
             "name": "Modera\u00e7\u00e3o",
             "description": "Resource 'Modera\u00e7\u00e3o' operations."
         },
@@ -13712,8 +14324,12 @@
             "description": "Resource 'Notifica\u00e7\u00f5es' operations."
         },
         {
-            "name": "Perfis",
-            "description": "Perfil p\u00fablico de uma pessoa. S\u00f3 campos que ela escolheu mostrar: nunca e-mail,\ninteresses, estado da conta, papel ou datas internas al\u00e9m do \"na Popularia desde\"."
+            "name": "NotificationPreferences",
+            "description": "Resource 'NotificationPreferences' operations."
+        },
+        {
+            "name": "PushDeviceRevocation",
+            "description": "Revocation-only capability: allows an offline logout to be completed without an account session."
         },
         {
             "name": "Publica\u00e7\u00f5es",

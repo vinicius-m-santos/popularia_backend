@@ -25,11 +25,15 @@ final readonly class PublicProfileProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): PublicProfile
     {
+        $viewer = $this->currentUser->find();
         $user = $this->users->findByHandleOrId((string) ($uriVariables['handle'] ?? ''));
-        if (null === $user || !$user->isActive() || $this->blocks->isBlockedEitherWay($this->currentUser->find(), $user)) {
+        if (null === $user || !$user->isActive() || $this->blocks->isBlockedEitherWay($viewer, $user)) {
             throw ApiProblem::notFound('Perfil não encontrado.');
         }
 
-        return PublicProfile::fromUser($user, $this->follows->countApprovedFollowers($user));
+        $follow = null !== $viewer && !$viewer->getId()->equals($user->getId()) ? $this->follows->findFollow($viewer, $user) : null;
+        $counts = $this->follows->socialCounts($user);
+
+        return PublicProfile::fromUser($user, $counts['followers'], $counts['following'], $follow?->isApproved() ?? false, null !== $follow && !$follow->isApproved());
     }
 }

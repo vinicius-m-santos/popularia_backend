@@ -59,6 +59,8 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
             throw $e;
         }
 
-        return Me::fromUser($user, $this->follows->countApprovedFollowers($user));
+        $counts = $this->follows->socialCounts($user);
+
+        return Me::fromUser($user, $counts['followers'], $counts['following']);
     }
 }

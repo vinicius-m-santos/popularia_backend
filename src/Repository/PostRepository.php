@@ -8,6 +8,7 @@ use App\Entity\Comuna;
 use App\Entity\ComunaMembership;
 use App\Entity\Post;
 use App\Entity\User;
+use App\Entity\UserFollow;
 use App\Enum\AccountStatus;
 use App\Enum\ComunaVisibility;
 use App\Enum\ContentStatus;
@@ -43,6 +44,9 @@ class PostRepository extends ServiceEntityRepository
 
     /**
      * "minhas": publicações das comunas de que a pessoa participa.
+     * "seguindo": publicações de pessoas com follow aprovado. Não há follow de comuna:
+     * participar de uma comuna não entra aqui. Pedido pendente não entra.
+     * A visibilidade de comuna privada, bloqueio e perfil privado continua em visible().
      * "para-voce": comunas públicas, comunas de que participa e publicações em perfis,
      * em ordem cronológica (regra simples e explicável; sem ranqueamento opaco).
      *
@@ -55,6 +59,10 @@ class PostRepository extends ServiceEntityRepository
 
         if ('minhas' === $tab) {
             $qb->andWhere("c.id IN ($memberOf)");
+        } elseif ('seguindo' === $tab) {
+            $qb->andWhere(sprintf('EXISTS (SELECT 1 FROM %s sf WHERE sf.follower = :feedViewer AND sf.followed = a AND sf.approved = true)', UserFollow::class))
+                ->andWhere("c.id IS NULL OR c.visibility = :public OR c.id IN ($memberOf)")
+                ->setParameter('public', ComunaVisibility::Public);
         } else {
             $qb->andWhere("c.id IS NULL OR c.visibility = :public OR c.id IN ($memberOf)")
                 ->setParameter('public', ComunaVisibility::Public);

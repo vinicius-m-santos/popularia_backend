@@ -29,9 +29,9 @@ use App\Api\Profile\PublicProfile;
             openapi: new Operation(
                 tags: ['Publicações'],
                 summary: 'Feed da pessoa logada.',
-                description: 'tab=para-voce (padrão): comunas públicas, comunas de que participa e publicações em perfis. tab=minhas: só comunas de que participa. Ordem cronológica. Sem publicações de quem tem bloqueio com você.',
+                description: 'tab=para-voce (padrão): comunas públicas, comunas de que participa e publicações em perfis. tab=minhas: só comunas de que participa. tab=seguindo: só publicações de pessoas com follow aprovado; pedido pendente não inclui, e comuna privada continua exigindo participação. Ordem cronológica. Sem publicações de quem tem bloqueio com você.',
                 parameters: [
-                    new Parameter('tab', 'query', 'para-voce ou minhas.', schema: ['type' => 'string', 'enum' => ['para-voce', 'minhas']]),
+                    new Parameter('tab', 'query', 'para-voce, minhas ou seguindo.', schema: ['type' => 'string', 'enum' => ['para-voce', 'minhas', 'seguindo']]),
                     new Parameter('cursor', 'query', 'Valor de nextCursor da página anterior.'),
                     new Parameter('limit', 'query', 'Itens por página (1 a 50, padrão 20).', schema: ['type' => 'integer']),
                 ],

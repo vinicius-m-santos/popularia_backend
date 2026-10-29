@@ -89,12 +89,13 @@ final readonly class Me
         public bool $hasPassword = true,
         public bool $legalAccepted = false,
         public int $followerCount = 0,
+        public int $followingCount = 0,
         /** URL da foto atual. Null quando a pessoa ainda não enviou uma foto. */
         public ?string $avatarUrl = null,
     ) {
     }
 
-    public static function fromUser(User $user, int $followerCount = 0): self
+    public static function fromUser(User $user, int $followerCount = 0, int $followingCount = 0): self
     {
         return new self(
             $user->getId()->toRfc4122(),
@@ -118,6 +119,7 @@ final readonly class Me
             $user->hasPassword(),
             $user->hasAcceptedLegal(),
             $followerCount,
+            $followingCount,
             StoredImageUrl::avatar($user),
         );
     }

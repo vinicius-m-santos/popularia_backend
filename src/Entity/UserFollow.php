@@ -13,6 +13,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Entity(repositoryClass: UserFollowRepository::class)]
 #[ORM\Table(name: 'user_follow')]
 #[ORM\UniqueConstraint(name: 'uniq_user_follow', columns: ['follower_id', 'followed_id'])]
+#[ORM\Index(name: 'idx_follow_outgoing', columns: ['follower_id', 'approved', 'id'])]
 class UserFollow
 {
     #[ORM\Id]

@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /** @implements ProviderInterface<PostPage> */
 final readonly class FeedProvider implements ProviderInterface
 {
-    private const array TABS = ['para-voce', 'minhas'];
+    private const array TABS = ['para-voce', 'minhas', 'seguindo'];
 
     public function __construct(
         private CurrentUser $currentUser,

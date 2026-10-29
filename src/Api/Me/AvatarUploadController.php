@@ -28,7 +28,8 @@ final readonly class AvatarUploadController
     {
         $file = $request->files->get('file');
         $user = $this->images->replaceAvatar($this->current->get(), $file instanceof UploadedFile ? $file : null);
-        $me = Me::fromUser($user, $this->follows->countApprovedFollowers($user));
+        $counts = $this->follows->socialCounts($user);
+        $me = Me::fromUser($user, $counts['followers'], $counts['following']);
 
         return new JsonResponse($this->serializer->serialize($me, 'json'), 200, [], true);
     }

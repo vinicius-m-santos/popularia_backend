@@ -81,8 +81,12 @@ final readonly class DiscoveryProvider implements ProviderInterface
                 $comunas = $this->comunas->many($rows, $viewer, hiddenUsers: $this->blocks->blockedEitherWayIds($viewer));
             } elseif ('people' === $kind) {
                 /** @var list<User> $rows */
-                $followed = $this->follows->followedIds($viewer, $rows);
-                $people = array_map(static fn (User $u) => new DiscoveryPerson($u->getId()->toRfc4122(), $u->getHandle(), $u->getDisplayName(), isset($followed[$u->getId()->toRfc4122()]), StoredImageUrl::avatar($u)), $rows);
+                $relations = $this->follows->relationsTo($viewer, $rows);
+                $people = array_map(static function (User $u) use ($relations): DiscoveryPerson {
+                    $state = $relations[$u->getId()->toRfc4122()] ?? null;
+
+                    return new DiscoveryPerson($u->getId()->toRfc4122(), $u->getHandle(), $u->getDisplayName(), 'following' === $state, StoredImageUrl::avatar($u), 'pending' === $state, $u->isPrivate());
+                }, $rows);
             } else {
                 /** @var list<Post> $rows */
                 $posts = $this->posts->many($rows, $viewer);

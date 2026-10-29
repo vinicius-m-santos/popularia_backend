@@ -26,6 +26,8 @@ final readonly class LegalAcceptanceProcessor implements ProcessorInterface
             $this->em->flush();
         }
 
-        return Me::fromUser($user, $this->follows->countApprovedFollowers($user));
+        $counts = $this->follows->socialCounts($user);
+
+        return Me::fromUser($user, $counts['followers'], $counts['following']);
     }
 }

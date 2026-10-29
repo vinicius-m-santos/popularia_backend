@@ -13,6 +13,8 @@ final readonly class DiscoveryPerson
         public string $displayName,
         public bool $following,
         public ?string $avatarUrl = null,
+        public bool $requested = false,
+        public bool $isPrivate = false,
     ) {
     }
 }

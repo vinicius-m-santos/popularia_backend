@@ -16,7 +16,7 @@ final class MemoryStorage implements ObjectStorage
     public static bool $fail = false;
     public static bool $failDeletes = false;
 
-    public function put(string $key, string $path, string $checksum): void
+    public function put(string $key, string $path, string $checksum, string $contentType = 'application/pdf'): void
     {
         ++self::$puts;
         if (self::$fail) {
@@ -41,7 +41,7 @@ final class MemoryStorage implements ObjectStorage
         return $stream;
     }
 
-    public function signedUrl(string $key, int $ttl): string
+    public function signedUrl(string $key, int $ttl, string $contentType = 'application/pdf', string $disposition = 'attachment; filename="documento.pdf"'): string
     {
         $expires = (string) (time() + $ttl);
 

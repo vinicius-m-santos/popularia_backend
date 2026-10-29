@@ -20,6 +20,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'post')]
 #[ORM\Index(name: 'idx_post_comuna', columns: ['comuna_id', 'status', 'id'])]
 #[ORM\Index(name: 'idx_post_author', columns: ['author_id', 'id'])]
+#[ORM\UniqueConstraint(name: 'uniq_post_media_attachment', columns: ['media_id'])]
 class Post
 {
     public const int BODY_MAX_LENGTH = 1000;
@@ -58,6 +59,10 @@ class Post
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
     public ?LibraryDocument $libraryDocument = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
+    public ?PostMedia $media = null;
 
     public function setTopic(?Topic $topic): void
     {
@@ -117,6 +122,10 @@ class Post
     {
         $this->status = ContentStatus::Deleted;
         $this->body = '';
+        if (null !== $this->media) {
+            $this->media->status = 'purge_pending';
+            $this->media = null;
+        }
     }
 
     /**

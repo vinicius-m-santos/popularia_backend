@@ -15,21 +15,38 @@ final class LocalFilesystemStorage implements ObjectStorage
     ) {
     }
 
-    public function put(string $key, string $path, string $checksum): void
+    public function put(string $key, string $path, string $checksum, string $contentType = 'application/pdf'): void
     {
-        $content = file_get_contents($path);
-        if (false === $content) {
+        $actual = hash_file('sha256', $path);
+        if (false === $actual) {
             throw ApiProblem::serviceUnavailable();
         }
-
-        if (!hash_equals($checksum, hash('sha256', $content))) {
+        if (!hash_equals($checksum, $actual)) {
             throw new \RuntimeException('Checksum incorreto.');
         }
 
         $destination = $this->resolve($key);
         $this->ensureDirectory(dirname($destination));
-        $written = file_put_contents($destination, $content);
-        if (false === $written || !chmod($destination, 0600)) {
+        $source = fopen($path, 'rb');
+        $target = fopen($destination, 'wb');
+        if (false === $source || false === $target) {
+            if (is_resource($source)) {
+                fclose($source);
+            }
+            if (is_resource($target)) {
+                fclose($target);
+            }
+            throw ApiProblem::serviceUnavailable();
+        }
+        try {
+            if (false === stream_copy_to_stream($source, $target)) {
+                throw ApiProblem::serviceUnavailable();
+            }
+        } finally {
+            fclose($source);
+            fclose($target);
+        }
+        if (!chmod($destination, 0600)) {
             throw ApiProblem::serviceUnavailable();
         }
     }
@@ -49,7 +66,30 @@ final class LocalFilesystemStorage implements ObjectStorage
         return $stream;
     }
 
-    public function signedUrl(string $key, int $ttl): string
+    public function size(string $key): int
+    {
+        $path = $this->resolve($key);
+        $size = is_file($path) ? filesize($path) : false;
+        if (false === $size || $size < 1) {
+            throw ApiProblem::notFound();
+        }
+
+        return $size;
+    }
+
+    /** @return resource */
+    public function readFrom(string $key, int $offset): mixed
+    {
+        $stream = $this->read($key);
+        if ($offset < 0 || 0 !== fseek($stream, $offset, SEEK_SET)) {
+            fclose($stream);
+            throw ApiProblem::notFound();
+        }
+
+        return $stream;
+    }
+
+    public function signedUrl(string $key, int $ttl, string $contentType = 'application/pdf', string $disposition = 'attachment; filename="documento.pdf"'): string
     {
         if ($ttl < 1 || $ttl > 86400) {
             throw ApiProblem::serviceUnavailable();
@@ -58,7 +98,7 @@ final class LocalFilesystemStorage implements ObjectStorage
         $expires = time() + $ttl;
         $signature = hash_hmac('sha256', $key."\n".$expires, $this->secret);
 
-        return '/api/dev/library-files?'.http_build_query(['key' => $key, 'expires' => $expires, 'signature' => $signature]);
+        return '/api/dev/library-files?'.http_build_query(['key' => $key, 'expires' => $expires, 'signature' => $signature, 'type' => $contentType, 'disposition' => $disposition]);
     }
 
     public function delete(string $key): void

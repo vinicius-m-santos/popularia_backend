@@ -17,12 +17,19 @@
 	}
 	@other_requests {
 		not {
-			path /api/v1/library/documents
+			path /api/v1/library/documents /api/v1/post-media
 			method POST
 		}
 	}
+	@post_media_upload {
+		path /api/v1/post-media
+		method POST
+	}
 	request_body @library_upload {
 		max_size 27MB
+	}
+	request_body @post_media_upload {
+		max_size 106MB
 	}
 	request_body @other_requests {
 		max_size 1MB

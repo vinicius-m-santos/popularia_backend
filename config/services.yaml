@@ -38,4 +38,6 @@ when@dev:
         App\Library\ObjectStorage: '@App\Library\LocalFilesystemStorage'
         App\Api\Library\LocalFileController:
             arguments:
+                $storage: '@App\Library\LocalFilesystemStorage'
                 $appSecret: '%kernel.secret%'
+            tags: ['controller.service_arguments']

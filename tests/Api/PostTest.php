@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use App\Entity\Post;
+use App\Entity\PostMedia;
 use App\Enum\ComunaVisibility;
 use App\Enum\ContentStatus;
 use App\Tests\ApiTestCase;
@@ -26,7 +27,7 @@ final class PostTest extends ApiTestCase
         self::assertSame(['id' => $comuna->getId()->toRfc4122(), 'slug' => 'tarifa', 'name' => 'Tarifa', 'status' => 'active'], $post['comuna']);
         self::assertSame(0, $post['commentCount']);
         self::assertSame(['isAuthor' => true, 'canComment' => true, 'canDelete' => true, 'canRemove' => false], $post['viewer']);
-        self::assertSame(['id', 'body', 'createdAt', 'author', 'comuna', 'commentCount', 'viewer', 'topic', 'document'], array_keys($post));
+        self::assertSame(['id', 'body', 'createdAt', 'author', 'comuna', 'commentCount', 'viewer', 'topic', 'document', 'media'], array_keys($post));
         self::assertSame(['id', 'handle', 'displayName'], array_keys($post['author']));
         self::assertTrue($this->fresh(Post::class, $post['id'])->getAuthor()->getId()->equals($author->getId()));
     }
@@ -85,6 +86,42 @@ final class PostTest extends ApiTestCase
         $this->assertStatus(422);
         $this->request('POST', '/posts', ['body' => "texto\u{0007}com controle"], $token);
         $this->assertStatus(422);
+    }
+
+    public function testReadyMediaCanBeAttachedOnlyOnceAndIsAlternativeToPdf(): void
+    {
+        $author = $this->createUser('camila');
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+        $media = new PostMedia($author, \Symfony\Component\Uid\Uuid::v7()->toRfc4122(), 'post-media/test.jpg', 'image', 'image/jpeg', str_repeat('a', 64), 100, 20, 10, null, new \DateTimeImmutable());
+        $media->status = 'ready';
+        $this->em()->persist($media);
+        $this->em()->flush();
+
+        $post = $this->request('POST', '/posts', ['body' => '', 'mediaId' => $media->id->toRfc4122()], $token);
+        $this->assertStatus(201);
+        self::assertSame('image', $post['media']['type']);
+        self::assertSame(20, $post['media']['width']);
+        self::assertArrayNotHasKey('storageKey', $post['media']);
+
+        $problem = $this->request('POST', '/posts', ['body' => 'reuso', 'mediaId' => $media->id->toRfc4122()], $token);
+        $this->assertStatus(409);
+        self::assertSame('/errors/post-media-attached', $problem['type']);
+
+        $this->request('POST', '/posts', ['body' => 'dois anexos', 'mediaId' => $media->id->toRfc4122(), 'documentId' => \Symfony\Component\Uid\Uuid::v7()->toRfc4122()], $token);
+        $this->assertStatus(422);
+    }
+
+    public function testMediaFromAnotherAccountIsNotAttachable(): void
+    {
+        $owner = $this->createUser('dona');
+        $this->createUser('camila');
+        $media = new PostMedia($owner, \Symfony\Component\Uid\Uuid::v7()->toRfc4122(), 'post-media/other.mp4', 'video', 'video/mp4', str_repeat('b', 64), 100, 20, 10, 1000, new \DateTimeImmutable());
+        $media->status = 'ready';
+        $this->em()->persist($media);
+        $this->em()->flush();
+
+        $this->request('POST', '/posts', ['body' => '', 'mediaId' => $media->id->toRfc4122()], $this->login('camila@exemplo.org')['accessToken']);
+        $this->assertStatus(404);
     }
 
     public function testOnlyAuthorDeletesAndTextIsErased(): void

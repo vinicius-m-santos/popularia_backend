@@ -84,6 +84,11 @@ framework:
             limit: 10
             interval: '1 hour'
             cache_pool: cache.rate_limiter
+        post_media_upload:
+            policy: sliding_window
+            limit: 20
+            interval: '1 hour'
+            cache_pool: cache.rate_limiter
         content_creation:
             policy: sliding_window
             limit: 30

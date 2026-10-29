@@ -95,8 +95,9 @@ class PostRepository extends ServiceEntityRepository
     private function visible(?User $viewer, ?Uuid $before, int $limit): QueryBuilder
     {
         $qb = $this->createQueryBuilder('p')
-            ->addSelect('a', 'c', 'ld', 'lf', 'lc', 'lu')
+            ->addSelect('a', 'c', 'ld', 'lf', 'lc', 'lu', 'pmedia')
             ->leftJoin('p.libraryDocument', 'ld')->leftJoin('ld.file', 'lf')->leftJoin('ld.collection', 'lc')->leftJoin('lf.uploadedBy', 'lu')->addSelect('lou', 'loc')->leftJoin('ld.user', 'lou')->leftJoin('ld.comuna', 'loc')
+            ->leftJoin('p.media', 'pmedia')
             ->join('p.author', 'a')
             ->leftJoin('p.comuna', 'c')
             ->where('p.status = :published')

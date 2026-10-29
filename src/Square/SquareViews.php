@@ -101,7 +101,7 @@ final readonly class SquareViews
 
             return new SquareView(
                 $s->id->toRfc4122(),
-                null === $c ? null : ['id' => $c->getId()->toRfc4122(), 'slug' => $c->getSlug(), 'name' => $c->getName(), 'tone' => $c->getTone(), 'visibility' => $c->getVisibility()->value],
+                null === $c ? null : ['id' => $c->getId()->toRfc4122(), 'slug' => $c->getSlug(), 'name' => $c->getName(), 'tone' => $c->getTone(), 'visibility' => $c->getVisibility()->value, 'topics' => $c->getTopics()],
                 $readable ? ($s->title ?? $c->getName()) : ($c?->getName() ?? 'Praça'),
                 $readable ? $s->status : null, $readable ? $s->closedAt : null,
                 $readable ? $s->version : null,

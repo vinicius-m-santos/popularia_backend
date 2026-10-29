@@ -1362,7 +1362,7 @@
                                     },
                                     "metadata": {
                                         "type": "string",
-                                        "description": "JSON: title, description, collectionId, access, topic, isPublic, sharedWith (slugs), clientId (UUID de idempot\u00eancia)."
+                                        "description": "JSON: title, author (opcional), description, collectionId, access, topic, isPublic, sharedWith (slugs), clientId (UUID de idempot\u00eancia)."
                                     }
                                 }
                             }
@@ -1580,8 +1580,8 @@
                         "links": {}
                     }
                 },
-                "summary": "Edita metadados e acesso, sem substituir arquivo.",
-                "description": "Edita metadados e acesso, sem substituir arquivo.",
+                "summary": "Edita metadados e acesso, sem substituir arquivo. Use clearAuthor para remover a autoria.",
+                "description": "Edita metadados e acesso, sem substituir arquivo. Use clearAuthor para remover a autoria.",
                 "parameters": [
                     {
                         "name": "id",
@@ -9218,6 +9218,102 @@
                 ]
             }
         },
+        "/api/v1/post-media": {
+            "post": {
+                "operationId": "api_post-media_post",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "PostMedia resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostMedia"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Prepara uma imagem (10 MiB) ou v\u00eddeo curto (30 s/100 MiB) para uma publica\u00e7\u00e3o.",
+                "description": "Prepara uma imagem (10 MiB) ou v\u00eddeo curto (30 s/100 MiB) para uma publica\u00e7\u00e3o.",
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "file",
+                                    "metadata"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "metadata": {
+                                        "type": "string",
+                                        "description": "JSON: clientId UUID e kind image|video."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": false
+                }
+            }
+        },
         "/api/v1/posts": {
             "post": {
                 "operationId": "api_posts_post",
@@ -10936,6 +11032,12 @@
                             "null"
                         ]
                     },
+                    "author": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "description": {
                         "type": [
                             "string",
@@ -11038,6 +11140,17 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "author": {
+                        "maxLength": 200,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "clearAuthor": {
+                        "default": false,
+                        "type": "boolean"
                     },
                     "description": {
                         "maxLength": 1000,
@@ -11899,6 +12012,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "media": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PostMedia"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 }
             },
@@ -11959,6 +12082,16 @@
                             "null"
                         ]
                     },
+                    "mediaId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "comunaId": {
                         "format": "uuid",
                         "description": "Comuna onde publicar; null publica no pr\u00f3prio perfil.",
@@ -11974,6 +12107,41 @@
                         "maxLength": 1000,
                         "default": "",
                         "type": "string"
+                    }
+                }
+            },
+            "PostMedia": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "mimeType": {
+                        "type": "string"
+                    },
+                    "byteSize": {
+                        "type": "integer"
+                    },
+                    "width": {
+                        "type": "integer"
+                    },
+                    "height": {
+                        "type": "integer"
+                    },
+                    "durationMs": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -12548,7 +12716,17 @@
                             "null"
                         ],
                         "additionalProperties": {
-                            "type": "string"
+                            "anyOf": [
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
                         }
                     },
                     "title": {
@@ -12840,7 +13018,7 @@
         },
         {
             "name": "Publica\u00e7\u00f5es",
-            "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente."
+            "description": "Resource 'Publica\u00e7\u00f5es' operations."
         },
         {
             "name": "Pra\u00e7as",

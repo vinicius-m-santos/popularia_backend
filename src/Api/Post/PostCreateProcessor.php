@@ -57,6 +57,20 @@ final readonly class PostCreateProcessor implements ProcessorInterface
                 $this->library->assertRead($document, $author);
                 $post->libraryDocument = $document;
             }
+            if (null !== $data->mediaId) {
+                if (!Uuid::isValid($data->mediaId)) {
+                    throw ApiProblem::badRequest('/errors/post-media', 'Mídia inválida.');
+                }
+                $media = $this->em->find(\App\Entity\PostMedia::class, Uuid::fromString($data->mediaId), \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
+                if (null === $media || !$media->uploadedBy->getId()->equals($author->getId()) || 'ready' !== $media->status) {
+                    throw ApiProblem::notFound('Mídia não encontrada.');
+                }
+                $alreadyAttached = $this->em->getRepository(Post::class)->findOneBy(['media' => $media]);
+                if (null !== $alreadyAttached) {
+                    throw ApiProblem::conflict('/errors/post-media-attached', 'Esta mídia já foi publicada.');
+                }
+                $post->media = $media;
+            }
             $this->em->persist($post);
             $this->em->flush();
 

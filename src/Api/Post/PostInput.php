@@ -17,11 +17,15 @@ final class PostInput
     #[Assert\Uuid(message: 'Documento inválido.')]
     public ?string $documentId = null;
 
+    #[Assert\Uuid(message: 'Mídia inválida.')]
+    public ?string $mediaId = null;
+
     /** Comuna onde publicar; null publica no próprio perfil. */
     #[Assert\Uuid(message: 'Comuna inválida.')]
     public ?string $comunaId = null;
 
-    #[Assert\When(expression: 'this.documentId == null', constraints: [new Assert\NotBlank(message: 'Escreva alguma coisa para publicar.', normalizer: 'trim')])]
+    #[Assert\Expression(expression: 'this.documentId == null or this.mediaId == null', message: 'Escolha apenas um anexo: PDF, imagem ou vídeo.')]
+    #[Assert\When(expression: 'this.documentId == null and this.mediaId == null', constraints: [new Assert\NotBlank(message: 'Escreva alguma coisa para publicar.', normalizer: 'trim')])]
     #[Assert\Length(max: Post::BODY_MAX_LENGTH, maxMessage: 'Use até {{ limit }} caracteres.')]
     #[Assert\Regex(pattern: TextRules::MULTI_LINE, message: TextRules::MESSAGE)]
     public string $body = '';

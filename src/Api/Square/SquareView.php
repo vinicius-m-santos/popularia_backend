@@ -33,7 +33,7 @@ use App\Api\Comuna\ComunaView;
 )]
 final readonly class SquareView
 {
-    /** @param array{id: string, slug: string, name: string, tone: string, visibility: string}|null $comuna
+    /** @param array{id: string, slug: string, name: string, tone: string, visibility: string, topics: list<string>}|null $comuna
      * @param array{canRead: bool, isMember: bool, canWrite: bool, canManage: bool, joinRequest: ?string} $viewer
      */
     public function __construct(

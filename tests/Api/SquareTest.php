@@ -108,10 +108,12 @@ final class SquareTest extends ApiTestCase
         $mine = $this->request('GET', '/squares?section=mine&q=privada', token: $this->memberToken);
         $this->assertStatus(200);
         self::assertSame([$this->privateId], array_column($mine['items'], 'id'));
+        self::assertSame(['comun'], $mine['items'][0]['comuna']['topics']);
 
         $discover = $this->request('GET', '/squares?section=discover&q=publica', token: $this->outsiderToken);
         $this->assertStatus(200);
         self::assertSame([$this->squareId], array_column($discover['items'], 'id'));
+        self::assertSame(['comun'], $discover['items'][0]['comuna']['topics']);
 
         $empty = $this->request('GET', '/squares?section=mine&q=inexistente', token: $this->memberToken);
         self::assertSame([], $empty['items']);

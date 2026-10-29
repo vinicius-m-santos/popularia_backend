@@ -22,6 +22,7 @@ final readonly class PostViews
         private ComunaMembershipRepository $memberships,
         private ComunaModerationPolicy $moderation,
         private \App\Library\LibraryViews $library,
+        private \App\Library\ObjectStorage $storage,
     ) {
     }
 
@@ -65,6 +66,11 @@ final readonly class PostViews
                 ['isAuthor' => $isAuthor, 'canComment' => $canComment, 'canDelete' => $isAuthor, 'canRemove' => $canRemove],
                 $post->getTopic(),
                 null === $post->libraryDocument ? null : ($documentViews[$post->libraryDocument->id->toRfc4122()] ?? null),
+                null === $post->media ? null : new \App\Api\PostMedia\PostMediaView(
+                    $post->media->id->toRfc4122(), $post->media->kind, $post->media->mimeType, $post->media->byteSize,
+                    $post->media->width, $post->media->height, $post->media->durationMs,
+                    $this->storage->signedUrl($post->media->storageKey, 300, $post->media->mimeType, 'inline'),
+                ),
             );
         }, $posts);
     }

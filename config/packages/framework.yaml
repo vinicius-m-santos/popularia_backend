@@ -19,6 +19,16 @@ framework:
     # Limites de taxa guardados no PostgreSQL (tabela cache_items): sem Redis e
     # compartilhados entre instâncias da API. Valores explicados em docs/seguranca.md.
     rate_limiter:
+        push_registration:
+            policy: sliding_window
+            limit: 60
+            interval: '1 minute'
+            cache_pool: cache.rate_limiter
+        push_revocation:
+            policy: sliding_window
+            limit: 60
+            interval: '1 minute'
+            cache_pool: cache.rate_limiter
         login_ip:
             policy: sliding_window
             limit: 30

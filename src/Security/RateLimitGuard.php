@@ -21,6 +21,8 @@ final class RateLimitGuard
 {
     public function __construct(
         #[AutowireLocator([
+            'push_registration' => new Autowire(service: 'limiter.push_registration'),
+            'push_revocation' => new Autowire(service: 'limiter.push_revocation'),
             'login_ip' => new Autowire(service: 'limiter.login_ip'),
             'login_account' => new Autowire(service: 'limiter.login_account'),
             'register_ip' => new Autowire(service: 'limiter.register_ip'),

@@ -2,6 +2,8 @@
 
 Auditoria de código e configuração em 27/10/2026. Controlador confirmado: Vinicius Matheus dos Santos; suporte/privacidade: vinicius.m.dos.s@gmail.com. Idade mínima do beta confirmada: 18 anos. Fontes: entidades/migrations, serviços de Auth/Content/Square/Library, mobile e consulta Railway/EAS. Configuração remota pode mudar; não equivale a inspeção de payloads de uma build instalada.
 
+Atualizado em 29/10/2026 para incluir dispositivos, preferências e entrega push.
+
 API/banco: Railway, PostgreSQL separado em staging e production. Proxy da API e PDFs: Cloudflare / Cloudflare R2 (confirmado pelo endpoint configurado; não Railway Buckets). E-mail: Brevo transacional. Erros: Sentry, separado por environment; instância de ingestão observada nos EUA. Auth: Google/Apple. Builds: Expo/EAS. Políticas em `docs/legal` são a fonte das páginas HTML públicas.
 
 | Dado/origem | Finalidade | Local/provider e acesso | Público/privado | Retenção e exclusão |
@@ -19,7 +21,8 @@ API/banco: Railway, PostgreSQL separado em staging e production. Proxy da API e 
 | Comunas, regras, owner, membros, pedidos e transferências | Governança e acesso | `comuna*`; PostgreSQL; participantes/moderação conforme papel | Públicas/privadas | Não excluir coletivos junto à conta; resolver ownership ativo antes; arquivada perde owner, participações/pedidos/transferências próprios saem |
 | Praça: mensagens, replies, stickers usados, clientId e revisões | Histórico e sincronização | `square*`; PostgreSQL; mesma autorização da Comuna | Do espaço | Texto/sticker de mensagens próprias apagados; marcadores e replies ficam; revisões avançam; clientId vira ID técnico |
 | Reações e presença/leitura recente | Interações, contagens, não lidas | `square_reaction`, `square_visit`; PostgreSQL | Presença visível conforme acesso da Praça; cursor de leitura próprio | Apagados na exclusão; não há rastreamento GPS |
-| Notificações internas | Atividade relevante | `notification`; destinatário autenticado | Privado ao destinatário | Registros da/relacionados à conta removidos; sem push remoto nesta versão |
+| Notificações internas | Atividade relevante | `notification`; destinatário autenticado | Privado ao destinatário | Registros da/relacionados à conta removidos; push remoto descrito em `notificacoes.md` |
+| Token Expo, UUID de instalação, plataforma, sessão, preferências e recibos | Entrega opcional de avisos | `push_device`, `notification_preference`, `push_delivery`; Expo Push Service, APNs/FCM; segredo de revogação no SecureStore, apenas hash no servidor | Privado; payload sem conteúdo pessoal, somente tipo genérico e IDs | Logout/revogação desativa entrega; purge de sessão remove device; exclusão remove devices/preferências/entregas; outbox terminal expira após 7 dias; retenção do provider requer confirmação operacional |
 | PDF pessoal e metadados | Biblioteca privada/seguidores/pública, distribuições | Objeto privado R2 + `library_file/document/collection/share`; API autoriza bytes | Conforme seleção de acesso | Na exclusão pessoal sai de acesso/distribuições/salvos e título/descrição/nome original são apagados; arquivo `purge_pending` é elegível imediatamente |
 | PDF originado na Comuna | Patrimônio coletivo e distribuição autorizada | Mesmo R2; origem imutável | Conforme permissões da Comuna | Preservado após saída/exclusão do uploader; identificação do responsável oculta, nome original genérico; texto/bytes podem conter autoria e exigem análise humana se solicitado |
 | Saves/coleções pessoais | Organização da Biblioteca | PostgreSQL | Salvos privados; coleções conforme conteúdo | Saves próprios e saves de PDFs pessoais excluídos saem; shells de coleções pessoais sem nomes/descrições preservam FKs |

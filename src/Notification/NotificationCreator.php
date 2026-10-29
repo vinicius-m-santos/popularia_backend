@@ -21,7 +21,7 @@ use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Enqueues persistence in the caller's transaction, never flushes or delivers externally.
- * A future push delivery layer can consume committed notifications without changing callers.
+ * PushWorker consumes only committed notifications without changing callers.
  */
 final readonly class NotificationCreator
 {
@@ -46,6 +46,12 @@ final readonly class NotificationCreator
     public function followed(UserFollow $follow, User $actor, User $recipient): void
     {
         $this->save($recipient, $actor, NotificationType::Follow, $follow->getId()->toRfc4122());
+    }
+
+    public function commentSupported(Comment $comment, User $actor): void
+    {
+        // One notification per actor/comment, even after undo + redo.
+        $this->save($comment->getAuthor(), $actor, NotificationType::CommentSupport, $comment->getId()->toRfc4122().':'.$actor->getId()->toRfc4122(), $comment);
     }
 
     public function commented(Comment $comment): void
@@ -101,6 +107,15 @@ final readonly class NotificationCreator
     ): void {
         if (!$recipient->isActive() || (null !== $actor && ($recipient->getId()->equals($actor->getId()) || $this->blocks->isBlockedEitherWay($recipient, $actor)))) {
             return;
+        }
+        $criteria = ['recipient' => $recipient, 'type' => $type, 'eventKey' => $eventKey];
+        if (null !== $this->em->getRepository(Notification::class)->findOneBy($criteria)) {
+            return;
+        }
+        foreach ($this->em->getUnitOfWork()->getScheduledEntityInsertions() as $pending) {
+            if ($pending instanceof Notification && $pending->matchesEvent($recipient, $type, $eventKey)) {
+                return;
+            }
         }
         $this->em->persist(new Notification(
             $recipient,

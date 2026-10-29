@@ -9,6 +9,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Api\ApiProblem;
 use App\Content\ContentPolicy;
 use App\Entity\Comment;
+use App\Notification\NotificationCreator;
 use App\Repository\CommentRepository;
 use App\Repository\CommentSupportRepository;
 use App\Repository\UserBlockRepository;
@@ -19,7 +20,7 @@ use Symfony\Component\Uid\Uuid;
 /** @implements ProcessorInterface<mixed, CommentView> */
 final readonly class CommentSupportProcessor implements ProcessorInterface
 {
-    public function __construct(private CurrentUser $currentUser, private CommentRepository $comments, private CommentSupportRepository $supports, private ContentPolicy $policy, private UserBlockRepository $blocks, private EntityManagerInterface $em)
+    public function __construct(private CurrentUser $currentUser, private CommentRepository $comments, private CommentSupportRepository $supports, private ContentPolicy $policy, private UserBlockRepository $blocks, private EntityManagerInterface $em, private NotificationCreator $notifications)
     {
     }
 
@@ -38,15 +39,21 @@ final readonly class CommentSupportProcessor implements ProcessorInterface
         }
 
         $connection = $this->em->getConnection();
-        if ('comment_support' === $operation->getName()) {
-            $connection->executeStatement(
-                'INSERT INTO comment_support (id, comment_id, user_id) VALUES (:id, :comment, :user) ON CONFLICT (comment_id, user_id) DO NOTHING',
-                ['id' => Uuid::v7()->toRfc4122(), 'comment' => $comment->getId()->toRfc4122(), 'user' => $actor->getId()->toRfc4122()],
-            );
-        }
-        if ('comment_unsupport' === $operation->getName()) {
-            $connection->executeStatement('DELETE FROM comment_support WHERE comment_id = :comment AND user_id = :user', ['comment' => $comment->getId()->toRfc4122(), 'user' => $actor->getId()->toRfc4122()]);
-        }
+        $connection->transactional(function () use ($connection, $operation, $comment, $actor): void {
+            if ('comment_support' === $operation->getName()) {
+                $created = $connection->executeStatement(
+                    'INSERT INTO comment_support (id, comment_id, user_id) VALUES (:id, :comment, :user) ON CONFLICT (comment_id, user_id) DO NOTHING',
+                    ['id' => Uuid::v7()->toRfc4122(), 'comment' => $comment->getId()->toRfc4122(), 'user' => $actor->getId()->toRfc4122()],
+                );
+                if (1 === $created) {
+                    $this->notifications->commentSupported($comment, $actor);
+                    $this->em->flush();
+                }
+            }
+            if ('comment_unsupport' === $operation->getName()) {
+                $connection->executeStatement('DELETE FROM comment_support WHERE comment_id = :comment AND user_id = :user', ['comment' => $comment->getId()->toRfc4122(), 'user' => $actor->getId()->toRfc4122()]);
+            }
+        });
         $stats = $this->supports->stats([$comment], $actor)[$id] ?? ['count' => 0, 'mine' => false];
 
         return CommentView::fromComment($comment, false, $actor->getId()->toRfc4122(), false, $stats['count'], $stats['mine']);

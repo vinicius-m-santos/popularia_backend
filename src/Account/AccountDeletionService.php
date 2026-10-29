@@ -39,6 +39,7 @@ final readonly class AccountDeletionService
             foreach ([
                 'DELETE FROM auth_session WHERE user_id = ?', // refresh_token cascades explicitamente verificados nos testes
                 'DELETE FROM account_token WHERE user_id = ?',
+                'DELETE FROM notification_preference WHERE user_id = ?',
                 'DELETE FROM user_auth_identity WHERE user_id = ?',
                 'DELETE FROM user_follow WHERE follower_id = ? OR followed_id = ?',
                 'DELETE FROM user_block WHERE blocker_id = ? OR blocked_id = ?',

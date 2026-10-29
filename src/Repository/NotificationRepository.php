@@ -56,11 +56,9 @@ class NotificationRepository extends ServiceEntityRepository
 
     public function markAllRead(User $viewer, \DateTimeImmutable $now): void
     {
-        $ids = $this->visible($viewer)->select('n.id')->andWhere('n.readAt IS NULL')->getQuery()->getSingleColumnResult();
-        if ([] !== $ids) {
-            $this->createQueryBuilder('n')->update()->set('n.readAt', ':now')->where('n.id IN (:ids)')
-                ->setParameter('ids', $ids)->setParameter('now', $now)->getQuery()->execute();
-        }
+        $visible = $this->visible($viewer)->select('n.id')->andWhere('n.readAt IS NULL');
+        $this->getEntityManager()->createQuery('UPDATE App\\Entity\\Notification nr SET nr.readAt = :now WHERE nr.id IN ('.$visible->getDQL().')')
+            ->setParameters($visible->getParameters())->setParameter('now', $now)->execute();
     }
 
     private function visible(User $viewer): QueryBuilder
@@ -78,6 +76,7 @@ class NotificationRepository extends ServiceEntityRepository
             ->andWhere('(sm.id IS NULL OR (sm.status = :published AND sp.status = :published AND spa.status = :active))')
             ->andWhere('(a.id IS NULL OR a.status = :active)')
             ->andWhere('(p.id IS NULL OR (p.status = :published AND pa.status = :active))')
+            ->andWhere('(p.id IS NULL OR c.id IS NOT NULL OR pa.isPrivate = false OR pa = :viewer OR EXISTS (SELECT 1 FROM App\\Entity\\UserFollow nf WHERE nf.follower = :viewer AND nf.followed = pa AND nf.approved = true))')
             ->andWhere('(cm.id IS NULL OR (cm.status = :published AND (cp.id IS NULL OR (cp.status = :published AND cpa.status = :active))))')
             // A rejected request may point to the same public metadata/preview already exposed by GET comuna.
             ->andWhere("(c.id IS NULL OR c.visibility = :public OR EXISTS ($membership) OR n.type = :joinRejected)")

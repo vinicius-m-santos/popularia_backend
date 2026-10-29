@@ -7,6 +7,7 @@ namespace App\Enum;
 enum NotificationType: string
 {
     case SquareReply = 'square_reply';
+    case CommentSupport = 'comment_support';
     case Follow = 'follow';
     case Comment = 'comment';
     case Reply = 'reply';

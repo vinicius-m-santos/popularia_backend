@@ -14,6 +14,7 @@ use Symfony\Component\Uid\Uuid;
 /** References, rather than snapshots of private content: access is checked on every read. */
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
 #[ORM\Table(name: 'notification')]
+#[ORM\Index(name: 'idx_notification_push_pending', columns: ['id'], options: ['where' => '(push_queued_at IS NULL)'])]
 #[ORM\Index(name: 'idx_notification_recipient_id', columns: ['recipient_id', 'id'])]
 #[ORM\Index(name: 'idx_notification_recipient_read', columns: ['recipient_id', 'read_at'])]
 #[ORM\UniqueConstraint(name: 'uniq_notification_event', columns: ['recipient_id', 'type', 'event_key'])]
@@ -25,6 +26,9 @@ class Notification
 
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $readAt = null;
+
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $pushQueuedAt = null;
 
     public function __construct(
         #[ORM\ManyToOne]
@@ -59,6 +63,11 @@ class Notification
         private ?SquareMessage $squareMessage = null,
     ) {
         $this->id = Uuid::v7();
+    }
+
+    public function matchesEvent(User $recipient, NotificationType $type, string $key): bool
+    {
+        return $this->recipient->getId()->equals($recipient->getId()) && $this->type === $type && $this->eventKey === $key;
     }
 
     public function getSquareMessage(): ?SquareMessage

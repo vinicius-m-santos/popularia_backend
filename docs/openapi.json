@@ -9734,6 +9734,402 @@
                     "required": true
                 }
             }
+        },
+        "/api/v1/me/notification-preferences": {
+            "get": {
+                "operationId": "api_menotification-preferences_get",
+                "tags": [
+                    "NotificationPreferences"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "NotificationPreferences resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationPreferences"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retrieves a NotificationPreferences resource.",
+                "description": "Retrieves a NotificationPreferences resource.",
+                "parameters": []
+            },
+            "put": {
+                "operationId": "api_menotification-preferences_put",
+                "tags": [
+                    "NotificationPreferences"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "NotificationPreferences resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationPreferences"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Replaces the NotificationPreferences resource.",
+                "description": "Replaces the NotificationPreferences resource.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The updated NotificationPreferences resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NotificationPreferences"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/me/push-devices/{id}": {
+            "put": {
+                "operationId": "api_mepush-devices_id_put",
+                "tags": [
+                    "Notifica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PushDeviceView resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PushDeviceView"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Registra/atualiza esta instala\u00e7\u00e3o e sua sess\u00e3o.",
+                "description": "Registra/atualiza esta instala\u00e7\u00e3o e sua sess\u00e3o.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "PushDeviceView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated PushDeviceView resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PushDeviceView.PushDeviceInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            },
+            "delete": {
+                "operationId": "api_mepush-devices_id_delete",
+                "tags": [
+                    "Notifica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "PushDeviceView resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Desativa uma instala\u00e7\u00e3o pr\u00f3pria (idempotente).",
+                "description": "Desativa uma instala\u00e7\u00e3o pr\u00f3pria (idempotente).",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "PushDeviceView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/push-devices/{id}/revocation": {
+            "post": {
+                "operationId": "api_push-devices_idrevocation_post",
+                "tags": [
+                    "PushDeviceRevocation"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "PushDeviceRevocation resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Creates a PushDeviceRevocation resource.",
+                "description": "Creates a PushDeviceRevocation resource.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "PushDeviceRevocation identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new PushDeviceRevocation resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PushDeviceRevocation"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
         }
     },
     "components": {
@@ -13171,6 +13567,77 @@
                 "type": "object",
                 "properties": {
                     "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "NotificationPreferences": {
+                "type": "object",
+                "properties": {
+                    "pushCategories": {
+                        "maxItems": 4,
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "interactions",
+                                "follows",
+                                "comunas",
+                                "followed_content"
+                            ]
+                        }
+                    }
+                }
+            },
+            "PushDeviceRevocation": {
+                "type": "object",
+                "description": "Revocation-only capability: allows an offline logout to be completed without an account session.",
+                "additionalProperties": false,
+                "required": [
+                    "revocationSecret"
+                ],
+                "properties": {
+                    "revocationSecret": {
+                        "minLength": 36,
+                        "maxLength": 128,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "PushDeviceView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PushDeviceView.PushDeviceInput": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "token",
+                    "revocationSecret"
+                ],
+                "properties": {
+                    "token": {
+                        "maxLength": 255,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "revocationSecret": {
+                        "minLength": 36,
+                        "maxLength": 128,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "platform": {
+                        "enum": [
+                            "ios",
+                            "android"
+                        ],
+                        "default": "",
                         "type": "string"
                     }
                 }

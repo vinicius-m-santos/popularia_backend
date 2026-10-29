@@ -8,6 +8,7 @@ A API é versionada em `/api/v1`, responde JSON e documenta tudo em OpenAPI.
 | [docs/seguranca.md](docs/seguranca.md) | Sessões, tokens, limites de taxa, IP, registros de segurança, retenção e auditoria |
 | [docs/moderacao.md](docs/moderacao.md) | Papéis, criação e gestão de comunas (permissões, arquivamento, exclusão, transferência) e o desenho da moderação |
 | [docs/notificacoes.md](docs/notificacoes.md) | Notificações internas, follow, endpoints, privacidade e teste entre contas (sem push) |
+| [docs/links-e-compartilhamento.md](docs/links-e-compartilhamento.md) | URLs canônicas, share, deep links, Open Graph e configuração Universal/App Links |
 | [docs/configuracao.md](docs/configuracao.md) | Variáveis de ambiente e checklist de produção |
 | [docs/openapi.json](docs/openapi.json) | Especificação OpenAPI exportada (`composer openapi`) |
 

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title><meta name="description" content="{{ description }}">
+<link rel="canonical" href="{{ canonical }}">
+<meta property="og:title" content="{{ title }}"><meta property="og:description" content="{{ description }}">
+<meta property="og:url" content="{{ canonical }}"><meta property="og:type" content="{{ ogType }}">
+<meta property="og:site_name" content="Popularia"><meta property="og:locale" content="pt_BR">
+<meta property="og:image" content="{{ image }}"><meta property="og:image:alt" content="Símbolo do Popularia">
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="{{ title }}">
+<meta name="twitter:description" content="{{ description }}"><meta name="twitter:image" content="{{ image }}">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#F4ECDD;color:#211e1b;font-family:system-ui,sans-serif;line-height:1.6}header{border-bottom:2px solid;padding:18px 24px;font-weight:900;font-size:24px}main{max-width:700px;margin:48px auto;padding:0 24px}img{width:80px;height:80px;object-fit:contain}h1{font-size:clamp(26px,5vw,40px);line-height:1.25}article{white-space:pre-wrap;border-top:1px solid;padding-top:24px}a{display:inline-block;background:#B82025;color:white;border:2px solid #211e1b;padding:12px 20px;margin:24px 0;font-weight:700}small{display:block}p{overflow-wrap:anywhere}
+</style>
+</head>
+<body><header>Popularia</header><main><img src="{{ image }}" alt=""><p>{{ kindLabel }}</p><h1>{{ title }}</h1><p>{{ description }}</p>
+{% if body %}<article>{{ body }}</article>{% endif %}
+{% if not public %}<p>O conteúdo pode ser restrito, ter sido removido ou não estar disponível. O acesso é verificado no aplicativo.</p>{% endif %}
+<a href="{{ appUrl }}">Abrir no Popularia</a><small>Se o aplicativo ainda não estiver instalado, instale o Popularia e abra novamente este link. Nenhuma permissão é concedida pelo link.</small>
+</main></body></html>

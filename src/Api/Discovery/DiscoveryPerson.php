@@ -12,6 +12,7 @@ final readonly class DiscoveryPerson
         public string $handle,
         public string $displayName,
         public bool $following,
+        public ?string $avatarUrl = null,
     ) {
     }
 }

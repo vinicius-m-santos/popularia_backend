@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Profile\AuthorView;
 use App\Api\Topic\TopicView;
 
@@ -63,6 +64,28 @@ use App\Api\Topic\TopicView;
                 tags: ['Gestão de comunas'],
                 summary: 'Arquiva a comuna (só o proprietário; definitivo pelo app).',
                 description: 'O histórico fica para leitura de quem participa (comuna privada continua fechada). Sem novas publicações, comentários, membros ou pedidos. Libera uma vaga no limite de comunas ativas.',
+            ),
+        ),
+        new Post(
+            uriTemplate: '/comunas/{slug}/cover',
+            read: false,
+            deserialize: false,
+            validate: false,
+            input: false,
+            output: false,
+            status: 200,
+            security: "is_granted('ROLE_USER')",
+            inputFormats: ['multipart' => ['multipart/form-data']],
+            controller: CoverUploadController::class,
+            openapi: new Operation(
+                tags: ['Gestão de comunas'],
+                summary: 'Troca a capa da comuna (só o proprietário).',
+                description: 'JPEG, PNG ou WebP estáticos, até 10 MB. Comuna arquivada: 409 /errors/comuna-archived. Quem não é proprietário: 403 /errors/not-comuna-owner. A URL devolvida muda a cada troca.',
+                requestBody: new RequestBody(content: new \ArrayObject([
+                    'multipart/form-data' => ['schema' => ['type' => 'object', 'required' => ['file'], 'properties' => [
+                        'file' => ['type' => 'string', 'format' => 'binary'],
+                    ]]],
+                ])),
             ),
         ),
         new Delete(
@@ -118,6 +141,8 @@ final readonly class ComunaView
         public array $viewer,
         #[ApiProperty(readableLink: true)]
         public ?TopicView $primaryTopic = null,
+        /** URL da capa atual. Null usa a arte padrão do app. Muda só quando a capa é trocada. */
+        public ?string $coverUrl = null,
     ) {
     }
 }

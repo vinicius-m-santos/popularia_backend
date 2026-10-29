@@ -28,7 +28,7 @@ final class MeTest extends ApiTestCase
 
         $this->assertStatus(200);
         self::assertSame(
-            ['id', 'handle', 'displayName', 'email', 'emailVerified', 'bio', 'city', 'state', 'country', 'countryCode', 'stateIbgeCode', 'municipalityIbgeCode', 'interests', 'platformRole', 'createdAt', 'updatedAt', 'isPrivate', 'pendingOnboarding', 'hasPassword', 'legalAccepted', 'followerCount'],
+            ['id', 'handle', 'displayName', 'email', 'emailVerified', 'bio', 'city', 'state', 'country', 'countryCode', 'stateIbgeCode', 'municipalityIbgeCode', 'interests', 'platformRole', 'createdAt', 'updatedAt', 'isPrivate', 'pendingOnboarding', 'hasPassword', 'legalAccepted', 'followerCount', 'avatarUrl'],
             array_keys($me),
         );
         self::assertSame('camila@exemplo.org', $me['email']);

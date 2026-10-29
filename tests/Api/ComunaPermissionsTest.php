@@ -247,7 +247,7 @@ final class ComunaPermissionsTest extends ApiTestCase
         $list = $this->request('GET', '/comunas/tarifa/members', token: $this->login('membro@exemplo.org')['accessToken']);
         $this->assertStatus(200);
         self::assertSame([['dona', 'founder'], ['mod', 'moderator'], ['membro', 'member']], array_map(static fn ($m) => [$m['handle'], $m['role']], $list['items']));
-        self::assertSame(['id', 'handle', 'displayName', 'role', 'joinedAt'], array_keys($list['items'][0]));
+        self::assertSame(['id', 'handle', 'displayName', 'role', 'joinedAt', 'avatarUrl'], array_keys($list['items'][0]));
 
         $this->request('GET', '/comunas/tarifa/members', token: $this->login('fora@exemplo.org')['accessToken']);
         $this->assertStatus(403);

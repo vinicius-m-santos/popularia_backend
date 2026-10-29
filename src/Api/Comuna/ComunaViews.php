@@ -11,6 +11,7 @@ use App\Entity\Comuna;
 use App\Entity\ComunaMembership;
 use App\Entity\User;
 use App\Enum\Topic;
+use App\Media\StoredImageUrl;
 use App\Repository\ComunaJoinRequestRepository;
 use App\Repository\ComunaMembershipRepository;
 use App\Repository\ComunaOwnershipTransferRepository;
@@ -124,6 +125,7 @@ final readonly class ComunaViews
                 'ownershipTransfer' => $transfer,
             ],
             null === $topic ? null : TopicView::fromTopic($topic),
+            StoredImageUrl::cover($comuna),
         );
     }
 }

@@ -29,7 +29,7 @@ final class PostTest extends ApiTestCase
         self::assertSame(['isAuthor' => true, 'canComment' => true, 'canDelete' => true, 'canRemove' => false], $post['viewer']);
         self::assertSame(['id', 'body', 'createdAt', 'author', 'comuna', 'commentCount', 'viewer', 'topic', 'document', 'media', 'poll'], array_keys($post));
         self::assertNull($post['poll']);
-        self::assertSame(['id', 'handle', 'displayName'], array_keys($post['author']));
+        self::assertSame(['id', 'handle', 'displayName', 'avatarUrl'], array_keys($post['author']));
         self::assertTrue($this->fresh(Post::class, $post['id'])->getAuthor()->getId()->equals($author->getId()));
     }
 

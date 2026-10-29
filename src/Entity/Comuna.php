@@ -95,6 +95,10 @@ class Comuna
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $archivedAt = null;
 
+    /** Objeto atual em comuna-covers/<uuid>.<ext>. Null usa a arte padrão do app. */
+    #[ORM\Column(length: 80, nullable: true)]
+    private ?string $coverKey = null;
+
     /** @var Collection<int, ComunaRule> */
     #[ORM\OneToMany(targetEntity: ComunaRule::class, mappedBy: 'comuna', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
@@ -165,6 +169,17 @@ class Comuna
     public function getTone(): string
     {
         return $this->tone;
+    }
+
+    public function getCoverKey(): ?string
+    {
+        return $this->coverKey;
+    }
+
+    /** Cada troca grava uma key nova para a capa deixar de ser servida pela URL anterior. */
+    public function replaceCover(string $key): void
+    {
+        $this->coverKey = $key;
     }
 
     /** @return list<string> */

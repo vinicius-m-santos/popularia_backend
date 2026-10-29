@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Entity\User;
+use App\Media\StoredImageUrl;
 
 /**
  * Perfil público de uma pessoa. Só campos que ela escolheu mostrar: nunca e-mail,
@@ -41,6 +42,8 @@ final readonly class PublicProfile
         public \DateTimeImmutable $memberSince,
         public bool $isPrivate = false,
         public int $followerCount = 0,
+        /** URL da foto atual. Null quando a pessoa ainda não enviou uma foto. */
+        public ?string $avatarUrl = null,
     ) {
     }
 
@@ -55,6 +58,7 @@ final readonly class PublicProfile
             $user->getCreatedAt(),
             $user->isPrivate(),
             $followerCount,
+            StoredImageUrl::avatar($user),
         );
     }
 }

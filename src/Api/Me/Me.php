@@ -7,8 +7,11 @@ namespace App\Api\Me;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Entity\User;
+use App\Media\StoredImageUrl;
 
 /**
  * A própria conta. É a única resposta com e-mail, interesses e papel: perfis de outras
@@ -32,6 +35,28 @@ use App\Entity\User;
                 tags: ['Conta'],
                 summary: 'Atualiza nome, bio, cidade e interesses da conta autenticada.',
                 description: 'Campos ausentes ou nulos não mudam. Campos desconhecidos (como id, handle, email ou papel) são recusados com 400.',
+            ),
+        ),
+        new Post(
+            uriTemplate: '/me/avatar',
+            security: "is_granted('ROLE_USER')",
+            inputFormats: ['multipart' => ['multipart/form-data']],
+            controller: AvatarUploadController::class,
+            deserialize: false,
+            validate: false,
+            read: false,
+            input: false,
+            output: false,
+            status: 200,
+            openapi: new Operation(
+                tags: ['Conta'],
+                summary: 'Troca a foto de perfil da conta autenticada.',
+                description: 'Somente a própria conta. JPEG, PNG ou WebP estáticos, até 10 MB, com as mesmas regras das imagens de publicação. A URL devolvida muda a cada troca.',
+                requestBody: new RequestBody(content: new \ArrayObject([
+                    'multipart/form-data' => ['schema' => ['type' => 'object', 'required' => ['file'], 'properties' => [
+                        'file' => ['type' => 'string', 'format' => 'binary'],
+                    ]]],
+                ])),
             ),
         ),
     ],
@@ -64,6 +89,8 @@ final readonly class Me
         public bool $hasPassword = true,
         public bool $legalAccepted = false,
         public int $followerCount = 0,
+        /** URL da foto atual. Null quando a pessoa ainda não enviou uma foto. */
+        public ?string $avatarUrl = null,
     ) {
     }
 
@@ -91,6 +118,7 @@ final readonly class Me
             $user->hasPassword(),
             $user->hasAcceptedLegal(),
             $followerCount,
+            StoredImageUrl::avatar($user),
         );
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Comuna;
 
 use App\Entity\ComunaMembership;
+use App\Media\StoredImageUrl;
 
 /**
  * Pessoa numa comuna: só dados públicos de perfil e o papel (member, moderator, founder).
@@ -20,6 +21,7 @@ final readonly class ComunaMemberView
         /** member, moderator ou founder (proprietário). */
         public string $role,
         public \DateTimeImmutable $joinedAt,
+        public ?string $avatarUrl = null,
     ) {
     }
 
@@ -33,6 +35,7 @@ final readonly class ComunaMemberView
             $user->getDisplayName(),
             $membership->getRole()->value,
             $membership->getJoinedAt(),
+            StoredImageUrl::avatar($user),
         );
     }
 }

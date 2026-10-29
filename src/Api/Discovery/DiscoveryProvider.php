@@ -17,6 +17,7 @@ use App\Entity\Comuna;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Enum\Topic;
+use App\Media\StoredImageUrl;
 use App\Repository\UserBlockRepository;
 use App\Repository\UserFollowRepository;
 use App\Security\CurrentUser;
@@ -81,7 +82,7 @@ final readonly class DiscoveryProvider implements ProviderInterface
             } elseif ('people' === $kind) {
                 /** @var list<User> $rows */
                 $followed = $this->follows->followedIds($viewer, $rows);
-                $people = array_map(static fn (User $u) => new DiscoveryPerson($u->getId()->toRfc4122(), $u->getHandle(), $u->getDisplayName(), isset($followed[$u->getId()->toRfc4122()])), $rows);
+                $people = array_map(static fn (User $u) => new DiscoveryPerson($u->getId()->toRfc4122(), $u->getHandle(), $u->getDisplayName(), isset($followed[$u->getId()->toRfc4122()]), StoredImageUrl::avatar($u)), $rows);
             } else {
                 /** @var list<Post> $rows */
                 $posts = $this->posts->many($rows, $viewer);

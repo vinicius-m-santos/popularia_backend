@@ -65,6 +65,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->legalVersion = null;
         $this->legalAcceptedAt = null;
         $this->lastComunaCreatedAt = null;
+        $this->avatarKey = null;
         $this->updatedAt = $now;
     }
 
@@ -141,6 +142,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
     private \DateTimeImmutable $updatedAt;
 
+    /** Objeto atual em avatars/<uuid>.<ext>. Null enquanto a pessoa usa só as iniciais. */
+    #[ORM\Column(length: 80, nullable: true)]
+    private ?string $avatarKey = null;
+
     public function __construct(string $email, string $handle, string $displayName, \DateTimeImmutable $now)
     {
         $this->id = Uuid::v7();
@@ -211,6 +216,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getId(): Uuid
     {
         return $this->id;
+    }
+
+    public function getAvatarKey(): ?string
+    {
+        return $this->avatarKey;
+    }
+
+    /** Cada troca grava uma key nova. A URL pública muda junto; a anterior deixa de ser servida. */
+    public function replaceAvatar(string $key, \DateTimeImmutable $now): void
+    {
+        $this->avatarKey = $key;
+        $this->updatedAt = $now;
     }
 
     public function getEmail(): string

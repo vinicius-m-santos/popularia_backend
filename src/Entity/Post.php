@@ -64,6 +64,10 @@ class Post
     #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
     public ?PostMedia $media = null;
 
+    /** Enquete opcional. Some junto com a publicação quando a autoria apaga o texto. */
+    #[ORM\OneToOne(mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private ?Poll $poll = null;
+
     public function setTopic(?Topic $topic): void
     {
         if (null !== $this->comuna && null !== $topic) {
@@ -115,6 +119,24 @@ class Post
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getPoll(): ?Poll
+    {
+        return $this->poll;
+    }
+
+    public function attachPoll(Poll $poll): void
+    {
+        if (null !== $this->poll) {
+            throw new \LogicException('A publicação já tem enquete.');
+        }
+        $this->poll = $poll;
+    }
+
+    public function detachPoll(): void
+    {
+        $this->poll = null;
     }
 
     /** Apagado pela autoria: o texto sai do banco; a linha fica para não quebrar as conversas. */

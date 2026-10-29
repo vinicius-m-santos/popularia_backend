@@ -109,6 +109,23 @@ final readonly class ContentPolicy
         return null;
     }
 
+    /** Motivo pelo qual $viewer não pode votar (null = pode). Supõe que a publicação é visível. */
+    public function whyCannotVote(Post $post, User $viewer): ?ApiProblem
+    {
+        if (!$viewer->isEmailVerified()) {
+            return ApiProblem::emailNotVerified();
+        }
+        $comuna = $post->getComuna();
+        if (null !== $comuna && null === $this->memberships->findMembership($comuna, $viewer)) {
+            return ApiProblem::forbidden('/errors/not-a-member', 'Entre na comuna para votar.');
+        }
+        if (null !== $comuna && $comuna->isArchived()) {
+            return ComunaModerationPolicy::archived();
+        }
+
+        return null;
+    }
+
     public function canDeletePost(Post $post, ?User $viewer): bool
     {
         return null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());

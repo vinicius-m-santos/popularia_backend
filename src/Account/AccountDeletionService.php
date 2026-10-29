@@ -55,6 +55,8 @@ final readonly class AccountDeletionService
             $db->executeStatement("UPDATE post p SET comment_count = GREATEST(0, p.comment_count - c.n) FROM (SELECT post_id, COUNT(*)::int n FROM comment WHERE author_id = ? AND status = 'published' GROUP BY post_id) c WHERE p.id = c.post_id", [$id]);
             $db->executeStatement("UPDATE comment SET body = '', status = 'deleted' WHERE author_id = ?", [$id]);
             $db->executeStatement("UPDATE post_media SET status = 'purge_pending' WHERE id IN (SELECT media_id FROM post WHERE author_id = ? AND media_id IS NOT NULL)", [$id]);
+            // Publicações apagadas levam a enquete junto. Votos desta conta em enquetes de outras pessoas permanecem no agregado, sem lista de quem votou.
+            $db->executeStatement('DELETE FROM poll WHERE post_id IN (SELECT id FROM post WHERE author_id = ?)', [$id]);
             $db->executeStatement("UPDATE post SET body = '', status = 'deleted', topic = NULL, library_document_id = NULL, media_id = NULL WHERE author_id = ?", [$id]);
             $db->executeStatement("UPDATE post_media SET status = 'purge_pending' WHERE uploaded_by_id = ? AND status <> 'purged'", [$id]);
 

@@ -7,9 +7,12 @@ namespace App\Api\Post;
 use App\Api\Profile\AuthorView;
 use App\Content\ComunaModerationPolicy;
 use App\Entity\Comuna;
+use App\Entity\Poll;
 use App\Entity\Post;
 use App\Entity\User;
+use App\Poll\PollPercents;
 use App\Repository\ComunaMembershipRepository;
+use App\Repository\PollVoteRepository;
 
 /**
  * Monta PostView com o estado de quem vê. "canComment" e "canRemove" são só dicas para a
@@ -23,6 +26,7 @@ final readonly class PostViews
         private ComunaModerationPolicy $moderation,
         private \App\Library\LibraryViews $library,
         private \App\Library\ObjectStorage $storage,
+        private PollVoteRepository $votes,
     ) {
     }
 
@@ -47,7 +51,15 @@ final readonly class PostViews
             $documentViews[$view->id] = $view;
         }
 
-        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews): PostView {
+        $polls = [];
+        foreach ($posts as $post) {
+            if (null !== $poll = $post->getPoll()) {
+                $polls[] = $poll;
+            }
+        }
+        $choices = null === $viewer ? [] : $this->votes->choicesFor($viewer, $polls);
+
+        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices): PostView {
             $comuna = $post->getComuna();
             $membership = null === $comuna ? null : ($memberOf[$comuna->getId()->toRfc4122()] ?? null);
             $isAuthor = null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());
@@ -71,8 +83,25 @@ final readonly class PostViews
                     $post->media->width, $post->media->height, $post->media->durationMs,
                     $this->storage->signedUrl($post->media->storageKey, 300, $post->media->mimeType, 'inline'),
                 ),
+                null === $post->getPoll() ? null : self::poll($post->getPoll(), $choices[$post->getPoll()->getId()->toRfc4122()] ?? null),
             );
         }, $posts);
+    }
+
+    private static function poll(Poll $poll, ?string $votedOptionId): PollView
+    {
+        $options = $poll->getOptions();
+        $counts = array_map(static fn ($option) => $option->getVoteCount(), $options);
+        $percents = PollPercents::of($counts);
+        $views = [];
+        $total = 0;
+        foreach ($options as $index => $option) {
+            $id = $option->getId()->toRfc4122();
+            $total += $counts[$index];
+            $views[] = new PollOptionView($id, $option->getLabel(), $counts[$index], $percents[$index], $id === $votedOptionId);
+        }
+
+        return new PollView($poll->getId()->toRfc4122(), $poll->getQuestion(), $total, $votedOptionId, $views);
     }
 
     /** @return array{id: string, slug: string, name: string, status: string} */

@@ -99,7 +99,8 @@ final readonly class DiscoveryQuery
         $qb = $this->em->createQueryBuilder()->select('e')->from($class, 'e')->where('e.id IN (:ids)')->setParameter('ids', $ids);
         if (Post::class === $class) {
             $qb->addSelect('ld', 'lf', 'lc', 'lu')->leftJoin('e.libraryDocument', 'ld')->leftJoin('ld.file', 'lf')->leftJoin('ld.collection', 'lc')->leftJoin('lf.uploadedBy', 'lu')->addSelect('lou', 'loc')->leftJoin('ld.user', 'lou')->leftJoin('ld.comuna', 'loc');
-            $qb->addSelect('author', 'comuna')->join('e.author', 'author')->leftJoin('e.comuna', 'comuna');
+            $qb->addSelect('author', 'comuna', 'poll', 'pollOption')->join('e.author', 'author')->leftJoin('e.comuna', 'comuna')
+                ->leftJoin('e.poll', 'poll')->leftJoin('poll.options', 'pollOption');
             // Entre selecionar IDs e hidratar, uma remoção/revogação pode ter ocorrido.
             // Revalida em lote, na própria consulta que lê o texto (sem N+1).
             $memberOf = sprintf('SELECT IDENTITY(hm.comuna) FROM %s hm WHERE hm.user = :hydrateViewer', ComunaMembership::class);

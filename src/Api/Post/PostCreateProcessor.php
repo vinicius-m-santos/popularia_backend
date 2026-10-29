@@ -6,9 +6,11 @@ namespace App\Api\Post;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\ApiProblem;
 use App\Content\ContentPolicy;
 use App\Content\TextNormalizer;
+use App\Entity\Poll;
 use App\Entity\Post;
 use App\Enum\Topic;
 use App\Repository\ComunaRepository;
@@ -17,6 +19,8 @@ use App\Security\RateLimitGuard;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /** @implements ProcessorInterface<PostInput, PostView> */
 final readonly class PostCreateProcessor implements ProcessorInterface
@@ -71,10 +75,32 @@ final readonly class PostCreateProcessor implements ProcessorInterface
                 }
                 $post->media = $media;
             }
+            if (null !== $data->poll) {
+                $this->attachPoll($post, $data->poll);
+            }
             $this->em->persist($post);
             $this->em->flush();
 
             return $this->views->one($post, $author);
         });
+    }
+
+    private function attachPoll(Post $post, PollInput $input): void
+    {
+        $question = TextNormalizer::normalize($input->question);
+        $labels = [];
+        $seen = [];
+        foreach ($input->options as $index => $option) {
+            $label = TextNormalizer::normalize($option->label);
+            $key = mb_strtolower($label);
+            if (isset($seen[$key])) {
+                throw new ValidationException(new ConstraintViolationList([new ConstraintViolation('As opções precisam ser diferentes.', null, [], $input, 'poll.options['.$index.'].label', $option->label)]));
+            }
+            $seen[$key] = true;
+            $labels[] = $label;
+            $this->filter->assertText($label, $post->getComuna());
+        }
+        $this->filter->assertText($question, $post->getComuna());
+        new Poll($post, $question, $labels);
     }
 }

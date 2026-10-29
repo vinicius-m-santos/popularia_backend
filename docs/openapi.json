@@ -9508,6 +9508,118 @@
                 ]
             }
         },
+        "/api/v1/posts/{id}/poll/vote": {
+            "put": {
+                "operationId": "api_posts_idpollvote_put",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Registra ou troca o voto \u00fanico de quem est\u00e1 logado.",
+                "description": "Exige e-mail confirmado e, numa comuna, participar dela. Repetir a mesma op\u00e7\u00e3o n\u00e3o altera o resultado. A resposta \u00e9 a publica\u00e7\u00e3o j\u00e1 com a enquete atualizada.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Post resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Post.PollVoteInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/health": {
             "get": {
                 "operationId": "api_health_get",
@@ -11962,6 +12074,88 @@
                     }
                 }
             },
+            "PollInput": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "question"
+                ],
+                "properties": {
+                    "question": {
+                        "maxLength": 140,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "options": {
+                        "minItems": 2,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PollOptionInput"
+                        }
+                    }
+                }
+            },
+            "PollOptionInput": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "label"
+                ],
+                "properties": {
+                    "label": {
+                        "maxLength": 80,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "PollOptionView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "voteCount": {
+                        "type": "integer"
+                    },
+                    "percent": {
+                        "type": "integer"
+                    },
+                    "selected": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PollView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "question": {
+                        "type": "string"
+                    },
+                    "totalVotes": {
+                        "type": "integer"
+                    },
+                    "votedOptionId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PollOptionView"
+                        }
+                    }
+                }
+            },
             "Post": {
                 "type": "object",
                 "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente.",
@@ -12022,6 +12216,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "poll": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PollView"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 }
             },
@@ -12036,6 +12240,24 @@
                     "reason": {
                         "minLength": 3,
                         "maxLength": 500,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "Post.PollVoteInput": {
+                "type": "object",
+                "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente.",
+                "additionalProperties": false,
+                "required": [
+                    "optionId"
+                ],
+                "properties": {
+                    "optionId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
                         "default": "",
                         "type": "string"
                     }
@@ -12107,6 +12329,16 @@
                         "maxLength": 1000,
                         "default": "",
                         "type": "string"
+                    },
+                    "poll": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PollInput"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 }
             },

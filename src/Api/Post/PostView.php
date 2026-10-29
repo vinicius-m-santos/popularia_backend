@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post as PostOperation;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Api\Profile\AuthorView;
 
@@ -61,6 +62,20 @@ use App\Api\Profile\AuthorView;
             processor: PostDeleteProcessor::class,
             openapi: new Operation(tags: ['Publicações'], summary: 'Apaga a própria publicação (o texto sai do banco).'),
         ),
+        new Put(
+            uriTemplate: '/posts/{id}/poll/vote',
+            status: 200,
+            read: false,
+            security: "is_granted('ROLE_USER')",
+            input: PollVoteInput::class,
+            output: PostView::class,
+            processor: PollVoteProcessor::class,
+            openapi: new Operation(
+                tags: ['Publicações'],
+                summary: 'Registra ou troca o voto único de quem está logado.',
+                description: 'Exige e-mail confirmado e, numa comuna, participar dela. Repetir a mesma opção não altera o resultado. A resposta é a publicação já com a enquete atualizada.',
+            ),
+        ),
     ],
 )]
 final readonly class PostView
@@ -83,6 +98,7 @@ final readonly class PostView
         public ?\App\Api\Library\DocumentView $document = null,
         #[ApiProperty(readableLink: true)]
         public ?\App\Api\PostMedia\PostMediaView $media = null,
+        public ?PollView $poll = null,
     ) {
     }
 }

@@ -98,6 +98,7 @@ class PostRepository extends ServiceEntityRepository
             ->addSelect('a', 'c', 'ld', 'lf', 'lc', 'lu', 'pmedia')
             ->leftJoin('p.libraryDocument', 'ld')->leftJoin('ld.file', 'lf')->leftJoin('ld.collection', 'lc')->leftJoin('lf.uploadedBy', 'lu')->addSelect('lou', 'loc')->leftJoin('ld.user', 'lou')->leftJoin('ld.comuna', 'loc')
             ->leftJoin('p.media', 'pmedia')
+            ->leftJoin('p.poll', 'poll')->leftJoin('poll.options', 'pollOption')->addSelect('poll', 'pollOption')
             ->join('p.author', 'a')
             ->leftJoin('p.comuna', 'c')
             ->where('p.status = :published')
@@ -105,6 +106,7 @@ class PostRepository extends ServiceEntityRepository
             ->setParameter('published', ContentStatus::Published)
             ->setParameter('active', AccountStatus::Active)
             ->orderBy('p.id', 'DESC')
+            ->addOrderBy('pollOption.position', 'ASC')
             ->setMaxResults($limit + 1);
         if (null === $viewer) {
             $qb->andWhere('c.id IS NOT NULL OR a.isPrivate = false');

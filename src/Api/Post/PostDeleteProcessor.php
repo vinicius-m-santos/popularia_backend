@@ -30,6 +30,8 @@ final readonly class PostDeleteProcessor implements ProcessorInterface
         }
 
         $post->deleteByAuthor();
+        // A enquete, as opções e os votos saem junto. A remoção por moderação conserva o registro.
+        $post->detachPoll();
         $this->em->flush();
 
         return null;

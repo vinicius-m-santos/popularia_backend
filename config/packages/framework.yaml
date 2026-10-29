@@ -79,6 +79,11 @@ framework:
             limit: 120
             interval: '1 minute'
             cache_pool: cache.rate_limiter
+        poll_vote:
+            policy: sliding_window
+            limit: 120
+            interval: '1 minute'
+            cache_pool: cache.rate_limiter
         library_upload:
             policy: sliding_window
             limit: 10

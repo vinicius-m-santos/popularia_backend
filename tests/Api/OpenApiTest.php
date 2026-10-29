@@ -19,7 +19,7 @@ final class OpenApiTest extends ApiTestCase
             '/api/v1/comunas', '/api/v1/comunas/{slug}', '/api/v1/comunas/{slug}/archive', '/api/v1/comunas/{slug}/members', '/api/v1/comunas/{slug}/members/{handle}',
             '/api/v1/comunas/{slug}/moderators/{handle}', '/api/v1/comunas/{slug}/join-request', '/api/v1/comunas/{slug}/join-requests/{id}/approve',
             '/api/v1/comunas/{slug}/ownership-transfer', '/api/v1/comunas/{slug}/ownership-transfer/accept', '/api/v1/me/comunas', '/api/v1/me/comuna-quota',
-            '/api/v1/comuna-names/availability', '/api/v1/posts/{id}/removal', '/api/v1/posts/{id}/poll/vote', '/api/v1/comments/{id}/removal',
+            '/api/v1/comuna-names/availability', '/api/v1/posts/{id}/removal', '/api/v1/posts/{id}/poll/vote', '/api/v1/posts/{id}/save', '/api/v1/me/saved-posts', '/api/v1/comments/{id}/removal',
             '/api/v1/me/avatar', '/api/v1/comunas/{slug}/cover', '/api/v1/media/avatars/{userId}/{fileId}', '/api/v1/media/comuna-covers/{comunaId}/{fileId}',
             '/api/v1/users/{handle}/followers', '/api/v1/users/{handle}/following'] as $path) {
             self::assertArrayHasKey($path, $doc['paths'], $path);

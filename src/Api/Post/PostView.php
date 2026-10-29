@@ -63,6 +63,35 @@ use App\Api\Profile\AuthorView;
             openapi: new Operation(tags: ['Publicações'], summary: 'Apaga a própria publicação (o texto sai do banco).'),
         ),
         new Put(
+            uriTemplate: '/posts/{id}/save',
+            name: 'post_save',
+            status: 204,
+            read: false,
+            deserialize: false,
+            validate: false,
+            output: false,
+            security: "is_granted('ROLE_USER')",
+            processor: SavedPostProcessor::class,
+            openapi: new Operation(
+                tags: ['Biblioteca'],
+                summary: 'Guarda uma referência privada à publicação. Idempotente.',
+                description: 'Só salva o que a pessoa pode ver (senão 404). Não avisa a autoria, não conta publicamente e não copia PDF nem mídia.',
+            ),
+        ),
+        new Delete(
+            uriTemplate: '/posts/{id}/save',
+            name: 'post_unsave',
+            status: 204,
+            read: false,
+            output: false,
+            security: "is_granted('ROLE_USER')",
+            processor: SavedPostProcessor::class,
+            openapi: new Operation(
+                tags: ['Biblioteca'],
+                summary: 'Tira a publicação dos salvos. Idempotente, mesmo sem acesso atual.',
+            ),
+        ),
+        new Put(
             uriTemplate: '/posts/{id}/poll/vote',
             status: 200,
             read: false,
@@ -81,8 +110,8 @@ use App\Api\Profile\AuthorView;
 final readonly class PostView
 {
     /**
-     * @param array{id: string, slug: string, name: string, status: string}|null        $comuna
-     * @param array{isAuthor: bool, canComment: bool, canDelete: bool, canRemove: bool} $viewer
+     * @param array{id: string, slug: string, name: string, status: string}|null                     $comuna
+     * @param array{isAuthor: bool, canComment: bool, canDelete: bool, canRemove: bool, saved: bool} $viewer
      */
     public function __construct(
         #[ApiProperty(identifier: true)]

@@ -109,25 +109,34 @@ class PostRepository extends ServiceEntityRepository
             ->leftJoin('p.poll', 'poll')->leftJoin('poll.options', 'pollOption')->addSelect('poll', 'pollOption')
             ->join('p.author', 'a')
             ->leftJoin('p.comuna', 'c')
-            ->where('p.status = :published')
-            ->andWhere('a.status = :active')
-            ->setParameter('published', ContentStatus::Published)
-            ->setParameter('active', AccountStatus::Active)
             ->orderBy('p.id', 'DESC')
             ->addOrderBy('pollOption.position', 'ASC')
             ->setMaxResults($limit + 1);
-        if (null === $viewer) {
-            $qb->andWhere('c.id IS NOT NULL OR a.isPrivate = false');
-        } else {
-            $qb->andWhere('c.id IS NOT NULL OR a.isPrivate = false OR a = :privacyViewer OR EXISTS (SELECT pf.id FROM \App\Entity\UserFollow pf WHERE pf.follower = :privacyViewer AND pf.followed = a AND pf.approved = true)')->setParameter('privacyViewer', $viewer);
-        }
+        $this->applyVisibility($qb, 'p', 'a', 'c', $viewer);
         if (null !== $before) {
             $qb->andWhere('p.id < :before')->setParameter('before', $before, 'uuid');
         }
-        if (null !== $viewer) {
-            UserBlockRepository::excludeBlocked($qb, 'a', $viewer);
-        }
 
         return $qb;
+    }
+
+    /**
+     * Publicada, autoria ativa, perfil privado só para quem segue de verdade, e sem bloqueio.
+     * Comuna privada não entra aqui: cada lista decide a participação (o feed, o perfil e os salvos).
+     */
+    public function applyVisibility(QueryBuilder $qb, string $post, string $author, string $comuna, ?User $viewer): void
+    {
+        $qb->andWhere(sprintf('%s.status = :published', $post))
+            ->andWhere(sprintf('%s.status = :active', $author))
+            ->setParameter('published', ContentStatus::Published)
+            ->setParameter('active', AccountStatus::Active);
+        if (null === $viewer) {
+            $qb->andWhere(sprintf('%s.id IS NOT NULL OR %s.isPrivate = false', $comuna, $author));
+
+            return;
+        }
+        $qb->andWhere(sprintf('%s.id IS NOT NULL OR %s.isPrivate = false OR %s = :privacyViewer OR EXISTS (SELECT pf.id FROM %s pf WHERE pf.follower = :privacyViewer AND pf.followed = %s AND pf.approved = true)', $comuna, $author, $author, UserFollow::class, $author))
+            ->setParameter('privacyViewer', $viewer);
+        UserBlockRepository::excludeBlocked($qb, $author, $viewer);
     }
 }

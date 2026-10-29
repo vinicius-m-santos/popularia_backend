@@ -27,6 +27,7 @@ final readonly class PostViews
         private \App\Library\LibraryViews $library,
         private \App\Library\ObjectStorage $storage,
         private PollVoteRepository $votes,
+        private \App\Repository\SavedPostRepository $saves,
     ) {
     }
 
@@ -58,8 +59,9 @@ final readonly class PostViews
             }
         }
         $choices = null === $viewer ? [] : $this->votes->choicesFor($viewer, $polls);
+        $saved = null === $viewer ? [] : $this->saves->flagsFor($viewer, $posts);
 
-        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices): PostView {
+        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved): PostView {
             $comuna = $post->getComuna();
             $membership = null === $comuna ? null : ($memberOf[$comuna->getId()->toRfc4122()] ?? null);
             $isAuthor = null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());
@@ -75,7 +77,7 @@ final readonly class PostViews
                 AuthorView::fromUser($post->getAuthor()),
                 null === $comuna ? null : self::comunaSummary($comuna),
                 $post->getCommentCount(),
-                ['isAuthor' => $isAuthor, 'canComment' => $canComment, 'canDelete' => $isAuthor, 'canRemove' => $canRemove],
+                ['isAuthor' => $isAuthor, 'canComment' => $canComment, 'canDelete' => $isAuthor, 'canRemove' => $canRemove, 'saved' => isset($saved[$post->getId()->toRfc4122()])],
                 $post->getTopic(),
                 null === $post->libraryDocument ? null : ($documentViews[$post->libraryDocument->id->toRfc4122()] ?? null),
                 null === $post->media ? null : new \App\Api\PostMedia\PostMediaView(

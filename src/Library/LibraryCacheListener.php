@@ -14,7 +14,7 @@ final class LibraryCacheListener
     public function __invoke(ResponseEvent $event): void
     {
         $path = $event->getRequest()->getPathInfo();
-        if (!str_starts_with($path, '/api/v1/library') && !str_starts_with($path, '/api/v1/me/saved-documents') && !str_starts_with($path, '/api/v1/me/follow-requests')) {
+        if (!str_starts_with($path, '/api/v1/library') && !str_starts_with($path, '/api/v1/me/saved-documents') && !str_starts_with($path, '/api/v1/me/saved-posts') && !str_starts_with($path, '/api/v1/me/follow-requests')) {
             return;
         }
         $response = $event->getResponse();

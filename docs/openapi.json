@@ -2425,6 +2425,248 @@
                 "parameters": []
             }
         },
+        "/api/v1/me/saved-posts": {
+            "get": {
+                "operationId": "saved_posts",
+                "tags": [
+                    "Biblioteca"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SavedPostPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SavedPostPage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Publica\u00e7\u00f5es que a pessoa salvou, da mais recente para a mais antiga.",
+                "description": "Lista privada. N\u00e3o revela quem salvou o qu\u00ea. Publica\u00e7\u00e3o apagada, removida, de perfil ou comuna sem acesso, com bloqueio ou de conta suspensa simplesmente n\u00e3o aparece: salvar n\u00e3o guarda c\u00f3pia nem autoriza\u00e7\u00e3o.",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/posts/{id}/save": {
+            "put": {
+                "operationId": "post_save",
+                "tags": [
+                    "Biblioteca"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Post resource updated",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Guarda uma refer\u00eancia privada \u00e0 publica\u00e7\u00e3o. Idempotente.",
+                "description": "S\u00f3 salva o que a pessoa pode ver (sen\u00e3o 404). N\u00e3o avisa a autoria, n\u00e3o conta publicamente e n\u00e3o copia PDF nem m\u00eddia.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Post resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Post"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            },
+            "delete": {
+                "operationId": "post_unsave",
+                "tags": [
+                    "Biblioteca"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Post resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Tira a publica\u00e7\u00e3o dos salvos. Idempotente, mesmo sem acesso atual.",
+                "description": "Tira a publica\u00e7\u00e3o dos salvos. Idempotente, mesmo sem acesso atual.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/comments/{id}/support": {
             "put": {
                 "operationId": "comment_support",
@@ -13824,6 +14066,38 @@
                         "items": {
                             "type": "object",
                             "additionalProperties": {}
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "SavedPostItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "savedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "post": {
+                        "$ref": "#/components/schemas/Post"
+                    }
+                }
+            },
+            "SavedPostPage": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SavedPostItem"
                         }
                     },
                     "nextCursor": {

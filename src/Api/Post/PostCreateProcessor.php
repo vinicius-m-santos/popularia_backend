@@ -116,6 +116,9 @@ final readonly class PostCreateProcessor implements ProcessorInterface
         if (!$event instanceof ComunaEvent || null === $comuna || !$event->getComuna()->getId()->equals($comuna->getId()) || !$this->policy->canReadComuna($comuna, $author)) {
             throw ApiProblem::badRequest('/errors/event-link', 'Esse evento não pertence a esta comuna.');
         }
+        if ($event->isCancelled()) {
+            throw ApiProblem::badRequest('/errors/event-link', 'Este evento foi cancelado.');
+        }
         $post->attachEvent($event);
     }
 

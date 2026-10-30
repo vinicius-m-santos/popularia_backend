@@ -20,4 +20,10 @@ enum NotificationType: string
     case OwnershipAccepted = 'ownership_accepted';
     case OwnershipDeclined = 'ownership_declined';
     case OwnershipCancelled = 'ownership_cancelled';
+    case EventRescheduled = 'event_rescheduled';
+    case EventPlaceChanged = 'event_place_changed';
+    case EventLinkChanged = 'event_link_changed';
+    case EventUpdated = 'event_updated';
+    case EventCancelled = 'event_cancelled';
+    case EventReminder = 'event_reminder';
 }

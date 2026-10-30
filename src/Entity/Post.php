@@ -20,6 +20,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'post')]
 #[ORM\Index(name: 'idx_post_comuna', columns: ['comuna_id', 'status', 'id'])]
 #[ORM\Index(name: 'idx_post_author', columns: ['author_id', 'id'])]
+#[ORM\Index(name: 'idx_post_event', columns: ['event_id'], options: ['where' => '(event_id IS NOT NULL)'])]
 #[ORM\UniqueConstraint(name: 'uniq_post_media_attachment', columns: ['media_id'])]
 class Post
 {
@@ -64,6 +65,11 @@ class Post
     #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
     public ?PostMedia $media = null;
 
+    /** Evento da mesma comuna. A publicação não é obrigatória para o evento existir. */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?ComunaEvent $event = null;
+
     /** Enquete opcional. Some junto com a publicação quando a autoria apaga o texto. */
     #[ORM\OneToOne(mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?Poll $poll = null;
@@ -94,6 +100,20 @@ class Post
     public function getComuna(): ?Comuna
     {
         return $this->comuna;
+    }
+
+    public function getEvent(): ?ComunaEvent
+    {
+        return $this->event;
+    }
+
+    public function attachEvent(ComunaEvent $event): void
+    {
+        $comuna = $event->getComuna();
+        if (null === $this->comuna || !$this->comuna->getId()->equals($comuna->getId())) {
+            throw new \InvalidArgumentException('O evento precisa ser da mesma comuna.');
+        }
+        $this->event = $event;
     }
 
     public function getBody(): string

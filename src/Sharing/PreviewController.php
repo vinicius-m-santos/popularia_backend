@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Sharing;
 
 use App\Content\ContentPolicy;
+use App\Content\EventSchedule;
 use App\Entity\Comuna;
+use App\Entity\ComunaEvent;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Repository\UserBlockRepository;
@@ -23,7 +25,7 @@ final readonly class PreviewController
     {
     }
 
-    #[Route('/{type}/{id}', name: 'share_preview', requirements: ['type' => 'p|u|c|d', 'id' => '[A-Za-z0-9-]{1,100}'], methods: ['GET', 'HEAD'])]
+    #[Route('/{type}/{id}', name: 'share_preview', requirements: ['type' => 'p|u|c|d|e', 'id' => '[A-Za-z0-9-]{1,100}'], methods: ['GET', 'HEAD'])]
     public function __invoke(string $type, string $id): Response
     {
         $viewer = $this->currentUser->find();
@@ -57,6 +59,24 @@ final readonly class PreviewController
         }
         // LibraryAccess::canRead explicitly denies anonymous viewers, even for isPublic.
         // Never expose a PDF title, storage key, signed download URL or existence here.
+        if ('e' === $type && Uuid::isValid($id)) {
+            $event = $this->em->find(ComunaEvent::class, Uuid::fromString($id));
+            if ($event instanceof ComunaEvent && $event->getComuna()->isPublic()) {
+                $public = true;
+                $title = $event->getTitle().' — '.$event->getComuna()->getName();
+                $when = EventSchedule::previewWhen($event->getStartsAt(), $event->getTimeZone());
+                $place = $event->getPlaceName();
+                $description = $when.(null !== $place && '' !== $place ? ' · '.$place : '');
+                if ($event->isCancelled()) {
+                    $description = 'Evento cancelado. '.$description;
+                }
+                $extra = self::plain($event->getDescription(), 180);
+                if ('' !== $extra) {
+                    $description = self::plain($description.' '.$extra, 180);
+                }
+                $body = self::plain($event->getDescription(), 2000);
+            }
+        }
         if ('d' === $type && Uuid::isValid($id)) {
             $title = 'Documento no Popularia';
             $description = 'Entre no Popularia para consultar este documento conforme suas permissões de acesso.';
@@ -66,8 +86,8 @@ final readonly class PreviewController
             'title' => self::plain($title, 160), 'description' => $description, 'body' => $body,
             'canonical' => $url, 'image' => $this->links->origin.'/sharing/popularia.png',
             'appUrl' => 'populariamobile://'.$type.'/'.rawurlencode($id), 'public' => $public,
-            'kindLabel' => ['p' => 'Publicação', 'u' => 'Perfil', 'c' => 'Comuna', 'd' => 'Documento'][$type],
-            'ogType' => $public ? ['p' => 'article', 'u' => 'profile', 'c' => 'website', 'd' => 'website'][$type] : 'website',
+            'kindLabel' => ['p' => 'Publicação', 'u' => 'Perfil', 'c' => 'Comuna', 'd' => 'Documento', 'e' => 'Evento'][$type],
+            'ogType' => $public ? ['p' => 'article', 'u' => 'profile', 'c' => 'website', 'd' => 'website', 'e' => 'article'][$type] : 'website',
         ]), $public || ('d' === $type && Uuid::isValid($id)) ? 200 : 404);
         $response->headers->set('Cache-Control', 'no-store, private');
         $response->headers->set('X-Robots-Tag', 'noindex, noarchive');

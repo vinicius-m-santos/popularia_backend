@@ -10,6 +10,7 @@ use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\ApiProblem;
 use App\Content\ContentPolicy;
 use App\Content\TextNormalizer;
+use App\Entity\ComunaEvent;
 use App\Entity\Poll;
 use App\Entity\Post;
 use App\Enum\Topic;
@@ -39,6 +40,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
         private ClockInterface $clock,
         private MentionBinder $mentions,
         private NotificationCreator $notifications,
+        private \App\Repository\ComunaEventRepository $events,
     ) {
     }
 
@@ -83,6 +85,9 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             if (null !== $data->poll) {
                 $this->attachPoll($post, $data->poll);
             }
+            if (null !== $data->eventId) {
+                $this->attachEvent($post, $data->eventId, $author);
+            }
             $mentions = $this->mentions->attach($body, $data->mentions, $post);
             $this->em->persist($post);
             foreach ($mentions as $mention) {
@@ -93,6 +98,19 @@ final readonly class PostCreateProcessor implements ProcessorInterface
 
             return $this->views->one($post, $author);
         });
+    }
+
+    private function attachEvent(Post $post, string $eventId, \App\Entity\User $author): void
+    {
+        if (!Uuid::isValid($eventId)) {
+            throw ApiProblem::badRequest('/errors/event-link', 'Evento inválido.');
+        }
+        $event = $this->events->find(Uuid::fromString($eventId));
+        $comuna = $post->getComuna();
+        if (!$event instanceof ComunaEvent || null === $comuna || !$event->getComuna()->getId()->equals($comuna->getId()) || !$this->policy->canReadComuna($comuna, $author)) {
+            throw ApiProblem::badRequest('/errors/event-link', 'Esse evento não pertence a esta comuna.');
+        }
+        $post->attachEvent($event);
     }
 
     private function attachPoll(Post $post, PollInput $input): void

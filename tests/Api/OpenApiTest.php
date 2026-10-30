@@ -22,7 +22,8 @@ final class OpenApiTest extends ApiTestCase
             '/api/v1/comunas/{slug}/pinned-posts', '/api/v1/comunas/{slug}/pinned-posts/{postId}', '/api/v1/comunas/{slug}/pinned-posts/{postId}/position',
             '/api/v1/comuna-names/availability', '/api/v1/posts/{id}/removal', '/api/v1/posts/{id}/poll/vote', '/api/v1/posts/{id}/save', '/api/v1/me/saved-posts', '/api/v1/comments/{id}/removal',
             '/api/v1/me/avatar', '/api/v1/comunas/{slug}/cover', '/api/v1/media/avatars/{userId}/{fileId}', '/api/v1/media/comuna-covers/{comunaId}/{fileId}',
-            '/api/v1/users/{handle}/followers', '/api/v1/users/{handle}/following'] as $path) {
+            '/api/v1/users/{handle}/followers', '/api/v1/users/{handle}/following',
+            '/api/v1/comunas/{slug}/events', '/api/v1/events/{id}', '/api/v1/events/{id}/cancel', '/api/v1/events/{id}/attendance', '/api/v1/events/{id}/attendees'] as $path) {
             self::assertArrayHasKey($path, $doc['paths'], $path);
         }
         self::assertArrayNotHasKey('put', $doc['paths']['/api/v1/comunas/{slug}/square']);

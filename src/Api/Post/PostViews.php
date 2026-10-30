@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace App\Api\Post;
 
+use App\Api\Event\EventSummary;
 use App\Api\Mention\MentionView;
 use App\Api\Profile\AuthorView;
 use App\Content\ComunaModerationPolicy;
+use App\Content\EventSchedule;
 use App\Entity\Comuna;
+use App\Entity\ComunaEvent;
 use App\Entity\Poll;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Poll\PollPercents;
 use App\Repository\ComunaMembershipRepository;
 use App\Repository\ContentMentionRepository;
+use App\Repository\EventAttendanceRepository;
 use App\Repository\PollVoteRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Clock\ClockInterface;
 
 /**
  * Monta PostView com o estado de quem vê. "canComment" e "canRemove" são só dicas para a
@@ -32,6 +38,9 @@ final readonly class PostViews
         private \App\Repository\SavedPostRepository $saves,
         private ContentMentionRepository $mentions,
         private \App\Repository\ComunaPinnedPostRepository $pins,
+        private EntityManagerInterface $em,
+        private EventAttendanceRepository $attendance,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -66,8 +75,9 @@ final readonly class PostViews
         $saved = null === $viewer ? [] : $this->saves->flagsFor($viewer, $posts);
         $mentions = $this->mentions->groupedByPost($posts);
         $pinned = $this->pins->pinnedPostIds($posts);
+        $linked = $this->linkedEvents($posts, $viewer);
 
-        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved, $mentions, $pinned): PostView {
+        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved, $mentions, $pinned, $linked): PostView {
             $comuna = $post->getComuna();
             $membership = null === $comuna ? null : ($memberOf[$comuna->getId()->toRfc4122()] ?? null);
             $isAuthor = null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());
@@ -94,8 +104,60 @@ final readonly class PostViews
                 ),
                 null === $post->getPoll() ? null : self::poll($post->getPoll(), $choices[$post->getPoll()->getId()->toRfc4122()] ?? null),
                 array_map(MentionView::fromMention(...), $mentions[$post->getId()->toRfc4122()] ?? []),
+                $linked[$post->getId()->toRfc4122()] ?? null,
             );
         }, $posts);
+    }
+
+    /**
+     * @param list<Post> $posts
+     *
+     * @return array<string, EventSummary>
+     */
+    private function linkedEvents(array $posts, ?User $viewer): array
+    {
+        if ([] === $posts) {
+            return [];
+        }
+        /** @var list<Post> $rows */
+        $rows = $this->em->createQuery('SELECT p, e FROM App\Entity\Post p JOIN p.event e WHERE p.id IN (:ids)')
+            ->setParameter('ids', array_map(static fn (Post $post) => $post->getId(), $posts))
+            ->getResult();
+        if ([] === $rows) {
+            return [];
+        }
+        $events = [];
+        foreach ($rows as $row) {
+            $linked = $row->getEvent();
+            if ($linked instanceof ComunaEvent) {
+                $events[] = $linked;
+            }
+        }
+        $counts = $this->attendance->counts($events, $viewer);
+        $now = $this->clock->now();
+        $summaries = [];
+        foreach ($rows as $row) {
+            $event = $row->getEvent();
+            if (!$event instanceof ComunaEvent) {
+                continue;
+            }
+            $id = $event->getId()->toRfc4122();
+            $zone = EventSchedule::zone($event->getTimeZone());
+            $summaries[$row->getId()->toRfc4122()] = new EventSummary(
+                $id,
+                $event->getTitle(),
+                $event->getFormat()->value,
+                $event->getStatus()->value,
+                $event->getStartsAt()->setTimezone($zone),
+                $event->getTimeZone(),
+                $event->getPlaceName(),
+                $counts[$id]['going'],
+                $counts[$id]['maybe'],
+                EventSchedule::isPast($now, $event->getStartsAt(), $event->getEndsAt()),
+            );
+        }
+
+        return $summaries;
     }
 
     private static function poll(Poll $poll, ?string $votedOptionId): PollView

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Notification;
 
 use App\Entity\Comment;
+use App\Entity\ComunaEvent;
 use App\Entity\ComunaJoinRequest;
 use App\Entity\ComunaOwnershipTransfer;
 use App\Entity\Notification;
@@ -123,6 +124,18 @@ final readonly class NotificationCreator
         $this->save($request->getUser(), $actor, $type, $request->getId()->toRfc4122(), request: $request);
     }
 
+    /** Aviso de mudança ou cancelamento. A chave inclui a revisão, então repetir a mesma operação não duplica. */
+    public function eventNotice(ComunaEvent $event, User $recipient, User $actor, NotificationType $type): void
+    {
+        $this->save($recipient, $actor, $type, $event->getId()->toRfc4122().':rev:'.$event->getRevision(), event: $event);
+    }
+
+    /** Um lembrete por início anunciado. Remarcar muda o timestamp e permite um novo; retry do mesmo início não. */
+    public function eventReminder(ComunaEvent $event, User $recipient): void
+    {
+        $this->save($recipient, null, NotificationType::EventReminder, $event->getId()->toRfc4122().':remind:'.$event->getStartsAt()->getTimestamp(), event: $event);
+    }
+
     public function ownershipChanged(ComunaOwnershipTransfer $transfer): void
     {
         [$type, $actor, $recipients] = match ($transfer->getStatus()) {
@@ -147,6 +160,7 @@ final readonly class NotificationCreator
         ?ComunaOwnershipTransfer $transfer = null,
         ?SquareMessage $squareMessage = null,
         ?Post $post = null,
+        ?ComunaEvent $event = null,
     ): void {
         if (!$recipient->isActive() || (null !== $actor && ($recipient->getId()->equals($actor->getId()) || $this->blocks->isBlockedEitherWay($recipient, $actor)))) {
             return;
@@ -169,10 +183,11 @@ final readonly class NotificationCreator
             $this->clock->now(),
             $linkedPost,
             $comment,
-            $linkedPost?->getComuna() ?? $request?->getComuna() ?? $transfer?->getComuna() ?? $squareMessage?->square->comuna,
+            $linkedPost?->getComuna() ?? $request?->getComuna() ?? $transfer?->getComuna() ?? $squareMessage?->square->comuna ?? $event?->getComuna(),
             $request,
             $transfer,
             $squareMessage,
+            $event,
         ));
     }
 }

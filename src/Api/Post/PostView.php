@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post as PostOperation;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Api\Event\EventSummary;
 use App\Api\Mention\MentionView;
 use App\Api\Profile\AuthorView;
 
@@ -131,6 +132,7 @@ final readonly class PostView
         public ?\App\Api\PostMedia\PostMediaView $media = null,
         public ?PollView $poll = null,
         public array $mentions = [],
+        public ?EventSummary $event = null,
     ) {
     }
 }

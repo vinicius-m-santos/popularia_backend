@@ -60,6 +60,7 @@ final readonly class NotificationView
             NotificationType::Follow => ['kind' => 'profile', 'id' => $actor?->getHandle() ?? ''],
             NotificationType::Comment, NotificationType::Reply, NotificationType::CommentSupport, NotificationType::MentionPost, NotificationType::MentionComment => ['kind' => 'post', 'id' => $post?->getId()->toRfc4122() ?? ''],
             NotificationType::JoinRequested => ['kind' => 'join_requests', 'id' => $comuna?->getSlug() ?? ''],
+            NotificationType::EventRescheduled, NotificationType::EventPlaceChanged, NotificationType::EventLinkChanged, NotificationType::EventUpdated, NotificationType::EventCancelled, NotificationType::EventReminder => ['kind' => 'event', 'id' => $notification->getEvent()?->getId()->toRfc4122() ?? ''],
             default => ['kind' => 'comuna', 'id' => $comuna?->getSlug() ?? ''],
         };
 
@@ -77,6 +78,9 @@ final readonly class NotificationView
 
     private static function quote(Notification $notification): ?string
     {
+        if (null !== $notification->getEvent()) {
+            return mb_substr($notification->getEvent()->getTitle(), 0, 160);
+        }
         if (null !== $notification->getSquareMessage()) {
             return mb_substr($notification->getSquareMessage()->body ?? 'Figurinha', 0, 160);
         }

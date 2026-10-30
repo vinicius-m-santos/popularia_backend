@@ -87,6 +87,7 @@ final readonly class ComunaModerationPolicy
             'canArchive' => $isOwner && $active,
             'canDelete' => $isOwner && $active,
             'canTransferOwnership' => $isOwner && $active,
+            'canManageEvents' => $moderates && $active,
         ];
     }
 

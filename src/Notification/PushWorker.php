@@ -17,7 +17,7 @@ use Symfony\Component\Uid\Uuid;
 /** Bounded database queue: only committed notifications are ever delivered. */
 final readonly class PushWorker
 {
-    public function __construct(private Connection $db, private EntityManagerInterface $em, private NotificationRepository $notifications, private ExpoPushProvider $provider, private ClockInterface $clock, private LoggerInterface $logger)
+    public function __construct(private Connection $db, private EntityManagerInterface $em, private NotificationRepository $notifications, private ExpoPushProvider $provider, private ClockInterface $clock, private LoggerInterface $logger, private ?EventReminderWorker $reminders = null)
     {
     }
 
@@ -32,6 +32,7 @@ final readonly class PushWorker
         }
         try {
             $this->em->clear();
+            $this->reminders?->dispatchDue($limit);
             $result['queued'] = $this->stage($limit);
             $result['receipts'] = $this->checkReceipts($limit);
             $result['sent'] = $this->send($limit);
@@ -218,6 +219,9 @@ final readonly class PushWorker
             NotificationType::MentionComment => 'Você foi mencionado em um comentário.',
             NotificationType::CommentSupport => 'Seu comentário recebeu um apoio.',
             NotificationType::JoinRequested => 'Há uma solicitação de participação para você analisar.',
+            NotificationType::EventReminder => 'Você tem um lembrete de atividade.',
+            NotificationType::EventCancelled => 'Uma atividade que você acompanha foi cancelada.',
+            NotificationType::EventRescheduled, NotificationType::EventPlaceChanged, NotificationType::EventLinkChanged, NotificationType::EventUpdated => 'Uma atividade que você acompanha foi atualizada.',
             default => 'Você tem uma atualização de participação em comuna.',
         };
     }

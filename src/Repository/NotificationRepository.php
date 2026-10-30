@@ -66,12 +66,13 @@ class NotificationRepository extends ServiceEntityRepository
         $membership = sprintf('SELECT 1 FROM %s nm WHERE nm.comuna = c AND nm.user = :viewer', ComunaMembership::class);
         $moderation = sprintf('SELECT 1 FROM %s modm WHERE modm.comuna = c AND modm.user = :viewer AND modm.role IN (:moderatorRoles)', ComunaMembership::class);
         $qb = $this->createQueryBuilder('n')
-            ->addSelect('a', 'p', 'pa', 'cm', 'cp', 'c', 'jr', 'tr', 'sm', 'sq', 'sp', 'spa')
+            ->addSelect('a', 'p', 'pa', 'cm', 'cp', 'c', 'jr', 'tr', 'sm', 'sq', 'sp', 'spa', 'ev')
             ->leftJoin('n.actor', 'a')->leftJoin('n.post', 'p')->leftJoin('p.author', 'pa')
             ->leftJoin('n.comment', 'cm')->leftJoin('cm.parent', 'cp')->leftJoin('n.comuna', 'c')
             ->leftJoin('cp.author', 'cpa')
             ->leftJoin('n.joinRequest', 'jr')->leftJoin('n.transfer', 'tr')
             ->leftJoin('n.squareMessage', 'sm')->leftJoin('sm.square', 'sq')->leftJoin('sm.replyTo', 'sp')->leftJoin('sp.author', 'spa')
+            ->leftJoin('n.event', 'ev')
             ->where('n.recipient = :viewer')
             ->andWhere('(sm.id IS NULL OR (sm.status = :published AND sp.status = :published AND spa.status = :active))')
             ->andWhere('(a.id IS NULL OR a.status = :active)')

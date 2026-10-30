@@ -26,6 +26,10 @@ final class PostInput
     #[Assert\Uuid(message: 'Comuna inválida.')]
     public ?string $comunaId = null;
 
+    /** Evento da mesma comuna. Não cria o evento nem é obrigatório. */
+    #[Assert\Uuid(message: 'Evento inválido.')]
+    public ?string $eventId = null;
+
     #[Assert\Expression(expression: 'this.documentId == null or this.mediaId == null', message: 'Escolha apenas um anexo: PDF, imagem ou vídeo.')]
     #[Assert\When(expression: 'this.documentId == null and this.mediaId == null and this.poll == null', constraints: [new Assert\NotBlank(message: 'Escreva alguma coisa para publicar.', normalizer: 'trim')])]
     #[Assert\Length(max: Post::BODY_MAX_LENGTH, maxMessage: 'Use até {{ limit }} caracteres.')]

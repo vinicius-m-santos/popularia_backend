@@ -5366,6 +5366,671 @@
                 ]
             }
         },
+        "/api/v1/comunas/{slug}/events": {
+            "get": {
+                "operationId": "api_comunas_slugevents_get",
+                "tags": [
+                    "Eventos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "EventPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Eventos da comuna.",
+                "description": "when=upcoming (padr\u00e3o) em ordem crescente de in\u00edcio; when=past, mais recentes primeiro. Cancelados continuam na lista. Comuna privada: 403 /errors/comuna-private.",
+                "parameters": [
+                    {
+                        "name": "when",
+                        "in": "query",
+                        "description": "upcoming ou past.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "upcoming",
+                                "past"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "De 1 a 50. Padr\u00e3o 20.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "api_comunas_slugevents_post",
+                "tags": [
+                    "Eventos"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Event resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Cria um evento.",
+                "description": "S\u00f3 modera\u00e7\u00e3o ou propriet\u00e1rio (403 /errors/not-comuna-moderator). Comuna arquivada: 409 /errors/comuna-archived. N\u00e3o avisa todos os membros.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new Event resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Event.EventInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/events/{id}": {
+            "get": {
+                "operationId": "api_events_id_get",
+                "tags": [
+                    "Eventos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Um evento.",
+                "description": "Comuna privada sem participa\u00e7\u00e3o, ou id inexistente: 404, sem confirmar que existe.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Event identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "api_events_id_patch",
+                "tags": [
+                    "Eventos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Edita o evento.",
+                "description": "O corpo \u00e9 completo. Mudar o tipo sem local ou link v\u00e1lidos \u00e9 recusado. O fuso anunciado n\u00e3o muda.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Event identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Event resource",
+                    "content": {
+                        "application/merge-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Event.EventInput.jsonMergePatch"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Event.EventInput.jsonMergePatch"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/events/{id}/attendance": {
+            "put": {
+                "operationId": "api_events_idattendance_put",
+                "tags": [
+                    "Eventos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Responde Vou, Talvez ou N\u00e3o vou.",
+                "description": "Substitui a resposta anterior. N\u00e3o avisa a modera\u00e7\u00e3o. Evento cancelado, passado ou comuna arquivada n\u00e3o aceita resposta nova.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Event identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Event resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Event.AttendanceInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/events/{id}/attendees": {
+            "get": {
+                "operationId": "api_events_idattendees_get",
+                "tags": [
+                    "Eventos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AttendeePage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AttendeePage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Quem respondeu Vou ou Talvez.",
+                "description": "status=going ou status=maybe. N\u00e3o vou n\u00e3o \u00e9 listado. Bloqueio e conta inativa ficam de fora. Comuna privada sem participa\u00e7\u00e3o: 404.",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "going ou maybe.",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "going",
+                                "maybe"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "De 1 a 50. Padr\u00e3o 20.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "AttendeePage identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/events/{id}/cancel": {
+            "post": {
+                "operationId": "api_events_idcancel_post",
+                "tags": [
+                    "Eventos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Cancela o evento sem apag\u00e1-lo.",
+                "description": "Idempotente. Avisa quem respondeu Vou ou Talvez.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Event identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new Event resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Event"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/comments/{id}/removal": {
             "post": {
                 "operationId": "api_comments_idremoval_post",
@@ -11260,6 +11925,23 @@
                     }
                 }
             },
+            "AttendeePage": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuthorView"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
             "AuthIdentityItemView": {
                 "type": "object",
                 "properties": {
@@ -12284,6 +12966,316 @@
                         "readOnly": true,
                         "description": "A URI reference that identifies the problem type",
                         "type": "string"
+                    }
+                }
+            },
+            "Event": {
+                "type": "object",
+                "description": "Atividade de uma comuna. startsAt \u00e9 um instante; timeZone \u00e9 o fuso em que o hor\u00e1rio foi anunciado.\nQuem exibe formata nesse fuso, n\u00e3o no fuso do aparelho de quem l\u00ea.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "format": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "startsAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "endsAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "placeName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "address": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "onlineUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "comuna": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "organizer": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AuthorView"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "goingCount": {
+                        "type": "integer"
+                    },
+                    "maybeCount": {
+                        "type": "integer"
+                    },
+                    "viewerAttendance": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "canManage": {
+                        "type": "boolean"
+                    },
+                    "canRespond": {
+                        "type": "boolean"
+                    },
+                    "past": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "cancelledAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                }
+            },
+            "Event.AttendanceInput": {
+                "type": "object",
+                "description": "Atividade de uma comuna. startsAt \u00e9 um instante; timeZone \u00e9 o fuso em que o hor\u00e1rio foi anunciado.\nQuem exibe formata nesse fuso, n\u00e3o no fuso do aparelho de quem l\u00ea.",
+                "additionalProperties": false,
+                "required": [
+                    "status"
+                ],
+                "properties": {
+                    "status": {
+                        "enum": [
+                            "going",
+                            "maybe",
+                            "not_going"
+                        ],
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "Event.EventInput": {
+                "type": "object",
+                "description": "Atividade de uma comuna. startsAt \u00e9 um instante; timeZone \u00e9 o fuso em que o hor\u00e1rio foi anunciado.\nQuem exibe formata nesse fuso, n\u00e3o no fuso do aparelho de quem l\u00ea.",
+                "additionalProperties": false,
+                "required": [
+                    "title",
+                    "format",
+                    "timeZone",
+                    "startsAt"
+                ],
+                "properties": {
+                    "title": {
+                        "maxLength": 120,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "description": {
+                        "maxLength": 2000,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "format": {
+                        "enum": [
+                            "in_person",
+                            "online",
+                            "hybrid"
+                        ],
+                        "default": "",
+                        "type": "string"
+                    },
+                    "placeName": {
+                        "maxLength": 120,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "address": {
+                        "maxLength": 240,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "onlineUrl": {
+                        "maxLength": 500,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "timeZone": {
+                        "maxLength": 64,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "startsAt": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "endsAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "Event.EventInput.jsonMergePatch": {
+                "type": "object",
+                "description": "Atividade de uma comuna. startsAt \u00e9 um instante; timeZone \u00e9 o fuso em que o hor\u00e1rio foi anunciado.\nQuem exibe formata nesse fuso, n\u00e3o no fuso do aparelho de quem l\u00ea.",
+                "additionalProperties": false,
+                "properties": {
+                    "title": {
+                        "maxLength": 120,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "description": {
+                        "maxLength": 2000,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "format": {
+                        "enum": [
+                            "in_person",
+                            "online",
+                            "hybrid"
+                        ],
+                        "default": "",
+                        "type": "string"
+                    },
+                    "placeName": {
+                        "maxLength": 120,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "address": {
+                        "maxLength": 240,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "onlineUrl": {
+                        "maxLength": 500,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "timeZone": {
+                        "maxLength": 64,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "startsAt": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "endsAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "EventPage": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Event"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "EventSummary": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "format": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "startsAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "placeName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "goingCount": {
+                        "type": "integer"
+                    },
+                    "maybeCount": {
+                        "type": "integer"
+                    },
+                    "past": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -13907,6 +14899,16 @@
                         "items": {
                             "$ref": "#/components/schemas/MentionView"
                         }
+                    },
+                    "event": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EventSummary"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 }
             },
@@ -13998,6 +15000,17 @@
                     "comunaId": {
                         "format": "uuid",
                         "description": "Comuna onde publicar; null publica no pr\u00f3prio perfil.",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "eventId": {
+                        "format": "uuid",
+                        "description": "Evento da mesma comuna. N\u00e3o cria o evento nem \u00e9 obrigat\u00f3rio.",
                         "externalDocs": {
                             "url": "https://schema.org/identifier"
                         },
@@ -15027,6 +16040,10 @@
         {
             "name": "Descoberta",
             "description": "Resource 'Descoberta' operations."
+        },
+        {
+            "name": "Eventos",
+            "description": "Atividade de uma comuna. startsAt \u00e9 um instante; timeZone \u00e9 o fuso em que o hor\u00e1rio foi anunciado.\nQuem exibe formata nesse fuso, n\u00e3o no fuso do aparelho de quem l\u00ea."
         },
         {
             "name": "Sistema",

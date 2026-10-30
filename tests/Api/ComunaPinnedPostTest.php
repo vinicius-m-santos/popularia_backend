@@ -405,9 +405,10 @@ final class ComunaPinnedPostTest extends ApiTestCase
         $page = $this->request('PUT', $this->pinPath($comuna, $post), token: $token);
         self::assertNull($page['nextCursor']);
         self::assertSame(
-            ['id', 'body', 'createdAt', 'author', 'comuna', 'commentCount', 'viewer', 'topic', 'document', 'media', 'poll', 'mentions'],
+            ['id', 'body', 'createdAt', 'author', 'comuna', 'commentCount', 'viewer', 'topic', 'document', 'media', 'poll', 'mentions', 'event'],
             array_keys($page['items'][0]),
         );
+        self::assertNull($page['items'][0]['event']);
         self::assertSame('Próxima reunião da comuna', $page['items'][0]['body']);
         self::assertSame('tarifa', $page['items'][0]['comuna']['slug']);
     }

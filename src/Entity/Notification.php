@@ -61,6 +61,9 @@ class Notification
         #[ORM\ManyToOne]
         #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
         private ?SquareMessage $squareMessage = null,
+        #[ORM\ManyToOne]
+        #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+        private ?ComunaEvent $event = null,
     ) {
         $this->id = Uuid::v7();
     }
@@ -118,6 +121,11 @@ class Notification
     public function getComuna(): ?Comuna
     {
         return $this->comuna;
+    }
+
+    public function getEvent(): ?ComunaEvent
+    {
+        return $this->event;
     }
 
     public function markRead(\DateTimeImmutable $now): void

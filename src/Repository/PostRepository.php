@@ -6,7 +6,9 @@ namespace App\Repository;
 
 use App\Entity\Comuna;
 use App\Entity\ComunaMembership;
+use App\Entity\Hashtag;
 use App\Entity\Post;
+use App\Entity\PostHashtag;
 use App\Entity\User;
 use App\Entity\UserFollow;
 use App\Enum\AccountStatus;
@@ -40,6 +42,44 @@ class PostRepository extends ServiceEntityRepository
 
         /** @var list<Post> */
         return $qb->getQuery()->getResult();
+    }
+
+    /** @return list<Post> */
+    public function findHashtagPage(Hashtag $hashtag, ?User $viewer, ?Uuid $before, int $limit): array
+    {
+        $memberOf = sprintf('SELECT IDENTITY(hm.comuna) FROM %s hm WHERE hm.user = :hashtagViewer', ComunaMembership::class);
+        // Select IDs before joining poll options: a collection fetch join would otherwise
+        // spend the SQL LIMIT on duplicate option rows and truncate the page.
+        $qb = $this->createQueryBuilder('p')->select('p.id')
+            ->join('p.author', 'a')->leftJoin('p.comuna', 'c')
+            ->andWhere(sprintf('EXISTS (SELECT 1 FROM %s ph WHERE ph.post = p AND ph.hashtag = :hashtag)', PostHashtag::class))
+            ->andWhere(null === $viewer ? 'c.id IS NULL OR c.visibility = :hashtagPublic' : "c.id IS NULL OR c.visibility = :hashtagPublic OR c.id IN ($memberOf)")
+            ->setParameter('hashtag', $hashtag)
+            ->setParameter('hashtagPublic', ComunaVisibility::Public)
+            ->orderBy('p.id', 'DESC')->setMaxResults($limit + 1);
+        $this->applyVisibility($qb, 'p', 'a', 'c', $viewer);
+        if (null !== $before) {
+            $qb->andWhere('p.id < :hashtagBefore')->setParameter('hashtagBefore', $before, 'uuid');
+        }
+        if (null !== $viewer) {
+            $qb->setParameter('hashtagViewer', $viewer);
+        }
+        $ids = array_column($qb->getQuery()->getScalarResult(), 'id');
+        if ([] === $ids) {
+            return [];
+        }
+
+        $hydrate = $this->visible($viewer, null, $limit)->andWhere('p.id IN (:hashtagIds)')
+            ->andWhere(null === $viewer ? 'c.id IS NULL OR c.visibility = :hydratePublic' : "c.id IS NULL OR c.visibility = :hydratePublic OR c.id IN ($memberOf)")
+            ->setParameter('hashtagIds', $ids)
+            ->setParameter('hydratePublic', ComunaVisibility::Public)
+            ->setMaxResults(null);
+        if (null !== $viewer) {
+            $hydrate->setParameter('hashtagViewer', $viewer);
+        }
+
+        /** @var list<Post> */
+        return $hydrate->getQuery()->getResult();
     }
 
     /**

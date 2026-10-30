@@ -16,11 +16,20 @@ use App\Api\Comuna\ComunaView;
 use App\Api\Comuna\PinnedPostProcessor;
 use App\Api\Comuna\PinnedPostsProvider;
 use App\Api\Comuna\PinPositionInput;
+use App\Api\Hashtag\HashtagPostsProvider;
 use App\Api\Profile\PublicProfile;
 
 /** Página de publicações (feed ou comuna), da mais nova para a mais antiga. */
 #[ApiResource(
     operations: [
+        new Get(
+            uriTemplate: '/topics/{slug}/posts',
+            provider: HashtagPostsProvider::class,
+            openapi: new Operation(tags: ['Tópicos'], summary: 'Publicações visíveis de uma hashtag, da mais recente para a mais antiga.', parameters: [
+                new Parameter('cursor', 'query', 'Valor de nextCursor da página anterior.'),
+                new Parameter('limit', 'query', 'Itens por página (1 a 50, padrão 20).', schema: ['type' => 'integer']),
+            ]),
+        ),
         new Get(
             uriTemplate: '/users/{handle}/posts',
             uriVariables: ['handle' => new Link(fromClass: PublicProfile::class, identifiers: ['handle'])],

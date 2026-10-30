@@ -141,7 +141,7 @@ final class SharingTest extends ApiTestCase
         $controller = new AssociationController('TESTTEAM01', $fingerprint.',invalid');
         $apple = json_decode((string) $controller->apple()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         self::assertSame(['TESTTEAM01.com.popularia.mobile'], $apple['applinks']['details'][0]['appIDs']);
-        self::assertSame([['/' => '/p/*'], ['/' => '/u/*'], ['/' => '/c/*'], ['/' => '/d/*'], ['/' => '/e/*']], $apple['applinks']['details'][0]['components']);
+        self::assertSame([['/' => '/p/*'], ['/' => '/u/*'], ['/' => '/c/*'], ['/' => '/d/*'], ['/' => '/e/*'], ['/' => '/t/*']], $apple['applinks']['details'][0]['components']);
         $android = json_decode((string) $controller->android()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         self::assertSame('com.popularia.mobile', $android[0]['target']['package_name']);
         self::assertSame([$fingerprint], $android[0]['target']['sha256_cert_fingerprints']);

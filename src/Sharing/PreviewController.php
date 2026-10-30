@@ -8,8 +8,11 @@ use App\Content\ContentPolicy;
 use App\Content\EventSchedule;
 use App\Entity\Comuna;
 use App\Entity\ComunaEvent;
+use App\Entity\Hashtag;
 use App\Entity\Post;
 use App\Entity\User;
+use App\Hashtag\HashtagParser;
+use App\Repository\PostRepository;
 use App\Repository\UserBlockRepository;
 use App\Security\CurrentUser;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,11 +24,11 @@ use Twig\Environment;
 /** Only anonymously readable data is rendered; identified viewers also respect blocks. */
 final readonly class PreviewController
 {
-    public function __construct(private EntityManagerInterface $em, private ContentPolicy $policy, private PublicLinks $links, private Environment $twig, private CurrentUser $currentUser, private UserBlockRepository $blocks)
+    public function __construct(private EntityManagerInterface $em, private ContentPolicy $policy, private PublicLinks $links, private Environment $twig, private CurrentUser $currentUser, private UserBlockRepository $blocks, private PostRepository $posts)
     {
     }
 
-    #[Route('/{type}/{id}', name: 'share_preview', requirements: ['type' => 'p|u|c|d|e', 'id' => '[A-Za-z0-9-]{1,100}'], methods: ['GET', 'HEAD'])]
+    #[Route('/{type}/{id}', name: 'share_preview', requirements: ['type' => 'p|u|c|d|e|t', 'id' => '[\p{L}\p{M}\p{N}_-]{1,100}'], methods: ['GET', 'HEAD'])]
     public function __invoke(string $type, string $id): Response
     {
         $viewer = $this->currentUser->find();
@@ -81,13 +84,21 @@ final readonly class PreviewController
             $title = 'Documento no Popularia';
             $description = 'Entre no Popularia para consultar este documento conforme suas permissões de acesso.';
         }
+        if ('t' === $type && HashtagParser::validSlug($id)) {
+            $hashtag = $this->em->getRepository(Hashtag::class)->findOneBy(['normalizedName' => $id]);
+            if (null !== $hashtag && [] !== $this->posts->findHashtagPage($hashtag, null, null, 1)) {
+                $public = true;
+                $title = '#'.$hashtag->displayName.' no Popularia';
+                $description = 'Veja publicações sobre este assunto.';
+            }
+        }
         $url = $this->links->url($type, $id);
         $response = new Response($this->twig->render('sharing/preview.html.twig', [
             'title' => self::plain($title, 160), 'description' => $description, 'body' => $body,
             'canonical' => $url, 'image' => $this->links->origin.'/sharing/popularia.png',
             'appUrl' => 'populariamobile://'.$type.'/'.rawurlencode($id), 'public' => $public,
-            'kindLabel' => ['p' => 'Publicação', 'u' => 'Perfil', 'c' => 'Comuna', 'd' => 'Documento', 'e' => 'Evento'][$type],
-            'ogType' => $public ? ['p' => 'article', 'u' => 'profile', 'c' => 'website', 'd' => 'website', 'e' => 'article'][$type] : 'website',
+            'kindLabel' => ['p' => 'Publicação', 'u' => 'Perfil', 'c' => 'Comuna', 'd' => 'Documento', 'e' => 'Evento', 't' => 'Tópico'][$type],
+            'ogType' => $public ? ['p' => 'article', 'u' => 'profile', 'c' => 'website', 'd' => 'website', 'e' => 'article', 't' => 'website'][$type] : 'website',
         ]), $public || ('d' === $type && Uuid::isValid($id)) ? 200 : 404);
         $response->headers->set('Cache-Control', 'no-store, private');
         $response->headers->set('X-Robots-Tag', 'noindex, noarchive');

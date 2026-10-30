@@ -21,7 +21,7 @@ final readonly class AssociationController
     {
         $details = [];
         if (preg_match('/^[A-Z0-9]{10}$/D', $this->teamId)) {
-            $details[] = ['appIDs' => [$this->teamId.'.com.popularia.mobile'], 'components' => array_map(static fn (string $path): array => ['/' => $path], ['/p/*', '/u/*', '/c/*', '/d/*', '/e/*'])];
+            $details[] = ['appIDs' => [$this->teamId.'.com.popularia.mobile'], 'components' => array_map(static fn (string $path): array => ['/' => $path], ['/p/*', '/u/*', '/c/*', '/d/*', '/e/*', '/t/*'])];
         }
 
         return $this->json(['applinks' => ['apps' => [], 'details' => $details]]);

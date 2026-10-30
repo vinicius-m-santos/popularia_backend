@@ -14,6 +14,8 @@ use App\Entity\ComunaEvent;
 use App\Entity\Poll;
 use App\Entity\Post;
 use App\Enum\Topic;
+use App\Hashtag\HashtagBinder;
+use App\Hashtag\HashtagParser;
 use App\Mention\MentionBinder;
 use App\Notification\NotificationCreator;
 use App\Repository\ComunaRepository;
@@ -41,6 +43,8 @@ final readonly class PostCreateProcessor implements ProcessorInterface
         private MentionBinder $mentions,
         private NotificationCreator $notifications,
         private \App\Repository\ComunaEventRepository $events,
+        private HashtagParser $hashtagParser,
+        private HashtagBinder $hashtagBinder,
     ) {
     }
 
@@ -60,6 +64,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
 
             $this->filter->assertText($data->body, $comuna);
             $body = TextNormalizer::normalize($data->body);
+            $hashtags = $this->hashtagParser->extract($body);
             $post = new Post($author, $comuna, $body, $this->clock->now());
             $post->setTopic(null === $data->topic ? null : Topic::from($data->topic));
             if (null !== $data->documentId) {
@@ -95,6 +100,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             }
             $this->notifications->mentionedInPost($post, array_map(static fn ($mention) => $mention->getMentionedUser(), $mentions));
             $this->em->flush();
+            $this->hashtagBinder->attach($post, $hashtags);
 
             return $this->views->one($post, $author);
         });

@@ -9,6 +9,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Api\ApiProblem;
 use App\Content\ComunaPins;
 use App\Content\ContentPolicy;
+use App\Hashtag\HashtagBinder;
 use App\Repository\ContentMentionRepository;
 use App\Security\CurrentUser;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,6 +23,7 @@ final readonly class PostDeleteProcessor implements ProcessorInterface
         private EntityManagerInterface $em,
         private ContentMentionRepository $mentions,
         private ComunaPins $pins,
+        private HashtagBinder $hashtagBinder,
     ) {
     }
 
@@ -37,6 +39,7 @@ final readonly class PostDeleteProcessor implements ProcessorInterface
         // A enquete, as opções e os votos saem junto. A remoção por moderação conserva o registro.
         $post->detachPoll();
         $this->mentions->deleteForPost($post);
+        $this->hashtagBinder->deleteForPost($post);
         $this->pins->release($post);
         $this->em->flush();
 

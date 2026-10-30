@@ -31,6 +31,7 @@ final readonly class PostViews
         private PollVoteRepository $votes,
         private \App\Repository\SavedPostRepository $saves,
         private ContentMentionRepository $mentions,
+        private \App\Repository\ComunaPinnedPostRepository $pins,
     ) {
     }
 
@@ -64,8 +65,9 @@ final readonly class PostViews
         $choices = null === $viewer ? [] : $this->votes->choicesFor($viewer, $polls);
         $saved = null === $viewer ? [] : $this->saves->flagsFor($viewer, $posts);
         $mentions = $this->mentions->groupedByPost($posts);
+        $pinned = $this->pins->pinnedPostIds($posts);
 
-        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved, $mentions): PostView {
+        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved, $mentions, $pinned): PostView {
             $comuna = $post->getComuna();
             $membership = null === $comuna ? null : ($memberOf[$comuna->getId()->toRfc4122()] ?? null);
             $isAuthor = null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());
@@ -73,6 +75,7 @@ final readonly class PostViews
                 && $viewer->isEmailVerified()
                 && (null === $comuna || (null !== $membership && !$comuna->isArchived()));
             $canRemove = null !== $comuna && $this->moderation->canRemoveContentBy($comuna, $membership, $post->getAuthor());
+            $canPin = null !== $comuna && null !== $membership && $membership->getRole()->canModerate() && !$comuna->isArchived();
 
             return new PostView(
                 $post->getId()->toRfc4122(),
@@ -81,7 +84,7 @@ final readonly class PostViews
                 AuthorView::fromUser($post->getAuthor()),
                 null === $comuna ? null : self::comunaSummary($comuna),
                 $post->getCommentCount(),
-                ['isAuthor' => $isAuthor, 'canComment' => $canComment, 'canDelete' => $isAuthor, 'canRemove' => $canRemove, 'saved' => isset($saved[$post->getId()->toRfc4122()])],
+                ['isAuthor' => $isAuthor, 'canComment' => $canComment, 'canDelete' => $isAuthor, 'canRemove' => $canRemove, 'saved' => isset($saved[$post->getId()->toRfc4122()]), 'canPin' => $canPin, 'pinned' => isset($pinned[$post->getId()->toRfc4122()])],
                 $post->getTopic(),
                 null === $post->libraryDocument ? null : ($documentViews[$post->libraryDocument->id->toRfc4122()] ?? null),
                 null === $post->media ? null : new \App\Api\PostMedia\PostMediaView(

@@ -111,9 +111,9 @@ use App\Api\Profile\AuthorView;
 final readonly class PostView
 {
     /**
-     * @param array{id: string, slug: string, name: string, status: string}|null                     $comuna
-     * @param array{isAuthor: bool, canComment: bool, canDelete: bool, canRemove: bool, saved: bool} $viewer
-     * @param list<MentionView>                                                                      $mentions
+     * @param array{id: string, slug: string, name: string, status: string}|null                                                 $comuna
+     * @param array{isAuthor: bool, canComment: bool, canDelete: bool, canRemove: bool, saved: bool, canPin: bool, pinned: bool} $viewer
+     * @param list<MentionView>                                                                                                  $mentions
      */
     public function __construct(
         #[ApiProperty(identifier: true)]

@@ -7,6 +7,7 @@ namespace App\Api\Post;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\ApiProblem;
+use App\Content\ComunaPins;
 use App\Content\ContentPolicy;
 use App\Repository\ContentMentionRepository;
 use App\Security\CurrentUser;
@@ -20,6 +21,7 @@ final readonly class PostDeleteProcessor implements ProcessorInterface
         private ContentPolicy $policy,
         private EntityManagerInterface $em,
         private ContentMentionRepository $mentions,
+        private ComunaPins $pins,
     ) {
     }
 
@@ -35,6 +37,7 @@ final readonly class PostDeleteProcessor implements ProcessorInterface
         // A enquete, as opções e os votos saem junto. A remoção por moderação conserva o registro.
         $post->detachPoll();
         $this->mentions->deleteForPost($post);
+        $this->pins->release($post);
         $this->em->flush();
 
         return null;

@@ -3796,6 +3796,58 @@
                 ]
             }
         },
+        "/api/v1/comunas/{slug}/pinned-posts": {
+            "get": {
+                "operationId": "api_comunas_slugpinned-posts_get",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PostPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Publica\u00e7\u00f5es fixadas da comuna, no m\u00e1ximo 3, na ordem definida pela modera\u00e7\u00e3o.",
+                "description": "A mesma representa\u00e7\u00e3o de publica\u00e7\u00e3o do restante da API. Comuna privada sem participa\u00e7\u00e3o: 403 /errors/comuna-private. Publica\u00e7\u00e3o apagada, removida, de conta suspensa ou oculta por bloqueio n\u00e3o entra. nextCursor \u00e9 sempre null.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/comunas/{slug}/posts": {
             "get": {
                 "operationId": "api_comunas_slugposts_get",
@@ -6592,6 +6644,314 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/OwnershipTransfer"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/pinned-posts/{postId}": {
+            "put": {
+                "operationId": "comuna_pin_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PostPage resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostPage"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Fixa uma publica\u00e7\u00e3o desta comuna. Idempotente.",
+                "description": "S\u00f3 propriet\u00e1rio ou modera\u00e7\u00e3o (403 /errors/not-comuna-moderator). O pin novo entra em primeiro. J\u00e1 fixada: a posi\u00e7\u00e3o n\u00e3o muda. Quatro fixadas: 409 /errors/comuna-pin-limit, sem remover outra. Publica\u00e7\u00e3o de outro lugar, apagada, removida ou invis\u00edvel: 404 ou 409 /errors/post-not-in-comuna. Comuna arquivada: 409 /errors/comuna-archived. N\u00e3o gera notifica\u00e7\u00e3o. A resposta \u00e9 a lista atual, na ordem.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "PostPage identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "description": "PostPage identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "comuna_unpin_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "PostPage resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Desafixa uma publica\u00e7\u00e3o. Idempotente.",
+                "description": "S\u00f3 propriet\u00e1rio ou modera\u00e7\u00e3o. Desafixar de novo n\u00e3o muda nada. Comuna arquivada: 409 /errors/comuna-archived. N\u00e3o gera notifica\u00e7\u00e3o.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "PostPage identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "description": "PostPage identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/comunas/{slug}/pinned-posts/{postId}/position": {
+            "put": {
+                "operationId": "comuna_move_pinned_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PostPage resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostPage"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Muda a ordem de uma publica\u00e7\u00e3o j\u00e1 fixada.",
+                "description": "Corpo: {\"position\": 1|2|3}. 1 \u00e9 a primeira. S\u00f3 propriet\u00e1rio ou modera\u00e7\u00e3o. Publica\u00e7\u00e3o que n\u00e3o est\u00e1 fixada: 409 /errors/post-not-pinned. A mesma posi\u00e7\u00e3o n\u00e3o muda nada. A resposta \u00e9 a lista atual.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "PostPage identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "description": "PostPage identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated PostPage resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostPage.PinPositionInput"
                             }
                         }
                     },
@@ -13722,6 +14082,19 @@
                             "string",
                             "null"
                         ]
+                    }
+                }
+            },
+            "PostPage.PinPositionInput": {
+                "type": "object",
+                "description": "P\u00e1gina de publica\u00e7\u00f5es (feed ou comuna), da mais nova para a mais antiga.",
+                "additionalProperties": false,
+                "properties": {
+                    "position": {
+                        "minimum": 1,
+                        "maximum": 3,
+                        "default": 0,
+                        "type": "integer"
                     }
                 }
             },

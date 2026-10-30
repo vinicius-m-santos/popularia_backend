@@ -53,6 +53,7 @@ final readonly class ComunaGovernance
         private AdminAudit $audit,
         private ClockInterface $clock,
         private NotificationCreator $notifications,
+        private ComunaPins $pins,
     ) {
     }
 
@@ -490,6 +491,7 @@ final readonly class ComunaGovernance
                 return;
             }
             $post->removeByModeration();
+            $this->pins->release($post);
             $this->em->flush();
             $this->record($actor, 'comuna.post_removed', $comuna, $post->getAuthor(), ['post_id' => $post->getId()->toRfc4122()], $reason);
         });

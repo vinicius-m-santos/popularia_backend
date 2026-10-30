@@ -38,11 +38,16 @@ final readonly class EventViews
         $counts = $this->attendance->counts($events, $viewer);
         $mine = $this->attendance->viewerStatuses($events, $viewer);
         $now = $this->clock->now();
+        $comunas = [];
+        foreach ($events as $event) {
+            $comunas[$event->getComuna()->getId()->toRfc4122()] = $event->getComuna();
+        }
+        $memberships = null === $viewer ? [] : $this->memberships->findForComunas($viewer, array_values($comunas));
 
-        return array_map(function (ComunaEvent $event) use ($viewer, $counts, $mine, $now): EventView {
+        return array_map(function (ComunaEvent $event) use ($viewer, $counts, $mine, $now, $memberships): EventView {
             $id = $event->getId()->toRfc4122();
             $comuna = $event->getComuna();
-            $membership = null === $viewer ? null : $this->memberships->findMembership($comuna, $viewer);
+            $membership = $memberships[$comuna->getId()->toRfc4122()] ?? null;
             $zone = EventSchedule::zone($event->getTimeZone());
             $past = EventSchedule::isPast($now, $event->getStartsAt(), $event->getEndsAt());
             $organizer = $event->getOrganizer();

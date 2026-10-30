@@ -28,12 +28,12 @@ use App\Api\Topic\TopicView;
             security: "is_granted('ROLE_USER')",
             cacheHeaders: ['max_age' => 0, 'shared_max_age' => 0, 'public' => false],
             provider: DiscoveryProvider::class,
-            openapi: new Operation(tags: ['Descoberta'], summary: 'Busca parcial sem acentos.', parameters: [
-                new Parameter('q', 'query', 'Termo de 3 a 100 caracteres (mínimo de três letras/números seguidos). Vazio lista a categoria.'),
-                new Parameter('type', 'query', 'Categoria; all retorna até três itens por seção.', schema: ['type' => 'string', 'enum' => ['all', 'comunas', 'people', 'posts', 'documents']]),
+            openapi: new Operation(tags: ['Descoberta'], summary: 'Busca textual com relevância, sem acentos.', parameters: [
+                new Parameter('q', 'query', 'Termo de 3 a 100 caracteres (mínimo de três letras/números seguidos). Vazio lista a categoria. @ inicial busca handle.'),
+                new Parameter('type', 'query', 'Categoria; all retorna até três itens por seção, sem cursor.', schema: ['type' => 'string', 'enum' => ['all', 'comunas', 'people', 'posts', 'events', 'documents']]),
                 new Parameter('topic', 'query', 'Assunto principal. Não admite a categoria people.'),
                 new Parameter('limit', 'query', 'Itens por categoria (1 a 50).', schema: ['type' => 'integer', 'minimum' => 1, 'maximum' => 50]),
-                new Parameter('cursor', 'query', 'Cursor de next da categoria escolhida. Não aceito com all.'),
+                new Parameter('cursor', 'query', 'Cursor de next da categoria. Busca com termo usa v1_relevância_desempate_id. Sem termo, UUID. Não aceito com all.'),
             ]),
         ),
     ],
@@ -41,12 +41,13 @@ use App\Api\Topic\TopicView;
 final readonly class DiscoveryView
 {
     /**
-     * @param list<TopicView>                                                               $topics
-     * @param list<ComunaView>                                                              $comunas
-     * @param list<DiscoveryPerson>                                                         $people
-     * @param list<PostView>                                                                $posts
-     * @param list<PostView>                                                                $recentPosts
-     * @param array{comunas: ?string, people: ?string, posts: ?string, documents?: ?string} $next
+     * @param list<TopicView>                                                                                $topics
+     * @param list<ComunaView>                                                                               $comunas
+     * @param list<DiscoveryPerson>                                                                          $people
+     * @param list<PostView>                                                                                 $posts
+     * @param list<PostView>                                                                                 $recentPosts
+     * @param array{comunas: ?string, people: ?string, posts: ?string, events: ?string, documents?: ?string} $next
+     * @param list<\App\Api\Event\EventView>                                                                 $events
      */
     public function __construct(
         #[ApiProperty(readableLink: true)]
@@ -62,6 +63,8 @@ final readonly class DiscoveryView
         /** @var list<\App\Api\Library\DocumentView> */
         #[ApiProperty(readableLink: true)]
         public array $documents = [],
+        #[ApiProperty(readableLink: true)]
+        public array $events = [],
     ) {
     }
 }

@@ -5352,13 +5352,13 @@
                         "links": {}
                     }
                 },
-                "summary": "Busca parcial sem acentos.",
-                "description": "Busca parcial sem acentos.",
+                "summary": "Busca textual com relevância, sem acentos.",
+                "description": "Busca textual com relevância, sem acentos.",
                 "parameters": [
                     {
                         "name": "q",
                         "in": "query",
-                        "description": "Termo de 3 a 100 caracteres (m\u00ednimo de tr\u00eas letras/n\u00fameros seguidos). Vazio lista a categoria.",
+                        "description": "Termo de 3 a 100 caracteres (m\u00ednimo de tr\u00eas letras/n\u00fameros seguidos). Vazio lista a categoria. @ inicial busca handle.",
                         "required": false,
                         "deprecated": false,
                         "schema": [],
@@ -5368,7 +5368,7 @@
                     {
                         "name": "type",
                         "in": "query",
-                        "description": "Categoria; all retorna at\u00e9 tr\u00eas itens por se\u00e7\u00e3o.",
+                        "description": "Categoria; all retorna at\u00e9 tr\u00eas itens por se\u00e7\u00e3o, sem cursor.",
                         "required": false,
                         "deprecated": false,
                         "schema": {
@@ -5378,6 +5378,7 @@
                                 "comunas",
                                 "people",
                                 "posts",
+                                "events",
                                 "documents"
                             ]
                         },
@@ -5411,7 +5412,7 @@
                     {
                         "name": "cursor",
                         "in": "query",
-                        "description": "Cursor de next da categoria escolhida. N\u00e3o aceito com all.",
+                        "description": "Cursor de next da categoria. Busca com termo usa v1_relev\u00e2ncia_desempate_id. Sem termo, UUID. N\u00e3o aceito com all.",
                         "required": false,
                         "deprecated": false,
                         "schema": [],
@@ -12922,6 +12923,12 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/LibraryDocument"
+                        }
+                    },
+                    "events": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Event"
                         }
                     }
                 }

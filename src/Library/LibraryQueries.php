@@ -33,8 +33,11 @@ final readonly class LibraryQueries
         }
         $where = '('.('comuna' === $scope ? LibraryAccess::visibleCard() : LibraryAccess::readable()).')';
         $params = ['viewer' => $viewer->getId()->toRfc4122()];
+        $discovery = true === $request->attributes->get('discovery_search');
         if ('public' === $scope) {
-            $where .= ' AND d.is_public';
+            if (!($discovery && '' !== $term)) {
+                $where .= ' AND d.is_public';
+            }
         } elseif ('personal' === $scope) {
             $where .= ' AND d.user_id = :owner';
             $params['owner'] = $request->query->getString('owner', $params['viewer']);
@@ -70,19 +73,22 @@ final readonly class LibraryQueries
                 $topicLabels .= "WHEN '".$t->value."' THEN ".$this->em->getConnection()->quote($t->describe()['label']).' ';
             }
             $topicLabels .= "ELSE '' END";
-            $where .= ' AND (('.LibraryAccess::readable().") AND (popularia_search_text(d.title || ' ' || d.description) LIKE popularia_search_text(:q) ESCAPE '!'
+            $where .= ' AND ('.LibraryAccess::readable().") AND (popularia_search_text(d.title || ' ' || d.description) LIKE popularia_search_text(:q) ESCAPE '!'
                 OR popularia_search_text(COALESCE(d.author, '')) LIKE popularia_search_text(:q) ESCAPE '!'
                 OR popularia_search_text(col.name) LIKE popularia_search_text(:q) ESCAPE '!'
                 OR popularia_search_text(a.display_name || ' ' || a.handle) LIKE popularia_search_text(:q) ESCAPE '!'
                 OR popularia_search_text(COALESCE(c.name, '')) LIKE popularia_search_text(:q) ESCAPE '!'
-                OR popularia_search_text($topicLabels) LIKE popularia_search_text(:q) ESCAPE '!') OR popularia_search_text(d.title) LIKE popularia_search_text(:q) ESCAPE '!')";
+                OR popularia_search_text($topicLabels) LIKE popularia_search_text(:q) ESCAPE '!'
+                OR popularia_search_text(d.title) LIKE popularia_search_text(:q) ESCAPE '!'
+                OR (:q_fuzzy = 1 AND similarity(popularia_search_text(d.title), popularia_search_text(:exact)) >= 0.4))";
             $params['q'] = '%'.strtr($term, ['!' => '!!', '%' => '!%', '_' => '!_']).'%';
+            $params['exact'] = $term;
+            $params['q_fuzzy'] = mb_strlen($term) >= \App\Discovery\SearchRank::FUZZY_MIN ? 1 : 0;
         }
         $rank = '0';
         $ranked = '' !== $term && 'relevance' === $sort;
         if ($ranked) {
-            $rank = "CASE WHEN popularia_search_text(d.title) = popularia_search_text(:exact) THEN 3 WHEN popularia_search_text(d.title) LIKE popularia_search_text(:prefix) ESCAPE '!' THEN 2 WHEN popularia_search_text(d.title) LIKE popularia_search_text(:q) ESCAPE '!' THEN 1 ELSE 0 END";
-            $params['exact'] = $term;
+            $rank = "CASE WHEN popularia_search_text(d.title) = popularia_search_text(:exact) THEN 3 WHEN popularia_search_text(d.title) LIKE popularia_search_text(:prefix) ESCAPE '!' THEN 2 WHEN popularia_search_text(d.title) LIKE popularia_search_text(:q) ESCAPE '!' OR (:q_fuzzy = 1 AND similarity(popularia_search_text(d.title), popularia_search_text(:exact)) >= 0.4) THEN 1 ELSE 0 END";
             $params['prefix'] = strtr($term, ['!' => '!!', '%' => '!%', '_' => '!_']).'%';
         }
         if (null !== $page->cursor) {

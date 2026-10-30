@@ -1,0 +1,182 @@
+{
+  "staging": {
+    "bundleIdentifier": "com.popularia.mobile",
+    "associatedDomains": [
+      "applinks:api-stg.popularia.com.br"
+    ],
+    "entitlements": {
+      "com.apple.developer.associated-domains": [
+        "applinks:api-stg.popularia.com.br"
+      ],
+      "com.apple.developer.applesignin": [
+        "Default"
+      ],
+      "aps-environment": "development"
+    },
+    "ats": {
+      "NSAllowsArbitraryLoads": false
+    },
+    "urlTypes": [
+      {
+        "CFBundleURLSchemes": [
+          "populariamobile",
+          "com.popularia.mobile"
+        ]
+      },
+      {
+        "CFBundleURLSchemes": [
+          "com.googleusercontent.apps.1009324469949-g0jt9vfoalp1pl4q1c3ro2c020m4694o"
+        ]
+      }
+    ],
+    "androidPackage": "com.popularia.mobile",
+    "intentFilters": [
+      {
+        "action": "VIEW",
+        "autoVerify": true,
+        "category": [
+          "BROWSABLE",
+          "DEFAULT"
+        ],
+        "data": [
+          {
+            "scheme": "https",
+            "host": "api-stg.popularia.com.br",
+            "pathPrefix": "/p/"
+          },
+          {
+            "scheme": "https",
+            "host": "api-stg.popularia.com.br",
+            "pathPrefix": "/u/"
+          },
+          {
+            "scheme": "https",
+            "host": "api-stg.popularia.com.br",
+            "pathPrefix": "/c/"
+          },
+          {
+            "scheme": "https",
+            "host": "api-stg.popularia.com.br",
+            "pathPrefix": "/d/"
+          },
+          {
+            "scheme": "https",
+            "host": "api-stg.popularia.com.br",
+            "pathPrefix": "/e/"
+          },
+          {
+            "scheme": "https",
+            "host": "api-stg.popularia.com.br",
+            "pathPrefix": "/t/"
+          }
+        ]
+      }
+    ],
+    "blockedPermissions": [
+      "android.permission.RECORD_AUDIO",
+      "android.permission.CAMERA",
+      "android.permission.ACCESS_FINE_LOCATION",
+      "android.permission.ACCESS_COARSE_LOCATION",
+      "android.permission.ACCESS_BACKGROUND_LOCATION",
+      "android.permission.READ_CONTACTS",
+      "android.permission.WRITE_CONTACTS",
+      "android.permission.READ_MEDIA_IMAGES",
+      "android.permission.READ_MEDIA_VIDEO",
+      "android.permission.READ_MEDIA_AUDIO",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+      "android.permission.SYSTEM_ALERT_WINDOW",
+      "com.google.android.gms.permission.AD_ID"
+    ]
+  },
+  "production": {
+    "bundleIdentifier": "com.popularia.mobile",
+    "associatedDomains": [
+      "applinks:api.popularia.com.br"
+    ],
+    "entitlements": {
+      "com.apple.developer.associated-domains": [
+        "applinks:api.popularia.com.br"
+      ],
+      "com.apple.developer.applesignin": [
+        "Default"
+      ],
+      "aps-environment": "development"
+    },
+    "ats": {
+      "NSAllowsArbitraryLoads": false
+    },
+    "urlTypes": [
+      {
+        "CFBundleURLSchemes": [
+          "populariamobile",
+          "com.popularia.mobile"
+        ]
+      },
+      {
+        "CFBundleURLSchemes": [
+          "com.googleusercontent.apps.1009324469949-a7n9k5v7ddbnf6vgk57nejesv67ij0h3"
+        ]
+      }
+    ],
+    "androidPackage": "com.popularia.mobile",
+    "intentFilters": [
+      {
+        "action": "VIEW",
+        "autoVerify": true,
+        "category": [
+          "BROWSABLE",
+          "DEFAULT"
+        ],
+        "data": [
+          {
+            "scheme": "https",
+            "host": "api.popularia.com.br",
+            "pathPrefix": "/p/"
+          },
+          {
+            "scheme": "https",
+            "host": "api.popularia.com.br",
+            "pathPrefix": "/u/"
+          },
+          {
+            "scheme": "https",
+            "host": "api.popularia.com.br",
+            "pathPrefix": "/c/"
+          },
+          {
+            "scheme": "https",
+            "host": "api.popularia.com.br",
+            "pathPrefix": "/d/"
+          },
+          {
+            "scheme": "https",
+            "host": "api.popularia.com.br",
+            "pathPrefix": "/e/"
+          },
+          {
+            "scheme": "https",
+            "host": "api.popularia.com.br",
+            "pathPrefix": "/t/"
+          }
+        ]
+      }
+    ],
+    "blockedPermissions": [
+      "android.permission.RECORD_AUDIO",
+      "android.permission.CAMERA",
+      "android.permission.ACCESS_FINE_LOCATION",
+      "android.permission.ACCESS_COARSE_LOCATION",
+      "android.permission.ACCESS_BACKGROUND_LOCATION",
+      "android.permission.READ_CONTACTS",
+      "android.permission.WRITE_CONTACTS",
+      "android.permission.READ_MEDIA_IMAGES",
+      "android.permission.READ_MEDIA_VIDEO",
+      "android.permission.READ_MEDIA_AUDIO",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+      "android.permission.SYSTEM_ALERT_WINDOW",
+      "com.google.android.gms.permission.AD_ID"
+    ]
+  }
+}

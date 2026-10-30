@@ -212,6 +212,7 @@ final readonly class PushWorker
     private static function body(NotificationType $type): string
     {
         return match ($type) {
+            NotificationType::PostRemoved, NotificationType::CommentRemoved => 'Você recebeu um aviso da moderação.',
             NotificationType::Follow => 'Você tem um novo seguidor.',
             NotificationType::Comment => 'Sua publicação recebeu um comentário.',
             NotificationType::Reply, NotificationType::SquareReply => 'Você recebeu uma resposta.',

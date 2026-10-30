@@ -82,6 +82,26 @@ final class ComunaPinnedPostTest extends ApiTestCase
         self::assertSame(0, $this->pinCount($comuna));
     }
 
+    public function testPinnedPollKeepsEveryOptionAndOtherPins(): void
+    {
+        $owner = $this->createUser('dona');
+        $comuna = $this->createComuna('tarifa', owner: $owner);
+        $token = $this->login('dona@exemplo.org')['accessToken'];
+        $text = $this->createPost($owner, $comuna, 'Outro aviso');
+        $this->request('PUT', $this->pinPath($comuna, $text), token: $token);
+        $poll = $this->request('POST', '/posts', [
+            'body' => 'Qual dia?', 'comunaId' => $comuna->getId()->toRfc4122(),
+            'poll' => ['question' => 'Qual dia?', 'options' => [['label' => 'Segunda'], ['label' => 'Terça'], ['label' => 'Quarta'], ['label' => 'Quinta']]],
+        ], $token);
+        $this->assertStatus(201);
+        $this->request('PUT', $this->listPath($comuna).'/'.$poll['id'], token: $token);
+        $this->assertStatus(200);
+        $list = $this->request('GET', $this->listPath($comuna), token: $token);
+        self::assertCount(2, $list['items']);
+        self::assertCount(4, $list['items'][0]['poll']['options']);
+        self::assertSame($text->getId()->toRfc4122(), $list['items'][1]['id']);
+    }
+
     public function testFourthPinIsRejectedAndTheExistingOnesStay(): void
     {
         $owner = $this->createUser('dona');
@@ -227,7 +247,7 @@ final class ComunaPinnedPostTest extends ApiTestCase
         self::assertSame(0, $this->pinCount($comuna));
     }
 
-    public function testRemovedDeletedAndSuspendedPostsDoNotStayPinned(): void
+    public function testRemovedAndDeletedPinsAreReleasedButSuspensionOnlyHidesThem(): void
     {
         $owner = $this->createUser('dona');
         $comuna = $this->createComuna('tarifa', owner: $owner);
@@ -266,7 +286,12 @@ final class ComunaPinnedPostTest extends ApiTestCase
         $list = $this->request('GET', $this->listPath($comuna), token: $token);
         self::assertSame([], $list['items']);
         self::assertStringNotContainsString('Conta some', (string) json_encode($list));
-        self::assertSame(0, $this->pinCount($comuna));
+        self::assertSame(1, $this->pinCount($comuna));
+        $account = $this->fresh(User::class, $author->getId());
+        $account->changeStatus(AccountStatus::Active, new \DateTimeImmutable());
+        $this->em()->flush();
+        $restored = $this->request('GET', $this->listPath($comuna), token: $token);
+        self::assertSame($suspended->getId()->toRfc4122(), $restored['items'][0]['id']);
     }
 
     public function testSuspendedModeratorCannotPin(): void

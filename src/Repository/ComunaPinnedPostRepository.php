@@ -8,7 +8,6 @@ use App\Entity\Comuna;
 use App\Entity\ComunaPinnedPost;
 use App\Entity\Post;
 use App\Entity\User;
-use App\Enum\AccountStatus;
 use App\Enum\ContentStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -49,18 +48,16 @@ class ComunaPinnedPostRepository extends ServiceEntityRepository
         return $this->findOneBy(['comuna' => $comuna, 'post' => Uuid::fromString($postId)]);
     }
 
-    /** Publicação publicada de conta ativa, ainda desta comuna, que ocupa uma vaga indevida. */
+    /** Pin cujo conteúdo foi removido/excluído ou deixou de pertencer à comuna. */
     public function hasIneligible(Comuna $comuna): bool
     {
         $count = $this->createQueryBuilder('pin')
             ->select('COUNT(pin.id)')
             ->join('pin.post', 'p')
-            ->join('p.author', 'a')
             ->where('pin.comuna = :comuna')
-            ->andWhere('p.status != :published OR a.status != :active OR p.comuna != :comuna')
+            ->andWhere('p.status != :published OR p.comuna IS NULL OR p.comuna != :comuna')
             ->setParameter('comuna', $comuna)
             ->setParameter('published', ContentStatus::Published)
-            ->setParameter('active', AccountStatus::Active)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -89,8 +86,9 @@ class ComunaPinnedPostRepository extends ServiceEntityRepository
             ->setParameter('comuna', $comuna)
             ->orderBy('pin.position', 'ASC')
             ->addOrderBy('pin.pinnedAt', 'ASC')
-            ->addOrderBy('pollOption.position', 'ASC')
-            ->setMaxResults(ComunaPinnedPost::MAX_PER_COMUNA);
+            // A comuna já tem no máximo três pins por constraint/trigger. LIMIT nas
+            // linhas do JOIN cortava opções de enquetes e até os pins seguintes.
+            ->addOrderBy('pollOption.position', 'ASC');
         $this->posts->applyVisibility($qb, 'p', 'a', 'c', $viewer);
 
         /** @var list<ComunaPinnedPost> $pins */

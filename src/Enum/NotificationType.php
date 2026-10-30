@@ -26,4 +26,6 @@ enum NotificationType: string
     case EventUpdated = 'event_updated';
     case EventCancelled = 'event_cancelled';
     case EventReminder = 'event_reminder';
+    case PostRemoved = 'post_removed';
+    case CommentRemoved = 'comment_removed';
 }

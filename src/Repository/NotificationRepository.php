@@ -74,6 +74,7 @@ class NotificationRepository extends ServiceEntityRepository
             ->leftJoin('n.squareMessage', 'sm')->leftJoin('sm.square', 'sq')->leftJoin('sm.replyTo', 'sp')->leftJoin('sp.author', 'spa')
             ->leftJoin('n.event', 'ev')
             ->where('n.recipient = :viewer')
+            ->andWhere("(c.id IS NULL OR c.status <> 'suspended')")
             ->andWhere('(sm.id IS NULL OR (sm.status = :published AND sp.status = :published AND spa.status = :active))')
             ->andWhere('(a.id IS NULL OR a.status = :active)')
             ->andWhere('(p.id IS NULL OR (p.status = :published AND pa.status = :active))')

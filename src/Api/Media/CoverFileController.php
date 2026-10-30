@@ -25,7 +25,10 @@ final readonly class CoverFileController
             throw ApiProblem::notFound();
         }
         $comuna = $this->em->find(Comuna::class, Uuid::fromString($comunaId));
+        if (null === $comuna || $comuna->isSuspended()) {
+            throw ApiProblem::notFound();
+        }
 
-        return $this->images->stream($comuna?->getCoverKey(), 'comuna-covers', $fileId);
+        return $this->images->stream($comuna->getCoverKey(), 'comuna-covers', $fileId);
     }
 }

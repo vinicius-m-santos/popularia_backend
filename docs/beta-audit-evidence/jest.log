@@ -1,0 +1,10 @@
+
+> popularia_mobile@1.0.0 test
+> jest --runInBand --detectOpenHandles
+
+
+Test Suites: 68 passed, 68 total
+Tests:       426 passed, 426 total
+Snapshots:   0 total
+Time:        22.998 s, estimated 23 s
+Ran all test suites.

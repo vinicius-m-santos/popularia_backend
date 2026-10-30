@@ -20,6 +20,7 @@ use App\Repository\ComunaMembershipRepository;
 use App\Repository\UserBlockRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Enqueues persistence in the caller's transaction, never flushes or delivers externally.
@@ -27,6 +28,19 @@ use Symfony\Component\Clock\ClockInterface;
  */
 final readonly class NotificationCreator
 {
+    /** Aviso privado e genérico; nunca inclui denunciante, moderador ou nota interna. */
+    public function contentRemoved(Post|Comment $content): void
+    {
+        if (!$content->getAuthor()->isActive()) {
+            return;
+        }
+        // Uma notificação por conteúdo, inclusive quando denúncias distintas são decididas em paralelo.
+        $this->em->getConnection()->executeStatement(
+            'INSERT INTO notification (id, recipient_id, type, event_key, created_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT (recipient_id, type, event_key) DO NOTHING',
+            [Uuid::v7()->toRfc4122(), $content->getAuthor()->getId()->toRfc4122(), $content instanceof Post ? NotificationType::PostRemoved->value : NotificationType::CommentRemoved->value, $content->getId()->toRfc4122(), $this->clock->now()->format(\DATE_ATOM)],
+        );
+    }
+
     public function __construct(
         private EntityManagerInterface $em,
         private ClockInterface $clock,

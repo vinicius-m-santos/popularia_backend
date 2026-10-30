@@ -19,6 +19,7 @@ use App\Entity\User;
 use App\Enum\AccountStatus;
 use App\Enum\PlatformRole;
 use App\Enum\ReportReason;
+use App\Notification\NotificationCreator;
 use App\Repository\ComunaRepository;
 use App\Repository\UserBlockRepository;
 use App\Security\RateLimitGuard;
@@ -50,6 +51,7 @@ final readonly class ReportModeration
         private SessionManager $sessions,
         private RateLimitGuard $limits,
         private ClockInterface $clock,
+        private NotificationCreator $notifications,
     ) {
     }
 
@@ -475,6 +477,7 @@ final readonly class ReportModeration
         $comuna = $post->getComuna();
         if ($this->isPlatform($actor) || null === $comuna) {
             $post->removeByModeration();
+            $this->notifications->contentRemoved($post);
             $this->em->flush();
             $this->pins->release($post);
             $this->audit->record($actor, 'platform.post_removed', $post->getAuthor()->getId(), $reason, [
@@ -492,6 +495,7 @@ final readonly class ReportModeration
         $comuna = $comment->getPost()->getComuna();
         if ($this->isPlatform($actor) || null === $comuna) {
             $comment->removeByModeration();
+            $this->notifications->contentRemoved($comment);
             $this->em->flush();
             $this->audit->record($actor, 'platform.comment_removed', $comment->getAuthor()->getId(), $reason, [
                 'comment_id' => $comment->getId()->toRfc4122(),

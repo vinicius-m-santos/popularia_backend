@@ -47,7 +47,7 @@ final readonly class AccountDeletionService
                 'DELETE FROM content_mention WHERE mentioned_user_id = ?',
                 'DELETE FROM content_mention WHERE post_id IN (SELECT id FROM post WHERE author_id = ?)',
                 'DELETE FROM content_mention WHERE comment_id IN (SELECT id FROM comment WHERE author_id = ?)',
-                'DELETE FROM content_report WHERE reporter_id = ?',
+                'UPDATE content_report SET reporter_id = NULL, reason = \'\' WHERE reporter_id = ?',
                 'DELETE FROM library_save WHERE user_id = ?',
                 'DELETE FROM saved_post WHERE user_id = ?',
                 'DELETE FROM gamification_entry WHERE user_id = ?',

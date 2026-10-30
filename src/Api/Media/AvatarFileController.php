@@ -25,7 +25,10 @@ final readonly class AvatarFileController
             throw ApiProblem::notFound();
         }
         $user = $this->em->find(User::class, Uuid::fromString($userId));
+        if (null === $user || !$user->isActive()) {
+            throw ApiProblem::notFound();
+        }
 
-        return $this->images->stream($user?->getAvatarKey(), 'avatars', $fileId);
+        return $this->images->stream($user->getAvatarKey(), 'avatars', $fileId);
     }
 }

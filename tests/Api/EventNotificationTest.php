@@ -185,6 +185,70 @@ final class EventNotificationTest extends ApiTestCase
         return static::getContainer()->get(EventReminderWorker::class);
     }
 
+    public function testSuspendedComunaDoesNotLeakNotificationQuotesOrDispatchReminders(): void
+    {
+        $this->mockTime('2026-11-01T15:00:00+00:00');
+        [$ownerToken, $goingToken, $event] = $this->pair('+30 hours');
+        $current = $this->request('GET', '/events/'.$event, token: $ownerToken);
+        $this->request('PATCH', '/events/'.$event, $this->eventEdit($current, ['placeName' => 'LOCAL RESTRITO']), $ownerToken);
+        self::assertNotEmpty($this->request('GET', '/me/notifications', token: $goingToken)['items']);
+        $comuna = $this->em()->getRepository(Comuna::class)->findOneBy(['slug' => 'londrina']);
+        self::assertInstanceOf(Comuna::class, $comuna);
+        $comuna->suspend();
+        $this->em()->flush();
+        self::assertSame([], $this->request('GET', '/me/notifications', token: $goingToken)['items']);
+        self::assertSame(0, $this->request('GET', '/me/notifications/unread-count', token: $goingToken)['unreadCount']);
+        $this->mockTime('2026-11-01T22:00:00+00:00');
+        $this->worker()->dispatchDue(10);
+        self::assertSame(0, (int) $this->em()->getConnection()->fetchOne("SELECT COUNT(*) FROM notification WHERE type = 'event_reminder'"));
+    }
+
+    public function testPrivateRejoinRecreatesMissingReminderWithoutRepeatingSentReminder(): void
+    {
+        $this->mockTime('2026-11-01T15:00:00+00:00');
+        $owner = $this->createUser('dona');
+        $going = $this->createUser('vai');
+        $comuna = $this->createComuna('fechada', ComunaVisibility::Private, $owner);
+        $this->addMember($comuna, $going);
+        $ownerToken = $this->login('dona@exemplo.org')['accessToken'];
+        $goingToken = $this->login('vai@exemplo.org')['accessToken'];
+        $event = $this->request('POST', '/comunas/fechada/events', $this->eventBody('+30 hours'), $ownerToken)['id'];
+        $this->request('PUT', '/events/'.$event.'/attendance', ['status' => 'going'], $goingToken);
+        $this->request('DELETE', '/comunas/fechada/membership', token: $goingToken);
+        $this->mockTime('2026-11-01T22:00:00+00:00');
+        $this->worker()->dispatchDue(10);
+        self::assertFalse($this->reminder($event));
+
+        // Ainda faltam 23 horas: a aprovação deve reconstruir o lembrete sem mudar RSVP.
+        $ownerToken = $this->login('dona@exemplo.org')['accessToken'];
+        $goingToken = $this->login('vai@exemplo.org')['accessToken'];
+        $request = $this->request('PUT', '/comunas/fechada/join-request', token: $goingToken);
+        $this->request('POST', '/comunas/fechada/join-requests/'.$request['id'].'/approve', token: $ownerToken);
+        $this->assertStatus(200);
+        self::assertNull($this->requireReminder($event)['sent_at']);
+        $this->mockTime('2026-11-02T20:00:00+00:00');
+        $this->worker()->dispatchDue(10);
+        self::assertNotNull($this->requireReminder($event)['sent_at']);
+        self::assertSame(0, $this->worker()->dispatchDue(10));
+        self::assertSame(1, (int) $this->em()->getConnection()->fetchOne("SELECT COUNT(*) FROM notification WHERE type = 'event_reminder'"));
+    }
+
+    public function testPublicRejoinKeepsAlreadySentReminder(): void
+    {
+        $this->mockTime('2026-11-01T15:00:00+00:00');
+        [, , $event] = $this->pair('+48 hours');
+        $this->mockTime('2026-11-02T16:00:00+00:00');
+        self::assertSame(1, $this->worker()->dispatchDue(10));
+        $sent = $this->requireReminder($event)['sent_at'];
+        self::assertNotNull($sent);
+        $token = $this->login('vailondrina@exemplo.org')['accessToken'];
+        $this->request('DELETE', '/comunas/londrina/membership', token: $token);
+        $this->request('PUT', '/comunas/londrina/membership', token: $token);
+        $this->assertStatus(200);
+        self::assertSame($sent, $this->requireReminder($event)['sent_at']);
+        self::assertSame(0, $this->worker()->dispatchDue(10));
+    }
+
     /** @return array{0: string, 1: string, 2: string} */
     private function pair(string $modify, string $slug = 'londrina'): array
     {

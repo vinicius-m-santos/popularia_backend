@@ -164,7 +164,18 @@ não entra na busca nem no OG, e não aceita publicação, comentário ou voto.
 ## 25. Snapshot
 
 Até 280 caracteres do texto, sem HTML, no momento da denúncia. Não copia PDF, imagem, vídeo nem perfil inteiro.
-É dado privado da moderação. Retenção longa fica como dívida.
+É dado privado da moderação, não uma cópia pública do recurso. O caso, motivo estruturado,
+snapshot e auditoria sobrevivem à exclusão de conta/comuna. `reporter_id` fica nulo e a descrição
+livre enviada pelo denunciante é apagada; apagar a comuna torna o caso órfão de escopo `platform`.
+Isso requer `Version20261110120000`; casos já apagados antes dela não são recuperáveis.
+
+Não há prazo/purge automático de snapshots implementado. Antes do beta externo, o controlador
+precisa aprovar prazo para casos abertos/encerrados, responsável pela revisão, exceções de
+preservação e tratamento em backups. Não usar os 180 dias de security_event como prazo implícito
+para reports. Até essa decisão, acesso apenas pela moderação autorizada; não exportar snapshots
+para analytics/Sentry. UUID, snapshot e auditoria podem continuar correlacionáveis: reporter nulo
+não significa anonimização irreversível. Exclusão de conteúdo pessoal não apaga silenciosamente
+uma evidência de abuso. Esta é uma pendência BEFORE BETA, não retenção indefinida aprovada.
 
 ## 26. Privacidade
 
@@ -181,7 +192,7 @@ O bloqueio só acontece se a pessoa tocar. Não aparece na denúncia de comuna.
 
 Não há aviso só porque alguém foi denunciado. Não há push de fila. Não há categoria nova.
 A suspensão aparece porque a sessão cai e o login explica a conta suspensa.
-A remoção aparece porque o conteúdo some. Não há inbox de acompanhamento: o envio é fire-and-forget.
+A remoção de publicação/comentário gera aviso genérico ao autor ativo (`post_removed`/`comment_removed`), sem ator, trecho, denunciante ou nota interna. Uma vez por conteúdo, inclusive após restauração e nova remoção. O destino `notice` abre Avisos. Push usa a categoria existente `comunas`. Quem denunciou ainda não recebe acompanhamento do caso.
 
 ## 29. Trilha de auditoria
 
@@ -295,22 +306,22 @@ Mobile: folha de denúncia, motivos estruturados, fila local, fila da plataforma
 ## 45. Limitações deliberadas
 
 - Suspensão sem data de fim.
-- Sem aviso ao autor quando o conteúdo é removido.
+- Aviso ao autor implementado para publicação/comentário. Praça/Biblioteca mantêm fluxos legados.
 - Sem acompanhamento da denúncia para quem denunciou.
 - Sem recurso, strikes, shadowban ou punição por contagem.
 - Mídia não é apagada. A URL assinada (300 s) só é emitida se a publicação ainda for visível. URL já emitida ou objeto público de CDN, se existir fora dessa assinatura, não ganhou um coletor nesta tarefa.
 - Comuna suspensa não conta no limite de 3 comunas ativas do fundador, porque o gatilho só conta `status = active`.
-- Apagar a linha da comuna ainda apaga as denúncias locais (`ON DELETE CASCADE`). A denúncia da comuna em si sobrevive, porque `comuna_id` é nulo.
-- Apagar a conta de quem denunciou ainda apaga as denúncias feitas por essa conta.
-- Praça e biblioteca não migraram para os motivos novos.
+- Denúncias sobrevivem à exclusão da comuna via SET NULL; trigger muda escopo para plataforma.
+- Denúncias sobrevivem à exclusão do denunciante; referência e descrição livre são removidas.
+- Praça e biblioteca usam os mesmos rótulos de motivos no mobile; seus endpoints legados continuam recebendo texto.
 - Modo demonstração continua só no aparelho.
 
 ## 46. Dívida técnica encontrada
 
-- A seção 5 de `moderacao.md` ainda lista alguns nomes antigos de auditoria. O código grava nomes com ponto (`comuna.post_removed`).
+- Nomes de auditoria da seção 5 de `moderacao.md` alinhados ao código na auditoria de beta.
 - O desenho de `report_case` / recurso nunca foi o caminho implementado. A V1 não o construiu.
-- PHP CS Fixer aponta 5 arquivos anteriores a esta tarefa.
-- O índice parcial do Doctrine pode divergir num `schema:validate` completo de banco. O mapping isolado passou. Não rodar `schema:update`.
+- PHP CS Fixer passou após corrigir cinco inconsistências pequenas preexistentes de formatação.
+- Metadados dos índices parciais de content_report alinhados ao PostgreSQL. `schema:validate` ainda aponta outros índices/composites geridos por migrations; o mapping passa. Não rodar `schema:update --force`; diff diagnóstico em beta-audit-evidence.
 
 ## 47. Configuração externa
 

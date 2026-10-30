@@ -173,7 +173,9 @@ final readonly class ComunaPins
         foreach ($this->pins->ordered($comuna) as $pin) {
             $post = $pin->getPost();
             $same = $post->getComuna()?->getId()->equals($comuna->getId()) ?? false;
-            if ($same && $post->isPublished() && $post->getAuthor()->isActive()) {
+            // Suspensão da autoria é reversível; a escolha editorial pertence à comuna.
+            // A política de leitura oculta o post enquanto a conta está suspensa.
+            if ($same && $post->isPublished()) {
                 $kept[] = $pin;
             } else {
                 $this->em->remove($pin);

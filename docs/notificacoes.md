@@ -50,6 +50,7 @@ subconsulta, sem carregar todos os IDs em PHP.
 | `follow` | Pessoa seguida; em perfil privado, apenas após aprovação |
 | `comment` | Autoria da publicação |
 | `reply` | Autoria do comentário pai; prevalece sobre `comment` para a mesma pessoa/evento |
+| `post_removed` / `comment_removed` | Autor ativo; aviso genérico sem ator/trecho, deduplicado por conteúdo; destino `notice`, push na categoria `comunas` |
 | `comment_support` (novo) | Autoria do comentário apoiado; um aviso por ator/comentário durante toda a vida do recurso |
 | `square_reply` | Autoria da mensagem respondida na Praça, respeitando acesso à comuna |
 | `join_requested` | Moderação/proprietário habilitados a analisar o pedido |

@@ -52,7 +52,7 @@ final readonly class WaitlistProcessor implements ProcessorInterface
             [$local, $domain] = explode('@', $email, 2);
             $local = strstr($local, '+', true) ?: $local;
             $local = str_replace('.', '', $local);
-            $email = $local . '@' . $domain;
+            $email = $local.'@'.$domain;
         }
 
         return $email;

@@ -6,8 +6,8 @@ namespace App\Api\Library;
 
 use App\Api\ApiProblem;
 use App\Library\LocalFilesystemStorage;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class LocalFileController
@@ -64,8 +64,8 @@ final class LocalFileController
         }, $status, $headers);
     }
 
-    /** @return array{int, int}|null|false */
-    private function range(?string $header, int $size): array|null|false
+    /** @return array{int, int}|false|null */
+    private function range(?string $header, int $size): array|false|null
     {
         if (null === $header || '' === $header) {
             return null;

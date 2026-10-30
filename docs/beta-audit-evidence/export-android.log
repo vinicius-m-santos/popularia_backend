@@ -1,0 +1,57 @@
+env: load .env
+env: export EXPO_PUBLIC_API_URL EXPO_PUBLIC_SENTRY_DSN EXPO_PUBLIC_SENTRY_ENVIRONMENT
+Using src/app as the root directory for Expo Router.
+React Compiler enabled
+Starting Metro Bundler
+
+ WARN  The package /home/vini/projects/popularia_mobile/node_modules/expo-router contains an invalid package.json configuration. Consider raising this issue with the package maintainer(s).
+Reason: The resolution for "/home/vini/projects/popularia_mobile/node_modules/expo-router/build/global-state/router-store" defined in "exports" is /home/vini/projects/popularia_mobile/node_modules/expo-router/build/global-state/router-store.js, however this file does not exist. Falling back to file-based resolution.
+ WARN  The package /home/vini/projects/popularia_mobile/node_modules/expo-router contains an invalid package.json configuration. Consider raising this issue with the package maintainer(s).
+Reason: The resolution for "/home/vini/projects/popularia_mobile/node_modules/expo-router/build/global-state/router-store" defined in "exports" is /home/vini/projects/popularia_mobile/node_modules/expo-router/build/global-state/router-store.js, however this file does not exist. Falling back to file-based resolution.
+ WARN  The package /home/vini/projects/popularia_mobile/node_modules/expo-router contains an invalid package.json configuration. Consider raising this issue with the package maintainer(s).
+Reason: The resolution for "/home/vini/projects/popularia_mobile/node_modules/expo-router/build/global-state/router-store" defined in "exports" is /home/vini/projects/popularia_mobile/node_modules/expo-router/build/global-state/router-store.js, however this file does not exist. Falling back to file-based resolution.
+Android Bundled 50844ms node_modules/expo-router/entry.js (2974 modules)
+
+› Assets (46):
+assets/branding/popularia-symbol.png (318KB)
+assets/comunas/comuna-hero-people.png (2.9MB)
+assets/create/create-comuna-optimized.png (532KB)
+assets/create/create-hero-optimized.png (449KB)
+assets/create/create-pdf-optimized.png (492KB)
+assets/create/create-publication-optimized.png (354KB)
+assets/library/library-explore-banner.png (1.8MB)
+assets/library/library-hero-illustration.png (2MB)
+assets/onboarding/login-welcome-illustration.png (2.3MB)
+assets/onboarding/login-welcome-poster.png (2.2MB)
+assets/squares/square-entry-banner.png (2MB)
+assets/squares/squares-hero-park-illustration.png (2.7MB)
+node_modules/@expo-google-fonts/anton/400Regular/Anton_400Regular.ttf (162KB)
+node_modules/@expo-google-fonts/archivo-narrow/700Bold/ArchivoNarrow_700Bold.ttf (64KB)
+node_modules/@expo-google-fonts/archivo/400Regular/Archivo_400Regular.ttf (120KB)
+node_modules/@expo-google-fonts/archivo/700Bold/Archivo_700Bold.ttf (121KB)
+node_modules/@expo-google-fonts/archivo/800ExtraBold/Archivo_800ExtraBold.ttf (121KB)
+node_modules/@expo-google-fonts/ibm-plex-mono/500Medium/IBMPlexMono_500Medium.ttf (135KB)
+node_modules/@expo-google-fonts/ibm-plex-mono/600SemiBold/IBMPlexMono_600SemiBold.ttf (138KB)
+node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf (357KB)
+node_modules/expo-router/assets/arrow_down.png (9.5KB)
+node_modules/expo-router/assets/arrow_right.xml (307B)
+node_modules/expo-router/assets/checkmark.xml (312B)
+node_modules/expo-router/assets/error.png (469B)
+node_modules/expo-router/assets/file.png (138B)
+node_modules/expo-router/assets/forward.png (188B)
+node_modules/expo-router/assets/pkg.png (364B)
+node_modules/expo-router/assets/react-navigation/elements/back-icon-mask.png (653B)
+node_modules/expo-router/assets/react-navigation/elements/back-icon.png (4 variations | 152B)
+node_modules/expo-router/assets/react-navigation/elements/clear-icon.png (4 variations | 425B)
+node_modules/expo-router/assets/react-navigation/elements/close-icon.png (4 variations | 235B)
+node_modules/expo-router/assets/react-navigation/elements/search-icon.png (4 variations | 599B)
+node_modules/expo-router/assets/sitemap.png (465B)
+node_modules/expo-router/assets/unmatched.png (4.8KB)
+
+› android bundles (1):
+_expo/static/js/android/entry-655dac2caa45b10a5942d6b7b0945ded.hbc (8.2MB)
+
+› Files (1):
+metadata.json (3KB)
+
+Exported: /tmp/popularia-export-android

@@ -16,9 +16,10 @@ use Symfony\Component\Uid\Uuid;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'content_report')]
-#[ORM\UniqueConstraint(name: 'uniq_content_report_open', columns: ['reporter_id', 'target_type', 'target_id'], options: ['where' => "status IN ('pending', 'reviewing')"])]
+#[ORM\UniqueConstraint(name: 'uniq_content_report_open', columns: ['reporter_id', 'target_type', 'target_id'], options: ['where' => "((status)::text = ANY ((ARRAY['pending'::character varying, 'reviewing'::character varying])::text[]))"])]
 #[ORM\Index(name: 'idx_content_report_queue', columns: ['comuna_id', 'status', 'id'])]
-#[ORM\Index(name: 'idx_content_report_platform', columns: ['status', 'id'], options: ['where' => "(scope = 'platform' OR escalated = true)"])]
+#[ORM\Index(name: 'idx_content_report_platform', columns: ['status', 'id'], options: ['where' => "(((scope)::text = 'platform'::text) OR (escalated = true))"])]
+#[ORM\Index(name: 'idx_library_reports_platform', columns: ['target_type', 'status', 'id'], options: ['where' => "((target_type)::text = 'library_document'::text)"])]
 class ContentReport
 {
     public const int SNAPSHOT_MAX = 280;
@@ -40,7 +41,7 @@ class ContentReport
     public ?string $reasonCode = null;
 
     /** comuna: fila local. platform: fila da plataforma. Denúncia de comuna inteira é platform e comuna fica nula. */
-    #[ORM\Column(length: 16)]
+    #[ORM\Column(length: 16, options: ['default' => 'comuna'])]
     public string $scope = 'comuna';
 
     #[ORM\Column(options: ['default' => false])]
@@ -59,11 +60,11 @@ class ContentReport
 
     public function __construct(
         #[ORM\ManyToOne]
-        #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+        #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
         public ?Comuna $comuna,
         #[ORM\ManyToOne]
-        #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-        public User $reporter,
+        #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+        public ?User $reporter,
         #[ORM\Column(length: 32)]
         public string $targetType,
         #[ORM\Column(type: UuidType::NAME)]

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content;
 
+use App\Entity\Comuna;
 use App\Entity\ComunaEvent;
 use App\Entity\EventReminder;
 use App\Entity\User;
@@ -47,6 +48,26 @@ final readonly class EventReminders
             return;
         }
         $existing->reschedule($when);
+    }
+
+    /** Reentrada recupera só lembretes ausentes. O histórico enviado não é reiniciado. */
+    public function restoreMembership(Comuna $comuna, User $user): void
+    {
+        $this->em->getConnection()->executeStatement(<<<'SQL'
+            INSERT INTO event_reminder (id, event_id, user_id, remind_at, sent_at, sent_for_starts_at)
+            SELECT gen_random_uuid(), e.id, a.user_id,
+                e.starts_at - CASE WHEN e.starts_at < CAST(:now AS timestamptz) + INTERVAL '24 hours'
+                    THEN INTERVAL '1 hour' ELSE INTERVAL '24 hours' END, NULL, NULL
+            FROM event_attendance a INNER JOIN comuna_event e ON e.id = a.event_id
+            WHERE e.comuna_id = :comuna AND a.user_id = :user
+                AND a.status IN ('going', 'maybe') AND e.status = 'scheduled'
+                AND e.starts_at >= CAST(:now AS timestamptz) + INTERVAL '2 hours'
+            ON CONFLICT (event_id, user_id) DO NOTHING
+            SQL, [
+            'comuna' => $comuna->getId()->toRfc4122(),
+            'user' => $user->getId()->toRfc4122(),
+            'now' => $this->clock->now()->format(\DATE_ATOM),
+        ]);
     }
 
     public function rescheduleAll(ComunaEvent $event): void

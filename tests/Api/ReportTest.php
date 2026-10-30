@@ -26,6 +26,16 @@ final class ReportTest extends ApiTestCase
         $command = new CommandTester((new Application(self::$kernel))->find('app:reports:review'));
         $command->execute(['id' => $reports[0]->id->toRfc4122(), 'decision' => 'removed', 'reason' => 'Violação de segurança confirmada']);
         self::assertSame(0, $command->getStatusCode());
+        $inbox = $this->request('GET', '/me/notifications', token: $authorToken);
+        self::assertCount(1, $inbox['items']);
+        self::assertSame('post_removed', $inbox['items'][0]['type']);
+        self::assertSame('notice', $inbox['items'][0]['target']['kind']);
+        self::assertNull($inbox['items'][0]['actor']);
+        self::assertNull($inbox['items'][0]['quote']);
+        self::assertStringNotContainsString('leitora', json_encode($inbox, \JSON_THROW_ON_ERROR));
+        self::assertStringNotContainsString('Violação de segurança confirmada', json_encode($inbox, \JSON_THROW_ON_ERROR));
+        $command->execute(['id' => $reports[0]->id->toRfc4122(), 'decision' => 'removed', 'reason' => 'Repetição']);
+        self::assertCount(1, $this->request('GET', '/me/notifications', token: $authorToken)['items']);
         $this->request('GET', '/posts/'.$post->getId(), token: $token);
         $this->assertStatus(404);
         $this->request('POST', '/posts', ['body' => 'Conteúdo denunciado e removido'], $authorToken);

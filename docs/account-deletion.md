@@ -22,7 +22,7 @@ Priorizar apagar conteúdo pessoal e manter estrutura coletiva; não preservar t
 | PDFs pessoais | Remover distribuições e saves de todos; apagar título/descrição/nome original, retirar publicação pública; shells para FKs; marcar arquivo purge_pending |
 | PDFs de origem Comuna | Preservar documento/objeto/coleção e gestão da Comuna; responsible=null na resposta, nome original genérico; o PDF pode conter nome no próprio conteúdo — contato para exercício de direitos |
 | Salvos e coleções pessoais | Remover saves próprios; apagar nomes/descrições pessoais das coleções residuais |
-| Denúncias | Remover denúncias enviadas; casos de terceiros podem permanecer para apuração sem restabelecer perfil |
+| Denúncias | Preservar caso/snapshot estruturado; tornar reporter_id nulo e apagar a descrição livre enviada pela conta. Casos de terceiros também permanecem para apuração; retenção restrita descrita em moderacao-denuncias-v1.md |
 | Segurança, auditoria, evidence hold | Preservar sob política própria; 180 dias configurados para security_event com purge, exceções justificadas; auditoria sem expiração automática é pendência a resolver |
 | Logs/Brevo/Sentry/backups | Retenção do fornecedor, não eliminação instantânea. Operador deve atender pedidos nos fornecedores e confirmar prazos; não há sincronização automática de exclusão com todo fornecedor |
 

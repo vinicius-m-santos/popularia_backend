@@ -173,23 +173,23 @@ As seguintes ações ficam no `admin_audit_log` (ação → `actor`, `action`, `
 
 | Ação | `action` | `details` |
 | --- | --- | --- |
-| Criar uma comuna | `comunaCreated` | `{comunaId, slug, name, visibility}` |
-| Editar descrição/regras | `comunaUpdated` | `{comunaId, slug}` |
-| Arquivar | `comunaArchived` | `{comunaId, slug}` |
-| Excluir | `comunaDeleted` | `{comunaId, slug, name}` |
-| Remover membro | `memberRemoved` | `{comunaId, slug, handle, role}` |
-| Nomear moderador | `moderatorAppointed` | `{comunaId, slug, handle}` |
-| Dispensar moderador | `moderatorDismissed` | `{comunaId, slug, handle}` |
-| Propor transferência | `ownershipTransferProposed` | `{comunaId, slug, toHandle}` |
-| Aceitar transferência | `ownershipTransferAccepted` | `{comunaId, slug, fromHandle}` |
-| Recusar transferência | `ownershipTransferDeclined` | `{comunaId, slug, fromHandle}` |
-| Cancelar transferência | `ownershipTransferCancelled` | `{comunaId, slug}` |
-| Transferência pela equipe | `ownershipTransferredByPlatform` | `{comunaId, slug, fromHandle, toHandle}` |
-| Remover publicação | `postRemoved` | `{comunaId, postId}` |
-| Remover comentário | `commentRemoved` | `{comunaId, commentId}` |
+| Criar uma comuna | `comuna.created` | `{comuna_id, slug, visibility}` |
+| Editar descrição/regras | `comuna.details_updated` | `{comuna_id, slug, fields}` |
+| Arquivar | `comuna.archived` | `{comuna_id, slug}` |
+| Excluir | `comuna.deleted` | `{comuna_id, slug, name}` |
+| Remover membro | `comuna.member_removed` | `{comuna_id, slug, role}` |
+| Nomear moderador | `comuna.moderator_appointed` | `{comuna_id, slug}` |
+| Dispensar moderador | `comuna.moderator_dismissed` | `{comuna_id, slug}` |
+| Propor transferência | `comuna.ownership_transfer_proposed` | `{comuna_id, slug}` |
+| Aceitar transferência | `comuna.ownership_transferred` | `{comuna_id, slug, from}` |
+| Recusar transferência | `comuna.ownership_transfer_declined` | `{comuna_id, slug}` |
+| Cancelar transferência | `comuna.ownership_transfer_cancelled` | `{comuna_id, slug}` |
+| Transferência pela equipe | `comuna.ownership_transferred` | `{comuna_id, slug, from}` |
+| Remover publicação | `comuna.post_removed` | `{comuna_id, post_id}` |
+| Remover comentário | `comuna.comment_removed` | `{comuna_id, comment_id}` |
 
 O log é **só de inserção** (gatilho PostgreSQL recusa UPDATE, DELETE e TRUNCATE).
-O `details` inclui sempre o `comunaId` e o `slug`, que permitem rastrear ações mesmo depois
+O `details` inclui sempre o `comuna_id` e o `slug`, que permitem rastrear ações mesmo depois
 que a comuna é excluída.
 
 ## 6. Conta do fundador suspensa ou excluída

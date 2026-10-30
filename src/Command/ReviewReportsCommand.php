@@ -12,6 +12,7 @@ use App\Entity\ContentReport;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Enum\AccountStatus;
+use App\Notification\NotificationCreator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\Argument;
@@ -24,7 +25,7 @@ use Symfony\Component\Uid\Uuid;
 #[AsCommand(name: 'app:reports:review', description: 'Lista até 100 denúncias pendentes; decide post/comment/profile por UUID, dismissed ou removed e motivo.')]
 final readonly class ReviewReportsCommand
 {
-    public function __construct(private EntityManagerInterface $em, private AdminAudit $audit, private SessionManager $sessions, private ClockInterface $clock, private ComunaPins $pins)
+    public function __construct(private EntityManagerInterface $em, private AdminAudit $audit, private SessionManager $sessions, private ClockInterface $clock, private ComunaPins $pins, private NotificationCreator $notifications)
     {
     }
 
@@ -57,6 +58,7 @@ final readonly class ReviewReportsCommand
                     $this->sessions->revokeAll($target, 'moderation');
                 } elseif ($target instanceof Post || $target instanceof Comment) {
                     $target->removeByModeration();
+                    $this->notifications->contentRemoved($target);
                     if ($target instanceof Post) {
                         $this->pins->release($target);
                     }

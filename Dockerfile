@@ -23,6 +23,11 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY docker/Caddyfile /etc/frankenphp/Caddyfile
 
+# O admin do Caddy está desligado; o healthcheck herdado na porta 2019 falha
+# mesmo com a API saudável. Verifica HTTP e banco no endpoint da aplicação.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl --fail --silent "http://localhost:${PORT:-80}/api/v1/health" || exit 1
+
 # ---------------------------------------------------------------------------
 FROM base AS dev
 

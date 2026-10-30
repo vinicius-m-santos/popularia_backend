@@ -57,6 +57,7 @@ final readonly class ComunaGovernance
         private NotificationCreator $notifications,
         private ComunaPins $pins,
         private GamificationService $gamification,
+        private EventReminders $reminders,
     ) {
     }
 
@@ -240,6 +241,7 @@ final readonly class ComunaGovernance
             $this->em->flush();
             $this->comunas->adjustMemberCount($comuna, +1);
             $this->gamification->record($user, GamificationAction::ComunaJoined, $comuna->getId(), $now);
+            $this->reminders->restoreMembership($comuna, $user);
 
             return $membership;
         });
@@ -316,6 +318,7 @@ final readonly class ComunaGovernance
                     $this->gamification->record($requester, GamificationAction::ComunaJoined, $comuna->getId(), $now);
                 }
                 $request->close(JoinRequestStatus::Approved, $now);
+                $this->reminders->restoreMembership($comuna, $requester);
             } else {
                 $request->close(JoinRequestStatus::Rejected, $now);
             }
@@ -502,6 +505,7 @@ final readonly class ComunaGovernance
                 return;
             }
             $post->removeByModeration();
+            $this->notifications->contentRemoved($post);
             $this->pins->release($post);
             $this->em->flush();
             $this->record($actor, 'comuna.post_removed', $comuna, $post->getAuthor(), ['post_id' => $post->getId()->toRfc4122()], $reason);
@@ -520,6 +524,7 @@ final readonly class ComunaGovernance
                 return;
             }
             $comment->removeByModeration();
+            $this->notifications->contentRemoved($comment);
             $this->em->flush();
             $this->record($actor, 'comuna.comment_removed', $comuna, $comment->getAuthor(), ['comment_id' => $comment->getId()->toRfc4122()], $reason);
         });

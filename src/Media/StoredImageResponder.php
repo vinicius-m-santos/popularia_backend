@@ -9,7 +9,7 @@ use App\Library\ObjectStorage;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-/** Entrega a imagem atual com cache longo. A URL deixa de bater quando a key muda. */
+/** Imagens de apresentação pública, com revalidação curta após suspensão ou troca. */
 final readonly class StoredImageResponder
 {
     public function __construct(private ObjectStorage $storage)
@@ -31,7 +31,7 @@ final readonly class StoredImageResponder
             fclose($stream);
         }, Response::HTTP_OK, [
             'Content-Type' => $type,
-            'Cache-Control' => 'public, max-age=31536000, immutable',
+            'Cache-Control' => 'public, max-age=300, must-revalidate',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }

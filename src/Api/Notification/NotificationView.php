@@ -56,6 +56,7 @@ final readonly class NotificationView
         $comuna = $notification->getComuna();
         $post = $notification->getPost();
         $target = match ($notification->getType()) {
+            NotificationType::PostRemoved, NotificationType::CommentRemoved => ['kind' => 'notice', 'id' => $notification->getId()->toRfc4122()],
             NotificationType::SquareReply => ['kind' => 'square', 'id' => $notification->getSquareMessage()?->square->id->toRfc4122() ?? ''],
             NotificationType::Follow => ['kind' => 'profile', 'id' => $actor?->getHandle() ?? ''],
             NotificationType::Comment, NotificationType::Reply, NotificationType::CommentSupport, NotificationType::MentionPost, NotificationType::MentionComment => ['kind' => 'post', 'id' => $post?->getId()->toRfc4122() ?? ''],

@@ -6,6 +6,7 @@ namespace App\Tests\Api;
 
 use App\Entity\Comuna;
 use App\Entity\User;
+use App\Enum\AccountStatus;
 use App\Enum\ComunaRole;
 use App\Tests\ApiTestCase;
 use App\Tests\Library\MemoryStorage;
@@ -70,7 +71,8 @@ final class ProfileImageTest extends ApiTestCase
         $this->client->request('GET', $first['avatarUrl']);
         $this->assertStatus(200);
         self::assertSame('image/png', $this->client->getResponse()->headers->get('Content-Type'));
-        self::assertStringContainsString('immutable', (string) $this->client->getResponse()->headers->get('Cache-Control'));
+        self::assertStringContainsString('max-age=300', (string) $this->client->getResponse()->headers->get('Cache-Control'));
+        self::assertStringContainsString('must-revalidate', (string) $this->client->getResponse()->headers->get('Cache-Control'));
         self::assertNotSame('', $this->client->getResponse()->getContent());
 
         $profile = $this->request('GET', '/users/camila');
@@ -100,6 +102,26 @@ final class ProfileImageTest extends ApiTestCase
         self::assertSame('/errors/post-media-format', $problem['type']);
         self::assertSame(0, MemoryStorage::$puts);
         self::assertNull($this->fresh(User::class, $user->getId())->getAvatarKey());
+    }
+
+    public function testSuspensionRevokesDirectAvatarAndCoverUrls(): void
+    {
+        $owner = $this->createUser('dona');
+        $comuna = $this->createComuna('tarifa', owner: $owner);
+        $token = $this->login('dona@exemplo.org')['accessToken'];
+        $avatar = $this->upload('/me/avatar', $token, $this->file())['avatarUrl'];
+        $cover = $this->upload('/comunas/tarifa/cover', $token, $this->file())['coverUrl'];
+        $this->assertStatus(200);
+        $user = $this->fresh(User::class, $owner->getId());
+        $user->changeStatus(AccountStatus::Suspended, new \DateTimeImmutable());
+        $this->em()->flush();
+        $community = $this->fresh(Comuna::class, $comuna->getId());
+        $community->suspend();
+        $this->em()->flush();
+        $this->client->request('GET', $avatar);
+        $this->assertStatus(404);
+        $this->client->request('GET', $cover);
+        $this->assertStatus(404);
     }
 
     public function testOnlyTheOwnerReplacesTheComunaCover(): void

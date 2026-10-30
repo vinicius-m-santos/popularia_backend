@@ -40,6 +40,7 @@ final class RateLimitGuard
             'post_media_upload' => new Autowire(service: 'limiter.post_media_upload'),
             'profile_image' => new Autowire(service: 'limiter.profile_image'),
             'content_creation' => new Autowire(service: 'limiter.content_creation'),
+            'report' => new Autowire(service: 'limiter.report'),
             'comuna_name_check' => new Autowire(service: 'limiter.comuna_name_check'),
             'comuna_join_request' => new Autowire(service: 'limiter.comuna_join_request'),
             'account_deletion' => new Autowire(service: 'limiter.account_deletion'),

@@ -128,8 +128,10 @@ class PostRepository extends ServiceEntityRepository
     {
         $qb->andWhere(sprintf('%s.status = :published', $post))
             ->andWhere(sprintf('%s.status = :active', $author))
+            ->andWhere(sprintf('%s.id IS NULL OR %s.status <> :suspendedComuna', $comuna, $comuna))
             ->setParameter('published', ContentStatus::Published)
-            ->setParameter('active', AccountStatus::Active);
+            ->setParameter('active', AccountStatus::Active)
+            ->setParameter('suspendedComuna', \App\Enum\ComunaStatus::Suspended);
         if (null === $viewer) {
             $qb->andWhere(sprintf('%s.id IS NOT NULL OR %s.isPrivate = false', $comuna, $author));
 

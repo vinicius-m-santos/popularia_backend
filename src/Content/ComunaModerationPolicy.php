@@ -49,9 +49,21 @@ final readonly class ComunaModerationPolicy
 
     public function assertNotArchived(Comuna $comuna): void
     {
+        if ($comuna->isSuspended()) {
+            throw self::suspended();
+        }
         if ($comuna->isArchived()) {
             throw self::archived();
         }
+    }
+
+    public static function suspended(): ApiProblem
+    {
+        return ApiProblem::conflict(
+            '/errors/comuna-suspended',
+            'Esta comuna está suspensa.',
+            'A equipe da plataforma precisa reativá-la antes de qualquer mudança.',
+        );
     }
 
     public static function archived(): ApiProblem
@@ -73,8 +85,8 @@ final readonly class ComunaModerationPolicy
     {
         $isMember = null !== $membership;
         $isOwner = $isMember && $comuna->isOwnedBy($membership->getUser());
-        $moderates = $isMember && $membership->getRole()->canModerate();
-        $active = !$comuna->isArchived();
+        $moderates = $isMember && $membership->getRole()->canModerate() && !$comuna->isSuspended();
+        $active = $comuna->isActive();
 
         return [
             'canPost' => $isMember && $active,

@@ -178,4 +178,15 @@ class Post
     {
         $this->status = ContentStatus::Removed;
     }
+
+    /** Volta a publicada só se a moderação tinha removido. Não recria pin, aviso nem XP. */
+    public function restoreByModeration(): bool
+    {
+        if (ContentStatus::Removed !== $this->status) {
+            return false;
+        }
+        $this->status = ContentStatus::Published;
+
+        return true;
+    }
 }

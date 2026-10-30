@@ -96,6 +96,9 @@ final readonly class ComunaEvents
         if (!$actor->isEmailVerified()) {
             throw ApiProblem::emailNotVerified();
         }
+        if ($event->getComuna()->isSuspended()) {
+            throw ComunaModerationPolicy::suspended();
+        }
         if ($event->getComuna()->isArchived()) {
             throw ComunaModerationPolicy::archived();
         }

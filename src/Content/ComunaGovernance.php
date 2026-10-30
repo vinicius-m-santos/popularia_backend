@@ -493,6 +493,9 @@ final readonly class ComunaGovernance
     public function removePost(Post $post, User $actor, string $reason): void
     {
         $comuna = $post->getComuna() ?? throw ApiProblem::forbidden('/errors/not-comuna-moderator', 'Publicações em perfis não são moderadas por comunas.');
+        if ($comuna->isSuspended()) {
+            throw ComunaModerationPolicy::suspended();
+        }
         $this->transactional(function () use ($post, $comuna, $actor, $reason): void {
             $this->assertCanRemoveContent($comuna, $actor, $post->getAuthor());
             if (!$post->isPublished()) {
@@ -508,6 +511,9 @@ final readonly class ComunaGovernance
     public function removeComment(Comment $comment, User $actor, string $reason): void
     {
         $comuna = $comment->getPost()->getComuna() ?? throw ApiProblem::forbidden('/errors/not-comuna-moderator', 'Conversas em perfis não são moderadas por comunas.');
+        if ($comuna->isSuspended()) {
+            throw ComunaModerationPolicy::suspended();
+        }
         $this->transactional(function () use ($comment, $comuna, $actor, $reason): void {
             $this->assertCanRemoveContent($comuna, $actor, $comment->getAuthor());
             if (!$comment->isPublished()) {

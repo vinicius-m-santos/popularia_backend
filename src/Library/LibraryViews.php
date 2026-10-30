@@ -63,7 +63,7 @@ final readonly class LibraryViews
             $personalOwner = null !== $document->user && $document->user->getId()->equals($viewer->getId());
             $moderates = null !== $membership && $membership->getRole()->canModerate();
             $manages = $personalOwner || (null !== $membership && ($moderates || $document->file->uploadedBy->getId()->equals($viewer->getId())));
-            $active = null === $document->comuna || !$document->comuna->isArchived();
+            $active = null === $document->comuna || $document->comuna->isActive();
             $author = $document->file->uploadedBy;
             $origin = null === $document->comuna
                 ? ['kind' => 'personal', 'id' => $document->user?->getId()->toRfc4122(), 'name' => 'Biblioteca de '.$document->user?->getDisplayName()]

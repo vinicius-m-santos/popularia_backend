@@ -18,7 +18,7 @@ final class ReportTest extends ApiTestCase
         $post = $this->createPost($author, null, 'Conteúdo denunciado e removido');
         $authorToken = $this->login($author->getEmail())['accessToken'];
         $token = $this->login($reader->getEmail())['accessToken'];
-        $this->request('POST', '/reports', ['targetType' => 'post', 'targetId' => $post->getId()->toRfc4122(), 'reason' => 'Ameaça'], $token);
+        $this->request('POST', '/reports', ['targetType' => 'post', 'targetId' => $post->getId()->toRfc4122(), 'reasonCode' => 'threat', 'description' => 'Ameaça na publicação'], $token);
         $this->assertStatus(204);
         $reports = $this->em()->getRepository(ContentReport::class)->findAll();
         self::assertCount(1, $reports);

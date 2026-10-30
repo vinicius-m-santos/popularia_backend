@@ -95,4 +95,15 @@ class Comment
     {
         $this->status = ContentStatus::Removed;
     }
+
+    /** Volta a publicado só se a moderação tinha removido. Respostas não são recriadas. */
+    public function restoreByModeration(): bool
+    {
+        if (ContentStatus::Removed !== $this->status) {
+            return false;
+        }
+        $this->status = ContentStatus::Published;
+
+        return true;
+    }
 }

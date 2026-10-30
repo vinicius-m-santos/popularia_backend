@@ -114,6 +114,11 @@ framework:
             limit: 30
             interval: '10 minutes'
             cache_pool: cache.rate_limiter
+        report:
+            policy: sliding_window
+            limit: 20
+            interval: '1 hour'
+            cache_pool: cache.rate_limiter
         comuna_name_check:
             policy: sliding_window
             limit: 60

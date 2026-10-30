@@ -1,7 +1,7 @@
 # Moderação e autorização
 
-O que está implementado: papéis, criação e gestão de comunas.
-O desenho das próximas etapas (denúncias, restrições e recursos) está na última seção.
+O que está implementado: papéis, criação e gestão de comunas, denúncias e moderação V1.
+O mapa da V1 está em [moderacao-denuncias-v1.md](moderacao-denuncias-v1.md).
 
 ## 1. Dois eixos de papel, independentes
 
@@ -21,7 +21,7 @@ por papel dentro da comuna) e nas consultas de `PostRepository` (listas):
 - **Acesso:** comuna privada: só quem participa lê as publicações e a lista de membros; entrada depende
   de pedido aprovado pelo fundador ou pela moderação (403 `/errors/not-a-member`).
 - **Publicar e comentar:** conta ativa, e-mail confirmado, participar da comuna; autoria vem do token.
-  Proibido em comunas arquivadas.
+  Proibido em comunas arquivadas e em comunas suspensas pela plataforma (409 `/errors/comuna-suspended`).
 - **Bloqueio nos dois sentidos:** conteúdo, comentários (viram marcador `hidden`), perfil (404) e respostas.
 - **Conteúdo apagado pela autoria** some (texto apagado do banco); conteúdo de conta suspensa não aparece.
 - **Conteúdo removido pela moderação** mantém o texto para revisão interna (`status = removed`, `ContentStatus`);
@@ -201,26 +201,26 @@ comunas ativas a conta possui.
 
 **Exclusão de conta:** o fluxo próprio agora recusa enquanto houver Comunas ativas sob propriedade da pessoa. Ela pode transferi-las ou arquivá-las antes. Comunas arquivadas permanecem, com owner nulo; a conta residual é descaracterizada para preservar integridade e auditoria. Não se usa DELETE direto no User. Ver [account-deletion.md](account-deletion.md).
 
-## 7. Próximas etapas (desenho proposto — denúncias, restrições e recursos)
+## 7. Denúncias e moderação V1
 
-Tabelas, na mesma linha do plano técnico:
+Implementado em cima de `content_report` e de `admin_audit_log`. Não há `report_case`,
+`moderation_action`, restrição temporária nem recurso. O desenho antigo dessa seção não foi construído.
 
-| Tabela | Campos principais | Observação |
-| --- | --- | --- |
-| `report_case` | alvo (`post`, `comment`, `profile`, `comuna`), comuna responsável (vazio = plataforma), estado, contagem, cópia do conteúdo | Um caso aberto por alvo; a cópia preserva o que foi denunciado mesmo se editado/apagado |
-| `report` | caso, quem denunciou, motivo (lista fechada), detalhe, protocolo | Uma denúncia por pessoa e alvo; limite diário |
-| `moderation_action` | caso, comuna, responsável, ação (`keep`, `remove_content`, `restrict`, `revert`), motivo enviado à autoria, nota interna, data | **Só inserção** (mesmo gatilho da auditoria); "desfazer" é uma nova linha com `reverts_action_id` |
-| `comuna_restriction` | comuna, conta, tipo (`mute`, `suspend`, `ban`), início, fim, ação de origem | Consultada antes de publicar/comentar (entra em `ContentPolicy::assertCanPostIn`) |
-| `appeal` | ação contestada, autoria, texto, estado, quem decidiu | Recurso vai para a moderação da plataforma |
+- Alvos: `post`, `comment`, `profile`, `comuna`.
+- Motivos fechados em `ReportReason`. A descrição opcional fica em `reason` (até 800 caracteres, texto simples).
+- Escopo `comuna` para publicação e comentário de comuna. Escopo `platform` para perfil, comuna, publicação pessoal e denúncia escalada.
+- A denúncia de uma comuna não fica visível para a moderação dessa comuna (`comuna_id` nulo).
+- Deduplicação só enquanto a denúncia está `pending` ou `reviewing`. Depois de resolvida, uma nova é aceita.
+- Auto-denúncia: 409 `/errors/cannot-report-self`.
+- Limite: 20 denúncias por hora por conta, no limiter `report` já existente. Sem Redis novo.
+- Fila local: `GET /comunas/{slug}/content-reports`. Fila global: `GET /moderation/reports` (`ROLE_PLATFORM_MODERATOR`).
+- Decisão: `POST /moderation/reports/{id}/decision`, com trava da linha. A segunda decisão fecha com 409.
+- Moderador de comuna não suspende conta. Conteúdo do fundador continua fora do alcance da moderação local; a plataforma pode remover.
+- Suspensão de conta reutiliza `AccountStatus::Suspended` e revoga as sessões. Não há prazo automático.
+- Comuna suspensa é `ComunaStatus::Suspended`, distinto de `archived`. Some da leitura, da busca e do preview, e não aceita conteúdo novo. Os dados ficam.
+- Remoção de conteúdo usa `ContentStatus::Removed`. Restaurar volta a `published` sem recriar pin, XP ou aviso.
+- Comentário removido continua na árvore, com o texto público trocado por “Comentário removido pela moderação.”
+- O histórico é o `admin_audit_log`, só de inserção. A resposta da denúncia não inclui quem denunciou.
+- Praça e biblioteca mantêm as filas que já tinham. Não há push por denúncia.
 
-Regras de autorização planejadas:
-
-- Fila e decisões de uma comuna: só `moderator`/`founder` **daquela** comuna.
-- Denúncias de perfil, de comuna e sem comuna: `ROLE_PLATFORM_MODERATOR`.
-- Ninguém decide caso sobre o próprio conteúdo; ninguém restringe o fundador da comuna.
-- Toda ação exige motivo; a autoria vê o motivo e pode recorrer; o recurso é decidido por outra pessoa.
-- Reverter uma ação é uma ação nova, registrada; nada é apagado.
-- Comunas privadas seguem as regras gerais da plataforma.
-
-Conteúdo removido pela moderação usa o estado `removed` (já previsto em `ContentStatus`), que as
-consultas e a `ContentPolicy` já tratam como invisível.
+Papel de plataforma continua só em `app:user:set-role`. Moderador de comuna não recebe esse papel.

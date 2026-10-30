@@ -23,6 +23,9 @@ final readonly class ComunaProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): ComunaView
     {
         $comuna = $this->comunas->findOneBySlug((string) ($uriVariables['slug'] ?? '')) ?? throw ApiProblem::notFound('Comuna não encontrada.');
+        if ($comuna->isSuspended()) {
+            throw ApiProblem::notFound('Comuna não encontrada.');
+        }
 
         return $this->views->detail($comuna, $this->currentUser->find());
     }

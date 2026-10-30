@@ -83,9 +83,9 @@ final readonly class PostViews
             $isAuthor = null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());
             $canComment = null !== $viewer
                 && $viewer->isEmailVerified()
-                && (null === $comuna || (null !== $membership && !$comuna->isArchived()));
-            $canRemove = null !== $comuna && $this->moderation->canRemoveContentBy($comuna, $membership, $post->getAuthor());
-            $canPin = null !== $comuna && null !== $membership && $membership->getRole()->canModerate() && !$comuna->isArchived();
+                && (null === $comuna || (null !== $membership && $comuna->isActive()));
+            $canRemove = null !== $comuna && $comuna->isActive() && $this->moderation->canRemoveContentBy($comuna, $membership, $post->getAuthor());
+            $canPin = null !== $comuna && null !== $membership && $membership->getRole()->canModerate() && $comuna->isActive();
 
             return new PostView(
                 $post->getId()->toRfc4122(),

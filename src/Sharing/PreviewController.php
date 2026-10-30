@@ -51,7 +51,7 @@ final readonly class PreviewController
             }
         } elseif ('c' === $type && preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $id)) {
             $comuna = $this->em->getRepository(Comuna::class)->findOneBy(['slug' => $id]);
-            if (null !== $comuna && $comuna->isPublic()) {
+            if (null !== $comuna && $comuna->isPublic() && $comuna->isActive()) {
                 $public = true;
                 $title = $comuna->getName().' — Popularia';
                 $description = self::plain($comuna->getDescription(), 180) ?: 'Uma comuna no Popularia.';
@@ -61,7 +61,7 @@ final readonly class PreviewController
         // Never expose a PDF title, storage key, signed download URL or existence here.
         if ('e' === $type && Uuid::isValid($id)) {
             $event = $this->em->find(ComunaEvent::class, Uuid::fromString($id));
-            if ($event instanceof ComunaEvent && $event->getComuna()->isPublic()) {
+            if ($event instanceof ComunaEvent && $event->getComuna()->isPublic() && $event->getComuna()->isActive()) {
                 $public = true;
                 $title = $event->getTitle().' — '.$event->getComuna()->getName();
                 $when = EventSchedule::previewWhen($event->getStartsAt(), $event->getTimeZone());

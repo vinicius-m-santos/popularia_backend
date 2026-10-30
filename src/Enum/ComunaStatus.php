@@ -13,4 +13,6 @@ enum ComunaStatus: string
 {
     case Active = 'active';
     case Archived = 'archived';
+    /** Suspensa pela plataforma. Não é arquivamento: o histórico fica, sem uso público, até reativação. */
+    case Suspended = 'suspended';
 }

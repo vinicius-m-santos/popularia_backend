@@ -245,6 +245,33 @@ class Comuna
         return ComunaStatus::Archived === $this->status;
     }
 
+    public function isActive(): bool
+    {
+        return ComunaStatus::Active === $this->status;
+    }
+
+    public function isSuspended(): bool
+    {
+        return ComunaStatus::Suspended === $this->status;
+    }
+
+    /** Punição da plataforma. Comuna arquivada não entra neste caminho. */
+    public function suspend(): void
+    {
+        if ($this->isArchived()) {
+            throw new \LogicException('Uma comuna arquivada não é suspensa por este caminho.');
+        }
+        $this->status = ComunaStatus::Suspended;
+    }
+
+    public function reactivate(): void
+    {
+        if (!$this->isSuspended()) {
+            throw new \LogicException('Só uma comuna suspensa volta a ficar ativa.');
+        }
+        $this->status = ComunaStatus::Active;
+    }
+
     public function getArchivedAt(): ?\DateTimeImmutable
     {
         return $this->archivedAt;

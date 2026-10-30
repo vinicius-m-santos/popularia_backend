@@ -6,6 +6,7 @@ namespace App\Command;
 
 use App\Auth\AdminAudit;
 use App\Auth\SessionManager;
+use App\Content\ComunaPins;
 use App\Entity\Comment;
 use App\Entity\ContentReport;
 use App\Entity\Post;
@@ -23,7 +24,7 @@ use Symfony\Component\Uid\Uuid;
 #[AsCommand(name: 'app:reports:review', description: 'Lista até 100 denúncias pendentes; decide post/comment/profile por UUID, dismissed ou removed e motivo.')]
 final readonly class ReviewReportsCommand
 {
-    public function __construct(private EntityManagerInterface $em, private AdminAudit $audit, private SessionManager $sessions, private ClockInterface $clock)
+    public function __construct(private EntityManagerInterface $em, private AdminAudit $audit, private SessionManager $sessions, private ClockInterface $clock, private ComunaPins $pins)
     {
     }
 
@@ -49,13 +50,16 @@ final readonly class ReviewReportsCommand
         $this->em->getConnection()->transactional(function () use ($report, $decision, $reason): void {
             if ('removed' === $decision) {
                 $target = $this->em->find(match ($report->targetType) {
-                    'post' => Post::class, 'comment' => Comment::class, default => User::class
+                    'post' => Post::class, 'comment' => Comment::class, default => User::class,
                 }, $report->targetId);
                 if ($target instanceof User && AccountStatus::Deleted !== $target->getStatus()) {
                     $target->changeStatus(AccountStatus::Suspended, $this->clock->now());
                     $this->sessions->revokeAll($target, 'moderation');
                 } elseif ($target instanceof Post || $target instanceof Comment) {
                     $target->removeByModeration();
+                    if ($target instanceof Post) {
+                        $this->pins->release($target);
+                    }
                 }
             }
             $report->status = (string) $decision;

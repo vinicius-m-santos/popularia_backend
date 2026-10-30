@@ -49,6 +49,10 @@ final readonly class ContentPolicy
 
     public function canReadComuna(Comuna $comuna, ?User $viewer): bool
     {
+        if ($comuna->isSuspended()) {
+            return false;
+        }
+
         return $comuna->isPublic() || null !== $this->memberships->findMembership($comuna, $viewer);
     }
 
@@ -66,6 +70,9 @@ final readonly class ContentPolicy
             return false;
         }
         $comuna = $post->getComuna();
+        if (null !== $comuna && $comuna->isSuspended()) {
+            return false;
+        }
         if (null === $comuna && $post->getAuthor()->isPrivate() && (null === $viewer || (!$viewer->getId()->equals($post->getAuthor()->getId()) && !($this->follows->findFollow($viewer, $post->getAuthor())?->isApproved() ?? false)))) {
             return false;
         }
@@ -83,6 +90,9 @@ final readonly class ContentPolicy
         }
         if (null !== $comuna && null === $this->memberships->findMembership($comuna, $author)) {
             throw ApiProblem::forbidden('/errors/not-a-member', 'Entre na comuna para publicar nela.');
+        }
+        if (null !== $comuna && $comuna->isSuspended()) {
+            throw ComunaModerationPolicy::suspended();
         }
         if (null !== $comuna && $comuna->isArchived()) {
             throw ComunaModerationPolicy::archived();
@@ -102,6 +112,9 @@ final readonly class ContentPolicy
         if (null !== $comuna && null === $this->memberships->findMembership($comuna, $viewer)) {
             return ApiProblem::forbidden('/errors/not-a-member', 'Entre na comuna para comentar.');
         }
+        if (null !== $comuna && $comuna->isSuspended()) {
+            return ComunaModerationPolicy::suspended();
+        }
         if (null !== $comuna && $comuna->isArchived()) {
             return ComunaModerationPolicy::archived();
         }
@@ -118,6 +131,9 @@ final readonly class ContentPolicy
         $comuna = $post->getComuna();
         if (null !== $comuna && null === $this->memberships->findMembership($comuna, $viewer)) {
             return ApiProblem::forbidden('/errors/not-a-member', 'Entre na comuna para votar.');
+        }
+        if (null !== $comuna && $comuna->isSuspended()) {
+            return ComunaModerationPolicy::suspended();
         }
         if (null !== $comuna && $comuna->isArchived()) {
             return ComunaModerationPolicy::archived();

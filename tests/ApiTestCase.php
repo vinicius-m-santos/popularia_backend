@@ -115,9 +115,18 @@ abstract class ApiTestCase extends WebTestCase
 
     protected function createPost(User $author, ?Comuna $comuna, string $body = 'Publicação de teste'): Post
     {
+        // O cliente HTTP reinicia o kernel a partir da segunda requisição. A instância
+        // criada antes disso deixa de ser gerenciada; recarrega pela chave se precisar.
+        $em = $this->em();
+        if (!$em->contains($author)) {
+            $author = $em->find(User::class, $author->getId()) ?? throw new \LogicException('Conta fora do contexto do teste.');
+        }
+        if (null !== $comuna && !$em->contains($comuna)) {
+            $comuna = $em->find(Comuna::class, $comuna->getId()) ?? throw new \LogicException('Comuna fora do contexto do teste.');
+        }
         $post = new Post($author, $comuna, $body, new \DateTimeImmutable());
-        $this->em()->persist($post);
-        $this->em()->flush();
+        $em->persist($post);
+        $em->flush();
 
         return $post;
     }

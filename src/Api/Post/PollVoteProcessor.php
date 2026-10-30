@@ -12,11 +12,14 @@ use App\Content\ContentPolicy;
 use App\Entity\Poll;
 use App\Entity\PollOption;
 use App\Entity\PollVote;
+use App\Gamification\GamificationAction;
+use App\Gamification\GamificationService;
 use App\Repository\PollVoteRepository;
 use App\Security\CurrentUser;
 use App\Security\RateLimitGuard;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -37,6 +40,8 @@ final readonly class PollVoteProcessor implements ProcessorInterface
         private PostViews $views,
         private RateLimitGuard $rateLimit,
         private EntityManagerInterface $em,
+        private ClockInterface $clock,
+        private GamificationService $gamification,
     ) {
     }
 
@@ -51,6 +56,8 @@ final readonly class PollVoteProcessor implements ProcessorInterface
         $this->rateLimit->consume('poll_vote', $voter->getUserIdentifier());
 
         $this->em->wrapInTransaction(function () use ($poll, $voter, $data): void {
+            $now = $this->clock->now();
+            $this->gamification->prepare($voter, $now);
             $this->em->lock($poll, LockMode::PESSIMISTIC_WRITE);
             $option = $this->optionOf($poll, $data->optionId) ?? throw new ValidationException(new ConstraintViolationList([new ConstraintViolation('Escolha uma opção desta enquete.', null, [], $data, 'optionId', $data->optionId)]));
             $existing = $this->votes->findForUser($poll, $voter);
@@ -66,6 +73,7 @@ final readonly class PollVoteProcessor implements ProcessorInterface
             }
             $this->em->persist(new PollVote($poll, $option, $voter));
             $this->shift($option, 1);
+            $this->gamification->record($voter, GamificationAction::PollParticipated, $poll->getId(), $now);
         });
 
         foreach ($poll->getOptions() as $option) {

@@ -12,6 +12,8 @@ use App\Entity\User;
 use App\Enum\AttendanceStatus;
 use App\Enum\EventFormat;
 use App\Enum\NotificationType;
+use App\Gamification\GamificationAction;
+use App\Gamification\GamificationService;
 use App\Notification\NotificationCreator;
 use App\Repository\EventAttendanceRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,6 +34,7 @@ final readonly class ComunaEvents
         private EventAttendanceRepository $attendance,
         private EventReminders $reminders,
         private NotificationCreator $notifications,
+        private GamificationService $gamification,
     ) {
     }
 
@@ -99,17 +102,25 @@ final readonly class ComunaEvents
         if ($event->isCancelled()) {
             throw ApiProblem::conflict('/errors/event-cancelled', 'Este evento foi cancelado.');
         }
-        if (EventSchedule::isPast($this->clock->now(), $event->getStartsAt(), $event->getEndsAt())) {
+        $now = $this->clock->now();
+        if (EventSchedule::isPast($now, $event->getStartsAt(), $event->getEndsAt())) {
             throw ApiProblem::conflict('/errors/event-closed', 'Este evento já aconteceu.');
+        }
+        $positive = AttendanceStatus::NotGoing !== $status;
+        if ($positive) {
+            $this->gamification->prepare($actor, $now);
         }
         $row = $this->attendance->findOne($event, $actor);
         if (null === $row) {
-            $row = new EventAttendance($event, $actor, $status, $this->clock->now());
+            $row = new EventAttendance($event, $actor, $status, $now);
             $this->em->persist($row);
         } elseif ($row->getStatus() !== $status) {
-            $row->replace($status, $this->clock->now());
+            $row->replace($status, $now);
         }
         $this->reminders->sync($event, $actor, $status);
+        if ($positive) {
+            $this->gamification->record($actor, GamificationAction::EventRsvpPositive, $event->getId(), $now);
+        }
     }
 
     private function assertOrganizer(Comuna $comuna, User $actor): void

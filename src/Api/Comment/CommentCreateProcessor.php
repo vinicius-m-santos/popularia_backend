@@ -11,6 +11,8 @@ use App\Content\ContentPolicy;
 use App\Content\TextNormalizer;
 use App\Entity\Comment;
 use App\Entity\CommentSupport;
+use App\Gamification\GamificationAction;
+use App\Gamification\GamificationService;
 use App\Mention\MentionBinder;
 use App\Notification\NotificationCreator;
 use App\Repository\CommentRepository;
@@ -39,6 +41,7 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
         private ClockInterface $clock,
         private NotificationCreator $notifications,
         private MentionBinder $mentions,
+        private GamificationService $gamification,
     ) {
     }
 
@@ -65,9 +68,11 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
 
         $this->filter->assertText($data->body, $post->getComuna());
         $body = TextNormalizer::normalize($data->body);
-        $comment = new Comment($post, $parent, $author, $body, $this->clock->now());
+        $now = $this->clock->now();
+        $comment = new Comment($post, $parent, $author, $body, $now);
         $mentions = $this->mentions->attach($body, $data->mentions, $comment);
-        $this->em->wrapInTransaction(function () use ($comment, $post, $author, $mentions): void {
+        $this->em->wrapInTransaction(function () use ($comment, $post, $author, $mentions, $now): void {
+            $this->gamification->prepare($author, $now);
             $this->em->persist($comment);
             foreach ($mentions as $mention) {
                 $this->em->persist($mention);
@@ -78,6 +83,7 @@ final readonly class CommentCreateProcessor implements ProcessorInterface
             $this->notifications->mentionedInComment($comment, array_map(static fn ($mention) => $mention->getMentionedUser(), $mentions));
             $this->em->flush();
             $this->posts->incrementCommentCount($post);
+            $this->gamification->record($author, GamificationAction::DiscussionParticipated, $post->getId(), $now);
         });
 
         return CommentView::fromComment($comment, false, $author->getId()->toRfc4122(), false, 1, true, $mentions);

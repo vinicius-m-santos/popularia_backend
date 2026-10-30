@@ -24,9 +24,9 @@ class SavedPostRepository extends ServiceEntityRepository
         parent::__construct($registry, SavedPost::class);
     }
 
-    public function save(User $user, Post $post, \DateTimeImmutable $now): void
+    public function save(User $user, Post $post, \DateTimeImmutable $now): bool
     {
-        $this->getEntityManager()->getConnection()->executeStatement(
+        $inserted = $this->getEntityManager()->getConnection()->executeStatement(
             'INSERT INTO saved_post (id, user_id, post_id, created_at) VALUES (:id, :user, :post, :at) ON CONFLICT (user_id, post_id) DO NOTHING',
             [
                 'id' => Uuid::v7()->toRfc4122(),
@@ -35,6 +35,8 @@ class SavedPostRepository extends ServiceEntityRepository
                 'at' => $now->format('Y-m-d H:i:sP'),
             ],
         );
+
+        return $inserted > 0;
     }
 
     public function unsave(User $user, string $postId): void

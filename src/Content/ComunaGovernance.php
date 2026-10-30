@@ -18,6 +18,8 @@ use App\Enum\ComunaRole;
 use App\Enum\ComunaVisibility;
 use App\Enum\JoinRequestStatus;
 use App\Enum\OwnershipTransferStatus;
+use App\Gamification\GamificationAction;
+use App\Gamification\GamificationService;
 use App\Notification\NotificationCreator;
 use App\Repository\ComunaJoinRequestRepository;
 use App\Repository\ComunaMembershipRepository;
@@ -54,6 +56,7 @@ final readonly class ComunaGovernance
         private ClockInterface $clock,
         private NotificationCreator $notifications,
         private ComunaPins $pins,
+        private GamificationService $gamification,
     ) {
     }
 
@@ -230,10 +233,13 @@ final readonly class ComunaGovernance
             if (!$comuna->isPublic()) {
                 throw ApiProblem::forbidden('/errors/comuna-requires-approval', 'Esta comuna é privada.', 'Peça para entrar: a moderação da comuna aprova ou recusa (PUT /comunas/{slug}/join-request).');
             }
-            $membership = new ComunaMembership($comuna, $user, ComunaRole::Member, $this->clock->now());
+            $now = $this->clock->now();
+            $this->gamification->prepare($user, $now);
+            $membership = new ComunaMembership($comuna, $user, ComunaRole::Member, $now);
             $this->em->persist($membership);
             $this->em->flush();
             $this->comunas->adjustMemberCount($comuna, +1);
+            $this->gamification->record($user, GamificationAction::ComunaJoined, $comuna->getId(), $now);
 
             return $membership;
         });
@@ -303,9 +309,11 @@ final readonly class ComunaGovernance
             $requester = $request->getUser();
             if ($approve && $requester->isActive()) {
                 if (null === $this->memberships->findMembership($comuna, $requester)) {
+                    $this->gamification->prepare($requester, $now);
                     $this->em->persist(new ComunaMembership($comuna, $requester, ComunaRole::Member, $now));
                     $this->em->flush();
                     $this->comunas->adjustMemberCount($comuna, +1);
+                    $this->gamification->record($requester, GamificationAction::ComunaJoined, $comuna->getId(), $now);
                 }
                 $request->close(JoinRequestStatus::Approved, $now);
             } else {

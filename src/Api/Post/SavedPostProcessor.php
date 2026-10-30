@@ -8,8 +8,11 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Content\ContentPolicy;
+use App\Gamification\GamificationAction;
+use App\Gamification\GamificationService;
 use App\Repository\SavedPostRepository;
 use App\Security\CurrentUser;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
 
 /**
@@ -24,6 +27,8 @@ final readonly class SavedPostProcessor implements ProcessorInterface
         private ContentPolicy $policy,
         private SavedPostRepository $saves,
         private ClockInterface $clock,
+        private EntityManagerInterface $em,
+        private GamificationService $gamification,
     ) {
     }
 
@@ -36,7 +41,14 @@ final readonly class SavedPostProcessor implements ProcessorInterface
 
             return null;
         }
-        $this->saves->save($actor, $this->policy->findVisiblePost($id, $actor), $this->clock->now());
+        $post = $this->policy->findVisiblePost($id, $actor);
+        $now = $this->clock->now();
+        $this->em->getConnection()->transactional(function () use ($actor, $post, $now): void {
+            $this->gamification->prepare($actor, $now);
+            if ($this->saves->save($actor, $post, $now)) {
+                $this->gamification->record($actor, GamificationAction::PostSaved, $post->getId(), $now);
+            }
+        });
 
         return null;
     }

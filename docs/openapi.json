@@ -5002,6 +5002,61 @@
                 "parameters": []
             }
         },
+        "/api/v1/me/gamification": {
+            "get": {
+                "operationId": "api_megamification_get",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Gamification resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Gamification"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "N\u00edvel, sequ\u00eancia, miss\u00f5es de hoje e conquistas da conta autenticada.",
+                "description": "Privado. O n\u00edvel n\u00e3o altera feed, alcance nem permiss\u00e3o. N\u00e3o h\u00e1 ranking nem hist\u00f3rico de XP.",
+                "parameters": []
+            }
+        },
         "/api/v1/me/password": {
             "post": {
                 "operationId": "api_mepassword_post",
@@ -13430,6 +13485,86 @@
                         "type": "boolean"
                     },
                     "requested": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "Gamification": {
+                "type": "object",
+                "description": "Progresso da pr\u00f3pria conta. N\u00e3o inclui o livro de XP, publica\u00e7\u00f5es salvas,\nop\u00e7\u00e3o de enquete, presen\u00e7a em evento nem hor\u00e1rio das a\u00e7\u00f5es.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "level": {
+                        "type": "integer"
+                    },
+                    "xp": {
+                        "type": "integer"
+                    },
+                    "currentLevelXp": {
+                        "type": "integer"
+                    },
+                    "nextLevelXp": {
+                        "type": "integer"
+                    },
+                    "streak": {
+                        "type": "integer"
+                    },
+                    "missionBonusXp": {
+                        "type": "integer"
+                    },
+                    "dayBonusXp": {
+                        "type": "integer"
+                    },
+                    "missions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GamificationMissionView"
+                        }
+                    },
+                    "achievements": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GamificationAchievementView"
+                        }
+                    }
+                }
+            },
+            "GamificationAchievementView": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": "string"
+                    },
+                    "unlocked": {
+                        "type": "boolean"
+                    },
+                    "unlockedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                }
+            },
+            "GamificationMissionView": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "completed": {
                         "type": "boolean"
                     }
                 }

@@ -60,6 +60,22 @@ final readonly class ProfileImageService
         return $comuna;
     }
 
+    public function replaceMark(string $slug, User $actor, ?UploadedFile $file): Comuna
+    {
+        $comuna = $this->comunas->findOneBySlug($slug) ?? throw ApiProblem::notFound('Comuna não encontrada.');
+        $this->policy->assertOwner($comuna, $actor);
+        $this->policy->assertNotArchived($comuna);
+        $info = $this->prepare($actor, $file);
+        $key = 'comuna-marks/'.Uuid::v7()->toRfc4122().'.'.$info['extension'];
+        $previous = $comuna->getMarkKey();
+        $this->store($key, $file, $info);
+        $comuna->replaceMark($key);
+        $this->flushOrDelete($key);
+        $this->deleteQuietly($previous);
+
+        return $comuna;
+    }
+
     /**
      * @return array{extension: string, checksum: string, mimeType: string}
      */

@@ -88,6 +88,28 @@ use App\Api\Topic\TopicView;
                 ])),
             ),
         ),
+        new Post(
+            uriTemplate: '/comunas/{slug}/mark',
+            read: false,
+            deserialize: false,
+            validate: false,
+            input: false,
+            output: false,
+            status: 200,
+            security: "is_granted('ROLE_USER')",
+            inputFormats: ['multipart' => ['multipart/form-data']],
+            controller: MarkUploadController::class,
+            openapi: new Operation(
+                tags: ['Gestão de comunas'],
+                summary: 'Troca a marca (imagem de perfil) da comuna (só o proprietário).',
+                description: 'JPEG, PNG ou WebP estáticos, até 10 MB. Sem marca enviada, a comuna mostra as iniciais. Comuna arquivada: 409 /errors/comuna-archived. Quem não é proprietário: 403 /errors/not-comuna-owner. A URL devolvida muda a cada troca.',
+                requestBody: new RequestBody(content: new \ArrayObject([
+                    'multipart/form-data' => ['schema' => ['type' => 'object', 'required' => ['file'], 'properties' => [
+                        'file' => ['type' => 'string', 'format' => 'binary'],
+                    ]]],
+                ])),
+            ),
+        ),
         new Delete(
             uriTemplate: '/comunas/{slug}',
             read: false,
@@ -143,6 +165,8 @@ final readonly class ComunaView
         public ?TopicView $primaryTopic = null,
         /** URL da capa atual. Null usa a arte padrão do app. Muda só quando a capa é trocada. */
         public ?string $coverUrl = null,
+        /** URL da marca (imagem de perfil) atual. Null usa as iniciais da comuna. Muda só quando a marca é trocada. */
+        public ?string $markUrl = null,
     ) {
     }
 }

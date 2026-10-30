@@ -25,6 +25,13 @@ use ApiPlatform\OpenApi\Model\Operation;
         output: false,
         openapi: new Operation(tags: ['Comunas'], summary: 'Bytes da capa atual da comuna. A URL muda quando a capa muda e pode ser cacheada.'),
     ),
+    new Get(
+        uriTemplate: '/media/comuna-marks/{comunaId}/{fileId}',
+        controller: MarkFileController::class,
+        read: false,
+        output: false,
+        openapi: new Operation(tags: ['Comunas'], summary: 'Bytes da marca (imagem de perfil) atual da comuna. A URL muda quando a marca muda e pode ser cacheada.'),
+    ),
 ])]
 final readonly class ProfileMedia
 {

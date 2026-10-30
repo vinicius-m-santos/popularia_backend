@@ -126,6 +126,7 @@ final readonly class ComunaViews
             ],
             null === $topic ? null : TopicView::fromTopic($topic),
             StoredImageUrl::cover($comuna),
+            StoredImageUrl::mark($comuna),
         );
     }
 }

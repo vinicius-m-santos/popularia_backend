@@ -20,6 +20,11 @@ final class StoredImageUrl
         return self::path('comuna-covers', $comuna->getCoverKey(), $comuna->getId()->toRfc4122());
     }
 
+    public static function mark(Comuna $comuna): ?string
+    {
+        return self::path('comuna-marks', $comuna->getMarkKey(), $comuna->getId()->toRfc4122());
+    }
+
     private static function path(string $prefix, ?string $key, string $ownerId): ?string
     {
         if (null === $key || !preg_match('#^'.preg_quote($prefix, '#').'/([0-9a-fA-F-]{36})\.(jpg|png|webp)$#', $key, $match)) {

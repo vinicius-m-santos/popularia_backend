@@ -99,6 +99,10 @@ class Comuna
     #[ORM\Column(length: 80, nullable: true)]
     private ?string $coverKey = null;
 
+    /** Objeto atual em comuna-marks/<uuid>.<ext>. Null usa as iniciais da comuna. */
+    #[ORM\Column(length: 80, nullable: true)]
+    private ?string $markKey = null;
+
     /** @var Collection<int, ComunaRule> */
     #[ORM\OneToMany(targetEntity: ComunaRule::class, mappedBy: 'comuna', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
@@ -180,6 +184,17 @@ class Comuna
     public function replaceCover(string $key): void
     {
         $this->coverKey = $key;
+    }
+
+    public function getMarkKey(): ?string
+    {
+        return $this->markKey;
+    }
+
+    /** Cada troca grava uma key nova para a marca deixar de ser servida pela URL anterior. */
+    public function replaceMark(string $key): void
+    {
+        $this->markKey = $key;
     }
 
     /** @return list<string> */

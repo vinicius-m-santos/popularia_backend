@@ -94,6 +94,54 @@ use App\Api\Profile\AuthorView;
             ),
         ),
         new Put(
+            uriTemplate: '/posts/{id}/support',
+            name: 'post_support',
+            security: "is_granted('ROLE_USER')",
+            read: false,
+            input: false,
+            deserialize: false,
+            validate: false,
+            processor: PostSupportProcessor::class,
+            openapi: new Operation(tags: ['Publicações'], summary: 'Apoia uma publicação; operação idempotente.'),
+        ),
+        new Delete(
+            uriTemplate: '/posts/{id}/support',
+            name: 'post_unsupport',
+            status: 200,
+            security: "is_granted('ROLE_USER')",
+            read: false,
+            input: false,
+            output: PostView::class,
+            deserialize: false,
+            validate: false,
+            processor: PostSupportProcessor::class,
+            openapi: new Operation(tags: ['Publicações'], summary: 'Tira o próprio apoio de uma publicação; operação idempotente.'),
+        ),
+        new Put(
+            uriTemplate: '/posts/{id}/echo',
+            name: 'post_echo',
+            security: "is_granted('ROLE_USER')",
+            read: false,
+            input: false,
+            deserialize: false,
+            validate: false,
+            processor: PostEchoProcessor::class,
+            openapi: new Operation(tags: ['Publicações'], summary: 'Ecoa uma publicação, levando-a adiante; operação idempotente.'),
+        ),
+        new Delete(
+            uriTemplate: '/posts/{id}/echo',
+            name: 'post_unecho',
+            status: 200,
+            security: "is_granted('ROLE_USER')",
+            read: false,
+            input: false,
+            output: PostView::class,
+            deserialize: false,
+            validate: false,
+            processor: PostEchoProcessor::class,
+            openapi: new Operation(tags: ['Publicações'], summary: 'Retira o próprio eco de uma publicação; operação idempotente.'),
+        ),
+        new Put(
             uriTemplate: '/posts/{id}/poll/vote',
             status: 200,
             read: false,
@@ -113,7 +161,7 @@ final readonly class PostView
 {
     /**
      * @param array{id: string, slug: string, name: string, status: string}|null                                                 $comuna
-     * @param array{isAuthor: bool, canComment: bool, canDelete: bool, canRemove: bool, saved: bool, canPin: bool, pinned: bool} $viewer
+     * @param array{isAuthor: bool, canComment: bool, canDelete: bool, canRemove: bool, saved: bool, canPin: bool, pinned: bool, supported: bool, echoed: bool} $viewer
      * @param list<MentionView>                                                                                                  $mentions
      */
     public function __construct(
@@ -124,6 +172,8 @@ final readonly class PostView
         public AuthorView $author,
         public ?array $comuna,
         public int $commentCount,
+        public int $supportCount,
+        public int $echoCount,
         public array $viewer,
         public ?string $topic = null,
         #[ApiProperty(readableLink: true)]

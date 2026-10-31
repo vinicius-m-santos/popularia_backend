@@ -38,6 +38,8 @@ final readonly class PostViews
         private \App\Repository\SavedPostRepository $saves,
         private ContentMentionRepository $mentions,
         private \App\Repository\ComunaPinnedPostRepository $pins,
+        private \App\Repository\PostSupportRepository $supports,
+        private \App\Repository\PostEchoRepository $echoes,
         private EntityManagerInterface $em,
         private EventAttendanceRepository $attendance,
         private ClockInterface $clock,
@@ -73,11 +75,13 @@ final readonly class PostViews
         }
         $choices = null === $viewer ? [] : $this->votes->choicesFor($viewer, $polls);
         $saved = null === $viewer ? [] : $this->saves->flagsFor($viewer, $posts);
+        $support = $this->supports->stats($posts, $viewer);
+        $echo = $this->echoes->stats($posts, $viewer);
         $mentions = $this->mentions->groupedByPost($posts);
         $pinned = $this->pins->pinnedPostIds($posts);
         $linked = $this->linkedEvents($posts, $viewer);
 
-        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved, $mentions, $pinned, $linked): PostView {
+        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved, $support, $echo, $mentions, $pinned, $linked): PostView {
             $comuna = $post->getComuna();
             $membership = null === $comuna ? null : ($memberOf[$comuna->getId()->toRfc4122()] ?? null);
             $isAuthor = null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());
@@ -94,7 +98,9 @@ final readonly class PostViews
                 AuthorView::fromUser($post->getAuthor()),
                 null === $comuna ? null : self::comunaSummary($comuna),
                 $post->getCommentCount(),
-                ['isAuthor' => $isAuthor, 'canComment' => $canComment, 'canDelete' => $isAuthor, 'canRemove' => $canRemove, 'saved' => isset($saved[$post->getId()->toRfc4122()]), 'canPin' => $canPin, 'pinned' => isset($pinned[$post->getId()->toRfc4122()])],
+                $support[$post->getId()->toRfc4122()]['count'] ?? 0,
+                $echo[$post->getId()->toRfc4122()]['count'] ?? 0,
+                ['isAuthor' => $isAuthor, 'canComment' => $canComment, 'canDelete' => $isAuthor, 'canRemove' => $canRemove, 'saved' => isset($saved[$post->getId()->toRfc4122()]), 'canPin' => $canPin, 'pinned' => isset($pinned[$post->getId()->toRfc4122()]), 'supported' => $support[$post->getId()->toRfc4122()]['mine'] ?? false, 'echoed' => $echo[$post->getId()->toRfc4122()]['mine'] ?? false],
                 $post->getTopic(),
                 null === $post->libraryDocument ? null : ($documentViews[$post->libraryDocument->id->toRfc4122()] ?? null),
                 null === $post->media ? null : new \App\Api\PostMedia\PostMediaView(

@@ -50,6 +50,43 @@ final class PostTest extends ApiTestCase
         self::assertSame(0, $this->em()->getRepository(Post::class)->count([]));
     }
 
+    public function testSupportAndEchoAreIdempotentAndPerViewer(): void
+    {
+        $comuna = $this->createComuna('tarifa');
+        $author = $this->createUser('camila');
+        $reader = $this->createUser('ana');
+        $this->addMember($comuna, $author);
+        $this->addMember($comuna, $reader);
+        $post = $this->createPost($author, $comuna);
+        $id = $post->getId()->toRfc4122();
+        $token = $this->login('ana@exemplo.org')['accessToken'];
+
+        $supported = $this->request('PUT', '/posts/'.$id.'/support', [], $token);
+        $this->assertStatus(200);
+        self::assertSame(1, $supported['supportCount']);
+        self::assertTrue($supported['viewer']['supported']);
+        $again = $this->request('PUT', '/posts/'.$id.'/support', [], $token);
+        self::assertSame(1, $again['supportCount']);
+        $removed = $this->request('DELETE', '/posts/'.$id.'/support', token: $token);
+        $this->assertStatus(200);
+        self::assertSame(0, $removed['supportCount']);
+        self::assertFalse($removed['viewer']['supported']);
+
+        $echoed = $this->request('PUT', '/posts/'.$id.'/echo', [], $token);
+        $this->assertStatus(200);
+        self::assertSame(1, $echoed['echoCount']);
+        self::assertTrue($echoed['viewer']['echoed']);
+
+        // A contagem é pública; a marca é de quem agiu.
+        $authorToken = $this->login('camila@exemplo.org')['accessToken'];
+        $seen = $this->request('GET', '/posts/'.$id, token: $authorToken);
+        $this->assertStatus(200);
+        self::assertSame(1, $seen['echoCount']);
+        self::assertSame(0, $seen['supportCount']);
+        self::assertFalse($seen['viewer']['echoed']);
+        self::assertFalse($seen['viewer']['supported']);
+    }
+
     public function testNonMemberCannotPublishInComuna(): void
     {
         $comuna = $this->createComuna('tarifa');

@@ -545,9 +545,13 @@ Inserir as credenciais nas variáveis `LIBRARY_S3_*` do serviço backend.
 
 ### 9. Configurar crons de manutenção
 
-Após o primeiro deploy, configurar no Railway as seguintes tarefas periódicas:
+Após o primeiro deploy, configurar no Railway as seguintes tarefas periódicas. Em desenvolvimento, o
+serviço `worker` do `docker compose` já roda `app:notifications:deliver --watch`:
 
 ```
+# A cada minuto — entrega de avisos (push) e consulta de recibos pendentes
+php bin/console app:notifications:deliver
+
 # Diário — limpeza de dados de segurança expirados e cache acumulado
 php bin/console app:security:purge
 php bin/console cache:pool:prune

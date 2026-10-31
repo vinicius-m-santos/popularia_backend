@@ -180,7 +180,14 @@ final readonly class PostViews
             $views[] = new PollOptionView($id, $option->getLabel(), $counts[$index], $percents[$index], $id === $votedOptionId);
         }
 
-        return new PollView($poll->getId()->toRfc4122(), $poll->getQuestion(), $total, $votedOptionId, $views);
+        return new PollView(
+            $poll->getId()->toRfc4122(),
+            $poll->getQuestion(),
+            $total,
+            $votedOptionId,
+            $views,
+            $poll->getEndsAt()?->format(\DateTimeInterface::ATOM),
+        );
     }
 
     /** @return array{id: string, slug: string, name: string, status: string} */

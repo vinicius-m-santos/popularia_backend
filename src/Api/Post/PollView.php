@@ -15,6 +15,7 @@ final readonly class PollView
         public int $totalVotes,
         public ?string $votedOptionId,
         public array $options,
+        public ?string $endsAt = null,
     ) {
     }
 }

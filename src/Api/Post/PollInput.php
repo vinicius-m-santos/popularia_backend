@@ -23,6 +23,10 @@ final class PollInput
     #[Assert\Valid]
     public array $options = [];
 
+    /** Prazo opcional em dias, contado da publicação. Sem valor, a enquete não encerra. */
+    #[Assert\Range(min: Poll::MIN_DURATION_DAYS, max: Poll::MAX_DURATION_DAYS, notInRangeMessage: 'Escolha um prazo entre {{ min }} e {{ max }} dias.')]
+    public ?int $durationDays = null;
+
     #[Assert\Callback]
     public function validateDistinctOptions(ExecutionContextInterface $context): void
     {

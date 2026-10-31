@@ -59,6 +59,9 @@ final readonly class PollVoteProcessor implements ProcessorInterface
             $now = $this->clock->now();
             $this->gamification->prepare($voter, $now);
             $this->em->lock($poll, LockMode::PESSIMISTIC_WRITE);
+            if ($poll->isClosed($now)) {
+                throw ApiProblem::conflict('/errors/poll-closed', 'Esta enquete já encerrou.');
+            }
             $option = $this->optionOf($poll, $data->optionId) ?? throw new ValidationException(new ConstraintViolationList([new ConstraintViolation('Escolha uma opção desta enquete.', null, [], $data, 'optionId', $data->optionId)]));
             $existing = $this->votes->findForUser($poll, $voter);
             if (null !== $existing) {

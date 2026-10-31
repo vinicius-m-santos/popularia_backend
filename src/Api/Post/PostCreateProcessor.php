@@ -147,6 +147,9 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             $this->filter->assertText($label, $post->getComuna());
         }
         $this->filter->assertText($question, $post->getComuna());
-        new Poll($post, $question, $labels);
+        $endsAt = null === $input->durationDays
+            ? null
+            : $this->clock->now()->modify(\sprintf('+%d days', $input->durationDays));
+        new Poll($post, $question, $labels, $endsAt);
     }
 }

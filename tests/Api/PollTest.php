@@ -27,6 +27,7 @@ final class PollTest extends ApiTestCase
         self::assertSame('Qual livro vamos ler?', $post['poll']['question']);
         self::assertNull($post['poll']['votedOptionId']);
         self::assertSame(0, $post['poll']['totalVotes']);
+        self::assertNull($post['poll']['endsAt']);
         self::assertSame(['O cortiço', 'Capitães da Areia'], array_column($post['poll']['options'], 'label'));
         self::assertSame([0, 0], array_column($post['poll']['options'], 'voteCount'));
         self::assertSame([0, 0], array_column($post['poll']['options'], 'percent'));
@@ -37,6 +38,58 @@ final class PollTest extends ApiTestCase
         self::assertSame($post['poll']['id'], $feed['items'][0]['poll']['id']);
         self::assertSame('O cortiço', $feed['items'][0]['poll']['options'][0]['label']);
         self::assertSame($author->getId()->toRfc4122(), $this->fresh(Poll::class, $post['poll']['id'])->getPost()->getAuthor()->getId()->toRfc4122());
+    }
+
+    public function testPollWithDeadlineAcceptsVotesUntilItCloses(): void
+    {
+        $this->createUser('camila');
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+
+        $post = $this->request('POST', '/posts', [
+            'body' => 'Contexto',
+            'poll' => [
+                'question' => 'Qual livro vamos ler?',
+                'options' => [['label' => 'Um'], ['label' => 'Dois']],
+                'durationDays' => 5,
+            ],
+        ], $token);
+        $this->assertStatus(201);
+        self::assertNotNull($post['poll']['endsAt']);
+        $endsAt = new \DateTimeImmutable($post['poll']['endsAt']);
+        self::assertEqualsWithDelta(time() + 5 * 86400, $endsAt->getTimestamp(), 120);
+
+        self::mockTime($endsAt->modify('-1 hour'));
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+        $open = $this->request('PUT', '/posts/'.$post['id'].'/poll/vote', ['optionId' => $post['poll']['options'][0]['id']], $token);
+        $this->assertStatus(200);
+        self::assertSame(1, $open['poll']['totalVotes']);
+        self::assertSame($endsAt->format(\DateTimeInterface::ATOM), $open['poll']['endsAt']);
+
+        self::mockTime($endsAt->modify('+1 minute'));
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+        $closed = $this->request('PUT', '/posts/'.$post['id'].'/poll/vote', ['optionId' => $post['poll']['options'][1]['id']], $token);
+        $this->assertStatus(409);
+        self::assertSame('/errors/poll-closed', $closed['type']);
+        self::assertSame(1, $this->countVotes($post['poll']['id']));
+    }
+
+    public function testPollDurationMustBeBetweenOneAndThirtyDays(): void
+    {
+        $this->createUser('camila');
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+
+        foreach ([0, 31] as $days) {
+            $invalid = $this->request('POST', '/posts', [
+                'body' => 'Contexto',
+                'poll' => [
+                    'question' => 'Pergunta',
+                    'options' => [['label' => 'Uma'], ['label' => 'Duas']],
+                    'durationDays' => $days,
+                ],
+            ], $token);
+            $this->assertStatus(422);
+            self::assertSame('poll.durationDays', $invalid['violations'][0]['propertyPath']);
+        }
     }
 
     public function testInvalidPollIsRejected(): void

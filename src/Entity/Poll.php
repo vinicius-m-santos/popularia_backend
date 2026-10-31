@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
@@ -13,7 +14,7 @@ use Symfony\Component\Uid\Uuid;
 /**
  * Enquete opcional de uma publicação.
  *
- * V1: uma opção por pessoa, o voto pode ser trocado, sem prazo e sem múltipla escolha.
+ * V1: uma opção por pessoa, o voto pode ser trocado e o prazo é opcional e imutável.
  * A enquete nasce com a publicação e não é editável — não há edição de publicação, e
  * trocar opções depois de existirem votos quebraria o resultado. Apagar a publicação
  * (pela autoria) remove a enquete, as opções e os votos. A remoção por moderação
@@ -28,6 +29,8 @@ class Poll
     public const int OPTION_MAX_LENGTH = 80;
     public const int MIN_OPTIONS = 2;
     public const int MAX_OPTIONS = 6;
+    public const int MIN_DURATION_DAYS = 1;
+    public const int MAX_DURATION_DAYS = 30;
 
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME)]
@@ -46,6 +49,8 @@ class Poll
         #[ORM\Column(length: self::QUESTION_MAX_LENGTH)]
         private string $question,
         array $labels,
+        #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
+        private ?\DateTimeImmutable $endsAt = null,
     ) {
         $count = \count($labels);
         if ($count < self::MIN_OPTIONS || $count > self::MAX_OPTIONS) {
@@ -72,6 +77,17 @@ class Poll
     public function getQuestion(): string
     {
         return $this->question;
+    }
+
+    /** Prazo opcional, contado a partir da publicação. Sem prazo, a enquete não encerra. */
+    public function getEndsAt(): ?\DateTimeImmutable
+    {
+        return $this->endsAt;
+    }
+
+    public function isClosed(\DateTimeImmutable $now): bool
+    {
+        return null !== $this->endsAt && $this->endsAt <= $now;
     }
 
     /** @return list<PollOption> */

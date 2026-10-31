@@ -7,15 +7,61 @@
 <meta property="og:title" content="{{ title }}"><meta property="og:description" content="{{ description }}">
 <meta property="og:url" content="{{ canonical }}"><meta property="og:type" content="{{ ogType }}">
 <meta property="og:site_name" content="Popularia"><meta property="og:locale" content="pt_BR">
-<meta property="og:image" content="{{ image }}"><meta property="og:image:alt" content="Símbolo do Popularia">
-<meta name="twitter:card" content="summary"><meta name="twitter:title" content="{{ title }}">
+<meta property="og:image" content="{{ image }}"><meta property="og:image:alt" content="{{ imageAlt }}">
+{% if imageWidth %}<meta property="og:image:width" content="{{ imageWidth }}"><meta property="og:image:height" content="{{ imageHeight }}">
+{% endif %}<meta name="twitter:card" content="{{ imageWidth ? 'summary_large_image' : 'summary' }}"><meta name="twitter:title" content="{{ title }}">
 <meta name="twitter:description" content="{{ description }}"><meta name="twitter:image" content="{{ image }}">
+<meta name="theme-color" content="#F4ECDD">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#F4ECDD;color:#211e1b;font-family:system-ui,sans-serif;line-height:1.6}header{border-bottom:2px solid;padding:18px 24px;font-weight:900;font-size:24px}main{max-width:700px;margin:48px auto;padding:0 24px}img{width:80px;height:80px;object-fit:contain}h1{font-size:clamp(26px,5vw,40px);line-height:1.25}article{white-space:pre-wrap;border-top:1px solid;padding-top:24px}a{display:inline-block;background:#B82025;color:white;border:2px solid #211e1b;padding:12px 20px;margin:24px 0;font-weight:700}small{display:block}p{overflow-wrap:anywhere}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:400;font-display:swap;src:url('/sharing/fonts/Archivo_400Regular.ttf') format('truetype')}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:700;font-display:swap;src:url('/sharing/fonts/Archivo_700Bold.ttf') format('truetype')}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:800;font-display:swap;src:url('/sharing/fonts/Archivo_800ExtraBold.ttf') format('truetype')}
+@font-face{font-family:'Archivo Narrow';font-style:normal;font-weight:700;font-display:swap;src:url('/sharing/fonts/ArchivoNarrow_700Bold.ttf') format('truetype')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('/sharing/fonts/IBMPlexMono_500Medium.ttf') format('truetype')}
+:root{color-scheme:light;--cream:#F4ECDD;--paper:#FBF7EF;--ink:#16120F;--soft:#443B34;--red:#D62718;--rule:#C9BCA5;--muted:#6B6259;--straw:#E4D6BD;--display:'Archivo Narrow','Arial Narrow',Impact,sans-serif;--body:'Archivo',Arial,sans-serif;--mono:'IBM Plex Mono','Courier New',monospace;--gutter:clamp(20px,4vw,56px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:17px/1.62 var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-underline-offset:3px}
+.top{border-bottom:1.5px solid var(--ink);padding:0 var(--gutter)}
+.top-in{max-width:760px;margin:0 auto;display:flex;align-items:baseline;justify-content:space-between;gap:16px;min-height:64px;flex-wrap:wrap;padding:12px 0}
+.wordmark{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.01em;line-height:1;text-transform:uppercase}
+.wordmark span{color:var(--red)}
+.top-note{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+main{max-width:760px;margin:0 auto;padding:clamp(28px,5vw,56px) var(--gutter) 64px}
+.kicker{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin:0 0 18px}
+.kicker::before{content:'';width:8px;height:8px;background:var(--red);flex:none}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(38px,7.2vw,64px);line-height:1.02;letter-spacing:-.01em;margin:0 0 22px;text-wrap:balance}
+.lead{font-size:clamp(18px,2.2vw,21px);line-height:1.5;color:var(--soft);margin:0 0 28px;max-width:58ch}
+.hero{margin:0 0 32px;border:1.5px solid var(--ink);background:var(--straw);overflow:hidden}
+.hero img{display:block;width:100%;max-height:min(46vh,380px);object-fit:cover}
+article{white-space:pre-wrap;border-top:1px solid var(--rule);padding-top:26px;margin:0 0 36px;max-width:62ch;overflow-wrap:anywhere}
+.cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;border-top:1px solid var(--rule);padding-top:28px}
+.button{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;border:1.5px solid var(--ink);padding:17px 26px;font-family:var(--mono);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;min-height:52px}
+.button:hover{background:#A51C10}
+.hint{font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--muted);margin:0;max-width:44ch}
+.restricted{border:1.5px solid var(--ink);background:var(--paper);padding:20px;margin:0 0 32px;font-size:15.5px;line-height:1.6;color:var(--soft)}
+footer{border-top:1px solid var(--rule);margin-top:44px;padding-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--muted);line-height:1.8}
+footer a{color:var(--soft)}
+@media (max-width:520px){.top-in{min-height:56px}.button{width:100%;justify-content:center}}
 </style>
 </head>
-<body><header>Popularia</header><main><img src="{{ image }}" alt=""><p>{{ kindLabel }}</p><h1>{{ title }}</h1><p>{{ description }}</p>
+<body>
+<header class="top"><div class="top-in"><span class="wordmark">Popula<span>ria</span></span><span class="top-note">um lugar para a gente</span></div></header>
+<main>
+<p class="kicker">{{ kindLabel }}{% if when %} · {{ when }}{% endif %}</p>
+<h1>{{ headline }}</h1>
+{% if imageWidth %}<figure class="hero"><img src="{{ image }}" alt="{{ imageAlt }}"></figure>{% endif %}
+{% if lead %}<p class="lead">{{ lead }}</p>{% endif %}
+{% if not public %}<p class="restricted">Este conteúdo pode ser restrito, ter sido removido ou não estar disponível. O acesso é conferido dentro do aplicativo.</p>{% endif %}
 {% if body %}<article>{{ body }}</article>{% endif %}
-{% if not public %}<p>O conteúdo pode ser restrito, ter sido removido ou não estar disponível. O acesso é verificado no aplicativo.</p>{% endif %}
-<a href="{{ appUrl }}">Abrir no Popularia</a><small>Se o aplicativo ainda não estiver instalado, instale o Popularia e abra novamente este link. Nenhuma permissão é concedida pelo link.</small>
-</main></body></html>
+<div class="cta">
+<a class="button" href="{{ appUrl }}">Abrir no Popularia →</a>
+<p class="hint">Se o aplicativo ainda não estiver instalado, instale o Popularia e abra este link de novo. Nenhuma permissão é concedida pelo link.</p>
+</div>
+<footer>
+Popularia — um lugar para a gente<br>
+Nenhuma permissão é concedida por este endereço.
+</footer>
+</main>
+</body>
+</html>

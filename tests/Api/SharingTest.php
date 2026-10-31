@@ -11,6 +11,8 @@ use App\Enum\ComunaVisibility;
 use App\Enum\LibraryAccess;
 use App\Sharing\AssociationController;
 use App\Sharing\PublicLinks;
+use App\Tests\Library\MemoryStorage;
+use App\Entity\PostMedia;
 use App\Tests\ApiTestCase;
 use Symfony\Component\Uid\Uuid;
 
@@ -41,6 +43,49 @@ final class SharingTest extends ApiTestCase
         self::assertStringContainsString('no-store', (string) $this->client->getResponse()->headers->get('Cache-Control'));
         self::assertResponseHeaderSame('X-Robots-Tag', 'noindex, noarchive');
         self::assertResponseHeaderSame('Referrer-Policy', 'no-referrer');
+    }
+
+    public function testPostImageBecomesTheCardCoverAndIsServedPublicly(): void
+    {
+        $user = $this->createUser();
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+        $key = 'post-media/card.jpg';
+        $bytes = "jpeg-bytes-do-cartao";
+        MemoryStorage::$objects[$key] = $bytes;
+        $media = new PostMedia($user, Uuid::v7()->toRfc4122(), $key, 'image', 'image/jpeg', hash('sha256', $bytes), strlen($bytes), 1200, 800, null, new \DateTimeImmutable());
+        $media->status = 'ready';
+        $this->em()->persist($media);
+        $this->em()->flush();
+
+        $post = $this->request('POST', '/posts', ['body' => 'Com foto', 'mediaId' => $media->id->toRfc4122()], $token);
+        $this->assertStatus(201);
+        $id = $post['id'];
+
+        $this->client->request('GET', '/p/'.$id);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('meta[property="og:image"][content="http://localhost:8080/p/'.$id.'/image"]');
+        self::assertSelectorExists('meta[name="twitter:card"][content="summary_large_image"]');
+        self::assertSelectorExists('meta[property="og:image:width"][content="1200"]');
+        self::assertSelectorExists('meta[property="og:image:height"][content="800"]');
+
+        $this->client->request('GET', '/p/'.$id.'/image');
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('Content-Type', 'image/jpeg');
+        self::assertSame($bytes, (string) $this->client->getResponse()->getContent());
+    }
+
+    public function testPostWithoutImageKeepsTheSymbolAndHasNoPublicImage(): void
+    {
+        $user = $this->createUser();
+        $post = $this->createPost($user, null);
+        $id = $post->getId()->toRfc4122();
+
+        $this->client->request('GET', '/p/'.$id);
+        self::assertSelectorExists('meta[property="og:image"][content="http://localhost:8080/sharing/popularia.png"]');
+        self::assertSelectorExists('meta[name="twitter:card"][content="summary"]');
+
+        $this->client->request('GET', '/p/'.$id.'/image');
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testPrivateProfileAndItsPostsNeverLeak(): void

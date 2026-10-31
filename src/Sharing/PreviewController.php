@@ -92,11 +92,38 @@ final readonly class PreviewController
                 $description = 'Veja publicações sobre este assunto.';
             }
         }
+        // Título de leitura: a primeira frase do conteúdo vence o rótulo genérico.
+        $headline = $title;
+        $lead = $description;
+        if ('p' === $type && $public && '' !== trim($body)) {
+            $flat = self::plain($body, 2000);
+            $sentence = preg_split('/(?<=[.!?])\s+/u', $flat, 2)[0] ?? $flat;
+            $headline = mb_strlen($sentence) > 96 ? mb_substr($sentence, 0, 95).'…' : $sentence;
+            // Corpo curto é o próprio título: repetir aqui só aumenta a página.
+            if (mb_strlen($flat) <= mb_strlen($headline) + 12) {
+                $body = '';
+                $lead = '';
+            } elseif ($lead === $headline) {
+                $lead = '';
+            }
+        }
         $url = $this->links->url($type, $id);
+        // Publicação com imagem ganha capa própria: o cartão mostra o conteúdo, não só o símbolo.
+        $image = $this->links->origin.'/sharing/popularia.png';
+        $imageWidth = null;
+        $imageHeight = null;
+        if ('p' === $type && $public && isset($post) && null !== $post->media && 'image' === $post->media->kind) {
+            $image = $this->links->origin.'/p/'.$id.'/image';
+            $imageWidth = $post->media->width;
+            $imageHeight = $post->media->height;
+        }
         $response = new Response($this->twig->render('sharing/preview.html.twig', [
             'title' => self::plain($title, 160), 'description' => $description, 'body' => $body,
-            'canonical' => $url, 'image' => $this->links->origin.'/sharing/popularia.png',
+            'headline' => $headline, 'lead' => $lead,
+            'canonical' => $url, 'image' => $image, 'imageWidth' => $imageWidth, 'imageHeight' => $imageHeight,
+            'imageAlt' => null === $imageWidth ? 'Símbolo do Popularia' : 'Imagem da publicação',
             'appUrl' => 'populariamobile://'.$type.'/'.rawurlencode($id), 'public' => $public,
+            'when' => 'p' === $type && $public && isset($post) ? $post->getCreatedAt()->format('d/m/Y') : null,
             'kindLabel' => ['p' => 'Publicação', 'u' => 'Perfil', 'c' => 'Comuna', 'd' => 'Documento', 'e' => 'Evento', 't' => 'Tópico'][$type],
             'ogType' => $public ? ['p' => 'article', 'u' => 'profile', 'c' => 'website', 'd' => 'website', 'e' => 'article', 't' => 'website'][$type] : 'website',
         ]), $public || ('d' === $type && Uuid::isValid($id)) ? 200 : 404);
@@ -104,7 +131,7 @@ final readonly class PreviewController
         $response->headers->set('X-Robots-Tag', 'noindex, noarchive');
         $response->headers->set('Referrer-Policy', 'no-referrer');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
+        $response->headers->set('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
 
         return $response;
     }

@@ -46,6 +46,8 @@ final readonly class GamificationView
         public int $dayBonusXp,
         public array $missions,
         public array $achievements,
+        /** Dia civil (America/Sao_Paulo) da última participação válida; null sem nenhuma. */
+        public ?string $lastActivityOn = null,
     ) {
     }
 }

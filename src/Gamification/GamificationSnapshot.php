@@ -17,6 +17,7 @@ final readonly class GamificationSnapshot
         public int $streak,
         public array $missions,
         public array $unlockedAt,
+        public ?string $lastActivityOn = null,
     ) {
     }
 }

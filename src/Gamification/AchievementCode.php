@@ -28,6 +28,20 @@ enum AchievementCode: string
         };
     }
 
+    /** Como ganhar, na voz de quem ainda não desbloqueou. */
+    public function criterion(): string
+    {
+        return match ($this) {
+            self::PrimeiroPasso => 'Participe de uma enquete.',
+            self::ParaDepois => 'Salve uma publicação.',
+            self::NaConversa => 'Participe de uma discussão.',
+            self::EmComunidade => 'Entre em uma comuna.',
+            self::Organizando => 'Confirme interesse em um evento.',
+            self::Constancia => 'Mantenha três dias seguidos de atividade.',
+            self::UmaSemana => 'Mantenha sete dias seguidos de atividade.',
+        };
+    }
+
     public function detail(): string
     {
         return match ($this) {

@@ -10,6 +10,7 @@ final readonly class GamificationAchievementView
         public string $code,
         public string $title,
         public string $detail,
+        public string $criterion,
         public bool $unlocked,
         public ?\DateTimeImmutable $unlockedAt,
     ) {

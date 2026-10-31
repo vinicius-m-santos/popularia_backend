@@ -35,6 +35,8 @@ final class GamificationTest extends ApiTestCase
         self::assertSame(GamificationCatalog::DAY, $body['dayBonusXp']);
         self::assertSame([], $body['missions']);
         self::assertCount(7, $body['achievements']);
+        self::assertSame('Participe de uma enquete.', $body['achievements'][0]['criterion']);
+        self::assertNull($body['lastActivityOn']);
         self::assertSame([], $this->ledger($user));
         self::assertNull($this->em()->getConnection()->fetchOne('SELECT last_activity_on FROM gamification_profile WHERE user_id = ?', [$user->getId()->toRfc4122()]));
 
@@ -246,12 +248,14 @@ final class GamificationTest extends ApiTestCase
         $token = $this->login('leia@exemplo.org')['accessToken'];
         $this->save($posts[1], $token);
         self::assertSame(1, $this->state($token)['streak']);
+        self::assertSame('2026-06-15', $this->state($token)['lastActivityOn']);
         self::assertSame('2026-06-15', $this->activityOn($reader));
 
         $this->mockTime('2026-06-16T03:30:00+00:00');
         $token = $this->login('leia@exemplo.org')['accessToken'];
         $this->save($posts[2], $token);
         self::assertSame(2, $this->state($token)['streak']);
+        self::assertSame('2026-06-16', $this->state($token)['lastActivityOn']);
         self::assertSame('2026-06-16', $this->activityOn($reader));
 
         $this->mockTime('2026-06-18T15:00:00-03:00');

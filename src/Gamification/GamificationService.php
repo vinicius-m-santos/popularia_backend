@@ -245,6 +245,8 @@ final readonly class GamificationService
         $day = CivilDay::date($now);
         $xp = (int) $db->fetchOne('SELECT xp_total FROM gamification_profile WHERE user_id = :user', ['user' => $id]);
         $streak = (int) $db->fetchOne('SELECT streak_current FROM gamification_profile WHERE user_id = :user', ['user' => $id]);
+        $lastActivityOn = $db->fetchOne('SELECT last_activity_on::text FROM gamification_profile WHERE user_id = :user', ['user' => $id]);
+        $lastActivityOn = \is_string($lastActivityOn) && '' !== $lastActivityOn ? $lastActivityOn : null;
         $missions = [];
         foreach ($db->fetchAllAssociative(
             'SELECT action, completed_at FROM gamification_mission WHERE user_id = :user AND civil_date = :day ORDER BY slot',
@@ -267,7 +269,7 @@ final readonly class GamificationService
             }
         }
 
-        return new GamificationSnapshot($id, LevelProgress::fromXp($xp), $streak, $missions, $unlocked);
+        return new GamificationSnapshot($id, LevelProgress::fromXp($xp), $streak, $missions, $unlocked, $lastActivityOn);
     }
 
     private function instant(mixed $value): ?\DateTimeImmutable

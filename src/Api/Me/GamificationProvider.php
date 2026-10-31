@@ -30,7 +30,7 @@ final readonly class GamificationProvider implements ProviderInterface
         $achievements = [];
         foreach (AchievementCode::cases() as $code) {
             $at = $state->unlockedAt[$code->value] ?? null;
-            $achievements[] = new GamificationAchievementView($code->value, $code->title(), $code->detail(), null !== $at, $at);
+            $achievements[] = new GamificationAchievementView($code->value, $code->title(), $code->detail(), $code->criterion(), null !== $at, $at);
         }
 
         return new GamificationView(
@@ -44,6 +44,7 @@ final readonly class GamificationProvider implements ProviderInterface
             GamificationCatalog::DAY,
             $missions,
             $achievements,
+            $state->lastActivityOn,
         );
     }
 }

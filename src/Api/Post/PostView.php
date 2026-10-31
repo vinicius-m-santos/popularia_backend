@@ -168,6 +168,7 @@ final readonly class PostView
         #[ApiProperty(identifier: true)]
         public string $id,
         public string $body,
+        public ?string $title,
         public \DateTimeImmutable $createdAt,
         public AuthorView $author,
         public ?array $comuna,

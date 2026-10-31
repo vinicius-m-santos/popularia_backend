@@ -25,6 +25,7 @@ use Symfony\Component\Uid\Uuid;
 class Post
 {
     public const int BODY_MAX_LENGTH = 1000;
+    public const int TITLE_MAX_LENGTH = 120;
 
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME)]
@@ -52,6 +53,8 @@ class Post
         #[ORM\Column(type: Types::TEXT)]
         private string $body,
         \DateTimeImmutable $now,
+        #[ORM\Column(length: 120, nullable: true)]
+        private ?string $title = null,
     ) {
         $this->id = Uuid::v7();
         $this->createdAt = $now;
@@ -119,6 +122,11 @@ class Post
     public function getBody(): string
     {
         return $this->body;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
     }
 
     public function getStatus(): ContentStatus

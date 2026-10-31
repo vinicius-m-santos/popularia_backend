@@ -30,8 +30,13 @@ final class PostInput
     #[Assert\Uuid(message: 'Evento inválido.')]
     public ?string $eventId = null;
 
+    /** Título opcional: com ele, a publicação abre em manchete; sem ele, vale a descrição. */
+    #[Assert\Length(max: Post::TITLE_MAX_LENGTH, maxMessage: 'Use até {{ limit }} caracteres no título.')]
+    #[Assert\Regex(pattern: TextRules::SINGLE_LINE, message: TextRules::MESSAGE)]
+    public ?string $title = null;
+
     #[Assert\Expression(expression: 'this.documentId == null or this.mediaId == null', message: 'Escolha apenas um anexo: PDF, imagem ou vídeo.')]
-    #[Assert\When(expression: 'this.documentId == null and this.mediaId == null and this.poll == null', constraints: [new Assert\NotBlank(message: 'Escreva alguma coisa para publicar.', normalizer: 'trim')])]
+    #[Assert\When(expression: 'this.documentId == null and this.mediaId == null and this.poll == null and (this.title == null or this.title == \'\')', constraints: [new Assert\NotBlank(message: 'Escreva alguma coisa para publicar.', normalizer: 'trim')])]
     #[Assert\Length(max: Post::BODY_MAX_LENGTH, maxMessage: 'Use até {{ limit }} caracteres.')]
     #[Assert\Regex(pattern: TextRules::MULTI_LINE, message: TextRules::MESSAGE)]
     public string $body = '';

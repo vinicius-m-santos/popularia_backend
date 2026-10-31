@@ -94,6 +94,7 @@ final readonly class PostViews
             return new PostView(
                 $post->getId()->toRfc4122(),
                 $post->getBody(),
+                $post->getTitle(),
                 $post->getCreatedAt(),
                 AuthorView::fromUser($post->getAuthor()),
                 null === $comuna ? null : self::comunaSummary($comuna),

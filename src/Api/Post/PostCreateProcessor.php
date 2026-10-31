@@ -62,10 +62,19 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             $this->policy->assertCanPostIn($comuna, $author);
             $this->rateLimit->consume('content_creation', $author->getUserIdentifier());
 
+            $title = null === $data->title ? null : trim($data->title);
+            $title = '' === $title ? null : $title;
+            if (null !== $title) {
+                $this->filter->assertText($title, $comuna);
+            }
             $this->filter->assertText($data->body, $comuna);
             $body = TextNormalizer::normalize($data->body);
+            // Título só com espaços não conta como conteúdo: a publicação precisa de algo.
+            if ('' === $body && null === $title && null === $data->documentId && null === $data->mediaId && null === $data->poll) {
+                throw ApiProblem::badRequest('/errors/empty-post', 'Escreva alguma coisa para publicar.');
+            }
             $hashtags = $this->hashtagParser->extract($body);
-            $post = new Post($author, $comuna, $body, $this->clock->now());
+            $post = new Post($author, $comuna, $body, $this->clock->now(), $title);
             $post->setTopic(null === $data->topic ? null : Topic::from($data->topic));
             if (null !== $data->documentId) {
                 $document = $this->library->find($data->documentId);

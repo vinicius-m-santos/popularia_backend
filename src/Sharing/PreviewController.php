@@ -97,8 +97,14 @@ final readonly class PreviewController
         $lead = $description;
         if ('p' === $type && $public && '' !== trim($body)) {
             $flat = self::plain($body, 2000);
-            $sentence = preg_split('/(?<=[.!?])\s+/u', $flat, 2)[0] ?? $flat;
-            $headline = mb_strlen($sentence) > 96 ? mb_substr($sentence, 0, 95).'…' : $sentence;
+            $postTitle = isset($post) ? trim((string) $post->getTitle()) : '';
+            if ('' !== $postTitle) {
+                $headline = mb_strlen($postTitle) > 96 ? mb_substr($postTitle, 0, 95).'…' : $postTitle;
+                $lead = mb_strlen($flat) > 160 ? mb_substr($flat, 0, 159).'…' : $flat;
+            } else {
+                $sentence = preg_split('/(?<=[.!?])\s+/u', $flat, 2)[0] ?? $flat;
+                $headline = mb_strlen($sentence) > 96 ? mb_substr($sentence, 0, 95).'…' : $sentence;
+            }
             // Corpo curto é o próprio título: repetir aqui só aumenta a página.
             if (mb_strlen($flat) <= mb_strlen($headline) + 12) {
                 $body = '';

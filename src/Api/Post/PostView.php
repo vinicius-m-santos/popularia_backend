@@ -184,6 +184,8 @@ final readonly class PostView
         public ?PollView $poll = null,
         public array $mentions = [],
         public ?EventSummary $event = null,
+        /** O comentário de topo mais apoiado, para a citação do cartão. */
+        public ?TopCommentView $topComment = null,
     ) {
     }
 }

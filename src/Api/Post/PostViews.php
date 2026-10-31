@@ -16,9 +16,11 @@ use App\Entity\Post;
 use App\Entity\User;
 use App\Poll\PollPercents;
 use App\Repository\ComunaMembershipRepository;
+use App\Repository\CommentRepository;
 use App\Repository\ContentMentionRepository;
 use App\Repository\EventAttendanceRepository;
 use App\Repository\PollVoteRepository;
+use App\Repository\UserBlockRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
 
@@ -42,6 +44,8 @@ final readonly class PostViews
         private \App\Repository\PostEchoRepository $echoes,
         private EntityManagerInterface $em,
         private EventAttendanceRepository $attendance,
+        private CommentRepository $comments,
+        private UserBlockRepository $blocks,
         private ClockInterface $clock,
     ) {
     }
@@ -80,10 +84,12 @@ final readonly class PostViews
         $mentions = $this->mentions->groupedByPost($posts);
         $pinned = $this->pins->pinnedPostIds($posts);
         $linked = $this->linkedEvents($posts, $viewer);
+        $topComments = $this->comments->topForPosts($posts, array_keys($this->blocks->blockedEitherWayIds($viewer)));
 
-        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved, $support, $echo, $mentions, $pinned, $linked): PostView {
+        return array_map(function (Post $post) use ($viewer, $memberOf, $documentViews, $choices, $saved, $support, $echo, $mentions, $pinned, $linked, $topComments): PostView {
             $comuna = $post->getComuna();
             $membership = null === $comuna ? null : ($memberOf[$comuna->getId()->toRfc4122()] ?? null);
+            $top = $topComments[$post->getId()->toRfc4122()] ?? null;
             $isAuthor = null !== $viewer && $post->getAuthor()->getId()->equals($viewer->getId());
             $canComment = null !== $viewer
                 && $viewer->isEmailVerified()
@@ -112,6 +118,12 @@ final readonly class PostViews
                 null === $post->getPoll() ? null : self::poll($post->getPoll(), $choices[$post->getPoll()->getId()->toRfc4122()] ?? null),
                 array_map(MentionView::fromMention(...), $mentions[$post->getId()->toRfc4122()] ?? []),
                 $linked[$post->getId()->toRfc4122()] ?? null,
+                null === $top ? null : new TopCommentView(
+                    $top['comment']->getId()->toRfc4122(),
+                    $top['comment']->getBody(),
+                    $top['supportCount'],
+                    AuthorView::fromUser($top['comment']->getAuthor()),
+                ),
             );
         }, $posts);
     }

@@ -15,8 +15,8 @@ use App\Entity\Poll;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Poll\PollPercents;
-use App\Repository\ComunaMembershipRepository;
 use App\Repository\CommentRepository;
+use App\Repository\ComunaMembershipRepository;
 use App\Repository\ContentMentionRepository;
 use App\Repository\EventAttendanceRepository;
 use App\Repository\PollVoteRepository;
@@ -124,6 +124,7 @@ final readonly class PostViews
                     $top['supportCount'],
                     AuthorView::fromUser($top['comment']->getAuthor()),
                 ),
+                $post->getTopics(),
             );
         }, $posts);
     }
@@ -153,8 +154,10 @@ final readonly class PostViews
             }
         }
         $counts = $this->attendance->counts($events, $viewer);
+        $mine = $this->attendance->viewerStatuses($events, $viewer);
         $now = $this->clock->now();
         $summaries = [];
+        $previews = [];
         foreach ($rows as $row) {
             $event = $row->getEvent();
             if (!$event instanceof ComunaEvent) {
@@ -162,6 +165,10 @@ final readonly class PostViews
             }
             $id = $event->getId()->toRfc4122();
             $zone = EventSchedule::zone($event->getTimeZone());
+            $previews[$id] ??= array_map(
+                static fn (User $user): AuthorView => AuthorView::fromUser($user),
+                $this->attendance->goingPreview($event, $viewer),
+            );
             $summaries[$row->getId()->toRfc4122()] = new EventSummary(
                 $id,
                 $event->getTitle(),
@@ -173,6 +180,12 @@ final readonly class PostViews
                 $counts[$id]['going'],
                 $counts[$id]['maybe'],
                 EventSchedule::isPast($now, $event->getStartsAt(), $event->getEndsAt()),
+                $event->getAddress(),
+                $event->getEndsAt()?->setTimezone($zone),
+                $event->getCapacityMode()?->value,
+                $event->getCapacity(),
+                $mine[$id]->value ?? null,
+                $previews[$id],
             );
         }
 

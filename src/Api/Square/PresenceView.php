@@ -48,7 +48,7 @@ use ApiPlatform\OpenApi\Model\Operation;
 )]
 final readonly class PresenceView
 {
-    /** @param list<array{id: string, handle: string, displayName: string}> $people */
+    /** @param list<array{id: string, handle: string, displayName: string, avatarUrl: ?string}> $people */
     public function __construct(public int $count, public array $people)
     {
     }

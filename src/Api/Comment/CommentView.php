@@ -65,6 +65,18 @@ use App\Entity\ContentMention;
             processor: CommentSupportProcessor::class,
             openapi: new Operation(tags: ['Comentários'], summary: 'Remove o próprio apoio de um comentário; operação idempotente.'),
         ),
+        new Delete(
+            uriTemplate: '/comments/{id}',
+            status: 204,
+            security: "is_granted('ROLE_USER')",
+            read: false,
+            input: false,
+            output: false,
+            deserialize: false,
+            validate: false,
+            processor: CommentDeleteProcessor::class,
+            openapi: new Operation(tags: ['Comentários'], summary: 'Apaga o próprio comentário (soft delete).'),
+        ),
         new PostOperation(
             uriTemplate: '/comments/{id}/removal',
             status: 204,

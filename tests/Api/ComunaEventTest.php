@@ -308,4 +308,114 @@ final class ComunaEventTest extends ApiTestCase
         $this->request('POST', '/posts', ['comunaId' => null, 'body' => 'No perfil', 'eventId' => $event['id']], $token);
         $this->assertStatus(400);
     }
+
+    public function testUserCanCreateAndPublishAProfileCall(): void
+    {
+        $author = $this->createUser('camila');
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+
+        $event = $this->request('POST', '/me/events', $this->eventBody(), $token);
+        $this->assertStatus(201);
+        self::assertNull($event['comuna']);
+        self::assertTrue($event['canManage']);
+        self::assertTrue($event['canRespond']);
+
+        $post = $this->request('POST', '/posts', [
+            'comunaId' => null,
+            'body' => 'Detalhes do chamado.',
+            'title' => 'Chamado no perfil',
+            'eventId' => $event['id'],
+        ], $token);
+        $this->assertStatus(201);
+        self::assertNull($post['comuna']);
+        self::assertSame($event['id'], $post['event']['id']);
+        self::assertSame('Assembleia mensal', $post['event']['title']);
+
+        $this->request('GET', '/events/'.$event['id'], token: $token);
+        $this->assertStatus(200);
+        $this->request('GET', '/events/'.$event['id'], token: $this->login($this->createUser('outra')->getEmail())['accessToken']);
+        $this->assertStatus(200);
+        unset($author);
+    }
+
+    public function testCallCapacityAndPostSummary(): void
+    {
+        $owner = $this->createUser('dona');
+        $member = $this->createUser('membro');
+        $comuna = $this->createComuna('londrina', owner: $owner);
+        $this->addMember($comuna, $member);
+        $ownerToken = $this->login('dona@exemplo.org')['accessToken'];
+        $memberToken = $this->login('membro@exemplo.org')['accessToken'];
+
+        $spots = $this->request('POST', '/comunas/londrina/events', $this->eventBody(override: [
+            'capacityMode' => 'spots',
+            'capacity' => 8,
+        ]), $ownerToken);
+        $this->assertStatus(201);
+        self::assertSame('spots', $spots['capacityMode']);
+        self::assertSame(8, $spots['capacity']);
+
+        $goal = $this->request('POST', '/comunas/londrina/events', $this->eventBody('+4 days', override: [
+            'title' => 'Piquenique',
+            'capacityMode' => 'goal',
+            'capacity' => 10,
+        ]), $ownerToken);
+        $this->assertStatus(201);
+        self::assertSame('goal', $goal['capacityMode']);
+        self::assertSame(10, $goal['capacity']);
+
+        $free = $this->request('POST', '/comunas/londrina/events', $this->eventBody('+5 days', override: ['title' => 'Entrada livre']), $ownerToken);
+        $this->assertStatus(201);
+        self::assertNull($free['capacityMode']);
+        self::assertNull($free['capacity']);
+
+        $unknown = $this->eventBody(override: ['capacityMode' => 'limite', 'capacity' => 5]);
+        $this->request('POST', '/comunas/londrina/events', $unknown, $ownerToken);
+        $this->assertStatus(400);
+        self::assertSame('/errors/event-capacity', $this->request('POST', '/comunas/londrina/events', $unknown, $ownerToken)['type']);
+
+        $missing = $this->eventBody('+6 days', override: ['capacityMode' => 'spots']);
+        $this->request('POST', '/comunas/londrina/events', $missing, $ownerToken);
+        $this->assertStatus(400);
+
+        $tooBig = $this->eventBody('+7 days', override: ['capacityMode' => 'goal', 'capacity' => 1001]);
+        $this->request('POST', '/comunas/londrina/events', $tooBig, $ownerToken);
+        $this->assertStatus(422);
+
+        $post = $this->request('POST', '/posts', [
+            'comunaId' => $comuna->getId()->toRfc4122(),
+            'body' => 'Quem vai?',
+            'eventId' => $spots['id'],
+        ], $ownerToken);
+        $this->assertStatus(201);
+        self::assertSame('spots', $post['event']['capacityMode']);
+        self::assertSame(8, $post['event']['capacity']);
+        self::assertSame('Rua X, 123 — Centro', $post['event']['address']);
+        self::assertSame([], $post['event']['goingPreview']);
+
+        $this->request('PUT', '/events/'.$spots['id'].'/attendance', ['status' => 'going'], $memberToken);
+        $this->assertStatus(200);
+        $seen = $this->request('GET', '/posts/'.$post['id'], token: $memberToken);
+        $this->assertStatus(200);
+        self::assertSame('going', $seen['event']['viewerAttendance']);
+        self::assertSame(1, $seen['event']['goingCount']);
+        self::assertCount(1, $seen['event']['goingPreview']);
+        self::assertSame('Membro', $seen['event']['goingPreview'][0]['displayName']);
+
+        // O formulário de edição não mexe na capacidade: o PATCH sem os campos preserva o limite.
+        $edited = $this->request('PATCH', '/events/'.$spots['id'], $this->eventEdit($spots, ['title' => 'Assembleia remarcada']), $ownerToken);
+        $this->assertStatus(200);
+        self::assertSame('spots', $edited['capacityMode']);
+        self::assertSame(8, $edited['capacity']);
+
+        $below = $this->eventBody(override: ['title' => 'Assembleia remarcada', 'capacityMode' => 'spots', 'capacity' => 0]);
+        $this->request('PATCH', '/events/'.$spots['id'], $below, $ownerToken);
+        $this->assertStatus(422);
+        $this->request('PUT', '/events/'.$spots['id'].'/attendance', ['status' => 'going'], $ownerToken);
+        $this->assertStatus(200);
+        $full = $this->eventBody(override: ['title' => 'Assembleia remarcada', 'capacityMode' => 'spots', 'capacity' => 1]);
+        $this->request('PATCH', '/events/'.$spots['id'], $full, $ownerToken);
+        $this->assertStatus(409);
+        self::assertSame('/errors/event-capacity', $this->request('PATCH', '/events/'.$spots['id'], $full, $ownerToken)['type']);
+    }
 }

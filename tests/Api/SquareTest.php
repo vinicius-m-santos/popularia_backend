@@ -295,6 +295,8 @@ final class SquareTest extends ApiTestCase
         $this->assertStatus(200);
         $presence = $this->request('PUT', '/squares/'.$this->squareId.'/presence', token: $this->outsiderToken);
         self::assertSame(2, $presence['count']);
+        self::assertArrayHasKey('avatarUrl', $presence['people'][0]);
+        self::assertNull($presence['people'][0]['avatarUrl']);
         $this->em()->getConnection()->executeStatement("UPDATE square_visit SET seen_at = NOW() - INTERVAL '2 minutes'");
         $expired = $this->request('GET', '/squares/'.$this->squareId.'/presence', token: $this->ownerToken);
         self::assertSame(0, $expired['count']);

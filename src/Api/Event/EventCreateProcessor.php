@@ -42,6 +42,8 @@ final readonly class EventCreateProcessor implements ProcessorInterface
                 $data->timeZone,
                 $data->startsAt,
                 $data->endsAt,
+                $data->capacityMode,
+                $data->capacity,
             );
             $this->em->flush();
 

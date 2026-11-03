@@ -22,6 +22,14 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    healthcheck:
+      # A imagem de produção usa /api/v1/health; esta sobrescrita garante o mesmo
+      # teste no compose de desenvolvimento, onde o admin do Caddy fica desligado.
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:80/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
     restart: unless-stopped
 
   # Drena a fila de push (avisos) e consulta recibos. Sem este processo, nenhuma notificação sai,

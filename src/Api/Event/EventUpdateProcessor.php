@@ -7,9 +7,11 @@ namespace App\Api\Event;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\ApiProblem;
+use App\Auth\AdminAudit;
 use App\Content\ComunaEvents;
 use App\Content\ContentPolicy;
 use App\Entity\ComunaEvent;
+use App\Enum\AdminAuditAction;
 use App\Enum\EventFormat;
 use App\Repository\ComunaEventRepository;
 use App\Security\CurrentUser;
@@ -26,6 +28,7 @@ final readonly class EventUpdateProcessor implements ProcessorInterface
         private ContentPolicy $content,
         private EventViews $views,
         private EntityManagerInterface $em,
+        private AdminAudit $audit,
     ) {
     }
 
@@ -34,9 +37,13 @@ final readonly class EventUpdateProcessor implements ProcessorInterface
         return $this->em->getConnection()->transactional(function () use ($data, $uriVariables): EventView {
             $event = $this->find((string) ($uriVariables['id'] ?? ''));
             $actor = $this->currentUser->get();
-            if (!$this->content->canReadComuna($event->getComuna(), $actor)) {
+            $comuna = $event->getComuna();
+            if (null !== $comuna && !$this->content->canReadComuna($comuna, $actor)) {
                 throw ApiProblem::notFound('Evento não encontrado.');
             }
+            // O formulário de edição ainda não mexe na capacidade: sem os campos no corpo,
+            // o que estava gravado continua valendo.
+            $keepsCapacity = null === $data->capacityMode && null === $data->capacity;
             $event = $this->service->update(
                 $event,
                 $actor,
@@ -49,8 +56,14 @@ final readonly class EventUpdateProcessor implements ProcessorInterface
                 $data->timeZone,
                 $data->startsAt,
                 $data->endsAt,
+                $keepsCapacity ? $event->getCapacityMode()?->value : $data->capacityMode,
+                $keepsCapacity ? $event->getCapacity() : $data->capacity,
             );
             $this->em->flush();
+            $this->audit->record($actor, AdminAuditAction::UpdateEventData, $actor->getId(), '', [
+                'event_id' => $event->getId()->toRfc4122(),
+                'fields' => 'title,description,format,place,address,url,startsAt,endsAt,capacity',
+            ]);
 
             return $this->views->one($event, $actor);
         });

@@ -44,4 +44,12 @@ final class EventInput
     public string $startsAt = '';
 
     public ?string $endsAt = null;
+
+    /** "spots" (vagas) ou "goal" (meta mínima). Nulo é entrada livre. */
+    #[Assert\Length(max: 10)]
+    public ?string $capacityMode = null;
+
+    /** Teto de vagas ou mínimo de confirmações; obrigatório quando capacityMode vem preenchido. */
+    #[Assert\Range(min: ComunaEvent::CAPACITY_MIN, max: ComunaEvent::CAPACITY_MAX, notInRangeMessage: 'Informe entre {{ min }} e {{ max }} pessoas.')]
+    public ?int $capacity = null;
 }

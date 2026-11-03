@@ -29,6 +29,15 @@ use App\Api\Profile\AuthorView;
             openapi: new Operation(tags: ['Eventos'], summary: 'Um evento.', description: 'Comuna privada sem participação, ou id inexistente: 404, sem confirmar que existe.'),
         ),
         new Post(
+            uriTemplate: '/me/events',
+            status: 201,
+            read: false,
+            security: "is_granted('ROLE_USER')",
+            input: EventInput::class,
+            processor: ProfileEventCreateProcessor::class,
+            openapi: new Operation(tags: ['Eventos'], summary: 'Cria um chamado no próprio perfil.'),
+        ),
+        new Post(
             uriTemplate: '/comunas/{slug}/events',
             uriVariables: ['slug' => new Link(fromClass: ComunaView::class, identifiers: ['slug'])],
             status: 201,
@@ -72,7 +81,7 @@ use App\Api\Profile\AuthorView;
 final readonly class EventView
 {
     /**
-     * @param array{id: string, slug: string, name: string, visibility: string, status: string} $comuna
+     * @param array{id: string, slug: string, name: string, visibility: string, status: string}|null $comuna
      */
     public function __construct(
         #[ApiProperty(identifier: true)]
@@ -87,7 +96,7 @@ final readonly class EventView
         public ?string $placeName,
         public ?string $address,
         public ?string $onlineUrl,
-        public array $comuna,
+        public ?array $comuna,
         public ?AuthorView $organizer,
         public int $goingCount,
         public int $maybeCount,
@@ -98,6 +107,9 @@ final readonly class EventView
         public \DateTimeImmutable $createdAt,
         public \DateTimeImmutable $updatedAt,
         public ?\DateTimeImmutable $cancelledAt,
+        /** "spots" (vagas) ou "goal" (meta mínima); nulo é entrada livre. */
+        public ?string $capacityMode = null,
+        public ?int $capacity = null,
     ) {
     }
 }

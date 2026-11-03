@@ -27,13 +27,27 @@ final class PostTest extends ApiTestCase
         self::assertSame(['id' => $comuna->getId()->toRfc4122(), 'slug' => 'tarifa', 'name' => 'Tarifa', 'status' => 'active'], $post['comuna']);
         self::assertSame(0, $post['commentCount']);
         self::assertSame(['isAuthor' => true, 'canComment' => true, 'canDelete' => true, 'canRemove' => false, 'saved' => false, 'canPin' => false, 'pinned' => false, 'supported' => false, 'echoed' => false], $post['viewer']);
-        self::assertSame(['id', 'body', 'title', 'createdAt', 'author', 'comuna', 'commentCount', 'supportCount', 'echoCount', 'viewer', 'topic', 'document', 'media', 'poll', 'mentions', 'event', 'topComment'], array_keys($post));
+        self::assertSame(['id', 'body', 'title', 'createdAt', 'author', 'comuna', 'commentCount', 'supportCount', 'echoCount', 'viewer', 'topic', 'document', 'media', 'poll', 'mentions', 'event', 'topComment', 'topics'], array_keys($post));
         self::assertSame([], $post['mentions']);
         self::assertNull($post['poll']);
         self::assertNull($post['event']);
         self::assertNull($post['topComment']);
         self::assertSame(['id', 'handle', 'displayName', 'avatarUrl'], array_keys($post['author']));
         self::assertTrue($this->fresh(Post::class, $post['id'])->getAuthor()->getId()->equals($author->getId()));
+    }
+
+    public function testProfilePostAcceptsMultipleTopics(): void
+    {
+        $author = $this->createUser('camila');
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+
+        $post = $this->request('POST', '/posts', ['body' => 'Dois assuntos.', 'topics' => ['pol', 'trab']], $token);
+        $this->assertStatus(201);
+        self::assertSame('pol', $post['topic']);
+        self::assertSame(['pol', 'trab'], $post['topics']);
+
+        $this->request('POST', '/posts', ['body' => 'Assuntos demais.', 'topics' => ['pol', 'trab', 'edu', 'cult']], $token);
+        $this->assertStatus(422);
     }
 
     public function testTitleIsOptionalAndMakesTheHeadline(): void
@@ -253,5 +267,24 @@ final class PostTest extends ApiTestCase
         $this->request('POST', '/posts', ['body' => 'post demais'], $token);
 
         $this->assertStatus(429);
+    }
+
+    public function testAuthorCanEditOwnPostAndOthersCannot(): void
+    {
+        $author = $this->createUser('camila');
+        $other = $this->createUser('outra');
+        $token = $this->login('camila@exemplo.org')['accessToken'];
+        $otherToken = $this->login('outra@exemplo.org')['accessToken'];
+        $post = $this->request('POST', '/posts', ['body' => 'Texto antigo.'], $token);
+
+        $edited = $this->request('PATCH', '/posts/'.$post['id'], ['body' => 'Texto novo.', 'title' => 'Título novo'], $token);
+        $this->assertStatus(200);
+        self::assertSame('Texto novo.', $edited['body']);
+        self::assertSame('Título novo', $edited['title']);
+
+        $denied = $this->request('PATCH', '/posts/'.$post['id'], ['body' => 'Tentativa'], $otherToken);
+        $this->assertStatus(403);
+        self::assertSame('/errors/not-the-author', $denied['type']);
+        unset($other);
     }
 }

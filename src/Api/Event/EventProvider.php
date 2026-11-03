@@ -29,7 +29,11 @@ final readonly class EventProvider implements ProviderInterface
         $id = (string) ($uriVariables['id'] ?? '');
         $event = Uuid::isValid($id) ? $this->events->find(Uuid::fromString($id)) : null;
         $viewer = $this->currentUser->find();
-        if (!$event instanceof ComunaEvent || !$this->content->canReadComuna($event->getComuna(), $viewer)) {
+        if (!$event instanceof ComunaEvent) {
+            throw ApiProblem::notFound('Evento não encontrado.');
+        }
+        $comuna = $event->getComuna();
+        if (null !== $comuna && !$this->content->canReadComuna($comuna, $viewer)) {
             throw ApiProblem::notFound('Evento não encontrado.');
         }
 

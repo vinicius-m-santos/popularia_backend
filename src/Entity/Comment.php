@@ -90,6 +90,13 @@ class Comment
         return $this->createdAt;
     }
 
+    /** Apagado pela própria autoria: mantém a linha para as respostas e limpa o texto. */
+    public function deleteByAuthor(): void
+    {
+        $this->status = ContentStatus::Deleted;
+        $this->body = '';
+    }
+
     /** Removido pela moderação da comuna: vira marcador "removed"; o texto fica guardado, sem exibição. */
     public function removeByModeration(): void
     {

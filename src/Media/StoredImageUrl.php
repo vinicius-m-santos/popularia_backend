@@ -15,6 +15,12 @@ final class StoredImageUrl
         return self::path('avatars', $user->getAvatarKey(), $user->getId()->toRfc4122());
     }
 
+    /** URL a partir da chave já carregada, para consultas em lote que não hidratam a entidade. */
+    public static function avatarFor(string $ownerId, ?string $key): ?string
+    {
+        return self::path('avatars', $key, $ownerId);
+    }
+
     public static function cover(Comuna $comuna): ?string
     {
         return self::path('comuna-covers', $comuna->getCoverKey(), $comuna->getId()->toRfc4122());

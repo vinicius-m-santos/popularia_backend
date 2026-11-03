@@ -30,6 +30,7 @@ final class BlockTest extends ApiTestCase
         $this->assertStatus(404);
         $this->request('GET', '/users/assediador', token: $mine);
         $this->assertStatus(404);
+        self::assertSame([], $this->request('GET', '/search?type=people&q=assediador', token: $mine)['people']);
 
         // Para ele: o meu também some, e ele não consegue comentar no que eu publiquei.
         self::assertSame(['post dele'], array_column($this->request('GET', '/feed', token: $theirs)['items'], 'body'));
@@ -39,6 +40,7 @@ final class BlockTest extends ApiTestCase
         $this->assertStatus(404);
 
         $blocks = $this->request('GET', '/me/blocks', token: $mine);
+        $this->assertStatus(200);
         self::assertSame('assediador', $blocks[0]['handle']);
         self::assertSame([], $this->request('GET', '/me/blocks', token: $theirs));
     }

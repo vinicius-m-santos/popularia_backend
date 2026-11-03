@@ -2667,6 +2667,67 @@
                 ]
             }
         },
+        "/api/v1/comments/{id}": {
+            "delete": {
+                "operationId": "api_comments_id_delete",
+                "tags": [
+                    "Coment\u00e1rios"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Comment resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Apaga o pr\u00f3prio coment\u00e1rio (soft delete).",
+                "description": "Apaga o pr\u00f3prio coment\u00e1rio (soft delete).",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Comment identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/comments/{id}/support": {
             "put": {
                 "operationId": "comment_support",
@@ -3979,6 +4040,63 @@
                 ]
             }
         },
+        "/api/v1/media/comuna-marks/{comunaId}/{fileId}": {
+            "get": {
+                "operationId": "api_mediacomuna-marks_comunaId_fileId_get",
+                "tags": [
+                    "Comunas"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ProfileMedia resource"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Bytes da marca (imagem de perfil) atual da comuna. A URL muda quando a marca muda e pode ser cacheada.",
+                "description": "Bytes da marca (imagem de perfil) atual da comuna. A URL muda quando a marca muda e pode ser cacheada.",
+                "parameters": [
+                    {
+                        "name": "comunaId",
+                        "in": "path",
+                        "description": "ProfileMedia identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "description": "ProfileMedia identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/me": {
             "get": {
                 "operationId": "api_me_get",
@@ -4475,6 +4593,72 @@
             }
         },
         "/api/v1/me/blocks/{handle}": {
+            "get": {
+                "operationId": "api_meblocks_handle_get",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Block resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Block"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Um bloqueio da pr\u00f3pria conta.",
+                "description": "Um bloqueio da pr\u00f3pria conta.",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "description": "Block identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
             "put": {
                 "operationId": "api_meblocks_handle_put",
                 "tags": [
@@ -5352,8 +5536,8 @@
                         "links": {}
                     }
                 },
-                "summary": "Busca textual com relevância, sem acentos.",
-                "description": "Busca textual com relevância, sem acentos.",
+                "summary": "Busca textual com relev\u00e2ncia, sem acentos.",
+                "description": "Busca textual com relev\u00e2ncia, sem acentos.",
                 "parameters": [
                     {
                         "name": "q",
@@ -6087,6 +6271,89 @@
                 }
             }
         },
+        "/api/v1/me/events": {
+            "post": {
+                "operationId": "api_meevents_post",
+                "tags": [
+                    "Eventos"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Event resource created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Cria um chamado no pr\u00f3prio perfil.",
+                "description": "Cria um chamado no pr\u00f3prio perfil.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Event resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Event.EventInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/comments/{id}/removal": {
             "post": {
                 "operationId": "api_comments_idremoval_post",
@@ -6738,6 +7005,103 @@
                         }
                     },
                     "required": true
+                }
+            }
+        },
+        "/api/v1/comunas/{slug}/mark": {
+            "post": {
+                "operationId": "api_comunas_slugmark_post",
+                "tags": [
+                    "Gest\u00e3o de comunas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Comuna resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Troca a marca (imagem de perfil) da comuna (s\u00f3 o propriet\u00e1rio).",
+                "description": "JPEG, PNG ou WebP est\u00e1ticos, at\u00e9 10 MB. Sem marca enviada, a comuna mostra as iniciais. Comuna arquivada: 409 /errors/comuna-archived. Quem n\u00e3o \u00e9 propriet\u00e1rio: 403 /errors/not-comuna-owner. A URL devolvida muda a cada troca.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Comuna identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": false
                 }
             }
         },
@@ -7919,6 +8283,363 @@
                 }
             }
         },
+        "/api/v1/comunas/{slug}/content-reports": {
+            "get": {
+                "operationId": "comuna_content_reports",
+                "tags": [
+                    "Modera\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ReportQueue resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportQueue"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Fila de den\u00fancias de publica\u00e7\u00f5es e coment\u00e1rios desta comuna. S\u00f3 modera\u00e7\u00e3o da pr\u00f3pria comuna. Pendentes mais antigas primeiro.",
+                "description": "Fila de den\u00fancias de publica\u00e7\u00f5es e coment\u00e1rios desta comuna. S\u00f3 modera\u00e7\u00e3o da pr\u00f3pria comuna. Pendentes mais antigas primeiro.",
+                "parameters": [
+                    {
+                        "name": "bucket",
+                        "in": "query",
+                        "description": "open (pendentes) ou closed (resolvidas). Padr\u00e3o open.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "open",
+                                "closed"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "1..50; padr\u00e3o 20.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "ComunaView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/moderation/reports": {
+            "get": {
+                "operationId": "platform_reports",
+                "tags": [
+                    "Modera\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ReportQueue resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportQueue"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Fila da plataforma: den\u00fancias de perfil, comuna, conte\u00fado sem comuna e den\u00fancias escaladas. Pendentes mais antigas primeiro.",
+                "description": "Fila da plataforma: den\u00fancias de perfil, comuna, conte\u00fado sem comuna e den\u00fancias escaladas. Pendentes mais antigas primeiro.",
+                "parameters": [
+                    {
+                        "name": "bucket",
+                        "in": "query",
+                        "description": "open ou closed. Padr\u00e3o open.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "open",
+                                "closed"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "1..50; padr\u00e3o 20.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/moderation/reports/{id}": {
+            "get": {
+                "operationId": "api_moderationreports_id_get",
+                "tags": [
+                    "Modera\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ReportItem resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportItem"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Detalhe de uma den\u00fancia que a pessoa pode revisar. Sem o denunciante.",
+                "description": "Detalhe de uma den\u00fancia que a pessoa pode revisar. Sem o denunciante.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ReportItem identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/moderation/reports/{id}/decision": {
+            "post": {
+                "operationId": "api_moderationreports_iddecision_post",
+                "tags": [
+                    "Modera\u00e7\u00e3o"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ReportItem resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Decide uma den\u00fancia: dispensar, remover, restaurar, escalar, suspender ou reativar. A autoriza\u00e7\u00e3o \u00e9 conferida de novo no servidor.",
+                "description": "Decide uma den\u00fancia: dispensar, remover, restaurar, escalar, suspender ou reativar. A autoriza\u00e7\u00e3o \u00e9 conferida de novo no servidor.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ReportItem identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new ReportItem resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReportItem.ReportDecision"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/reports": {
             "post": {
                 "operationId": "api_reports_post",
@@ -7979,8 +8700,8 @@
                         "links": {}
                     }
                 },
-                "summary": "Denuncia publica\u00e7\u00e3o, coment\u00e1rio ou perfil vis\u00edvel; fila operacional da plataforma.",
-                "description": "Denuncia publica\u00e7\u00e3o, coment\u00e1rio ou perfil vis\u00edvel; fila operacional da plataforma.",
+                "summary": "Denuncia publica\u00e7\u00e3o, coment\u00e1rio, perfil ou comuna. N\u00e3o remove nada sozinha. Den\u00fancia repetida e ainda aberta \u00e9 ignorada.",
+                "description": "Denuncia publica\u00e7\u00e3o, coment\u00e1rio, perfil ou comuna. N\u00e3o remove nada sozinha. Den\u00fancia repetida e ainda aberta \u00e9 ignorada.",
                 "parameters": [],
                 "requestBody": {
                     "description": "The new ReportInput resource",
@@ -11628,6 +12349,281 @@
                         "explode": false
                     }
                 ]
+            },
+            "patch": {
+                "operationId": "api_posts_id_patch",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Edita o texto e o t\u00edtulo da pr\u00f3pria publica\u00e7\u00e3o.",
+                "description": "Edita o texto e o t\u00edtulo da pr\u00f3pria publica\u00e7\u00e3o.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Post resource",
+                    "content": {
+                        "application/merge-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Post.PostUpdateInput.jsonMergePatch"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Post.PostUpdateInput.jsonMergePatch"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/posts/{id}/echo": {
+            "put": {
+                "operationId": "post_echo",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Ecoa uma publica\u00e7\u00e3o, levando-a adiante; opera\u00e7\u00e3o idempotente.",
+                "description": "Ecoa uma publica\u00e7\u00e3o, levando-a adiante; opera\u00e7\u00e3o idempotente.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "post_unecho",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retira o pr\u00f3prio eco de uma publica\u00e7\u00e3o; opera\u00e7\u00e3o idempotente.",
+                "description": "Retira o pr\u00f3prio eco de uma publica\u00e7\u00e3o; opera\u00e7\u00e3o idempotente.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
             }
         },
         "/api/v1/posts/{id}/poll/vote": {
@@ -11740,6 +12736,166 @@
                     },
                     "required": true
                 }
+            }
+        },
+        "/api/v1/posts/{id}/support": {
+            "put": {
+                "operationId": "post_support",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post resource updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Apoia uma publica\u00e7\u00e3o; opera\u00e7\u00e3o idempotente.",
+                "description": "Apoia uma publica\u00e7\u00e3o; opera\u00e7\u00e3o idempotente.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "post_unsupport",
+                "tags": [
+                    "Publica\u00e7\u00f5es"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post resource deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Tira o pr\u00f3prio apoio de uma publica\u00e7\u00e3o; opera\u00e7\u00e3o idempotente.",
+                "description": "Tira o pr\u00f3prio apoio de uma publica\u00e7\u00e3o; opera\u00e7\u00e3o idempotente.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
             }
         },
         "/api/v1/push-devices/{id}/revocation": {
@@ -11928,6 +13084,132 @@
                     },
                     "required": true
                 }
+            }
+        },
+        "/api/v1/topics/{slug}": {
+            "get": {
+                "operationId": "api_topics_slug_get",
+                "tags": [
+                    "T\u00f3picos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "HashtagView resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HashtagView"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Nome de exibi\u00e7\u00e3o de um t\u00f3pico com publica\u00e7\u00f5es vis\u00edveis.",
+                "description": "Nome de exibi\u00e7\u00e3o de um t\u00f3pico com publica\u00e7\u00f5es vis\u00edveis.",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "HashtagView identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/topics/{slug}/posts": {
+            "get": {
+                "operationId": "api_topics_slugposts_get",
+                "tags": [
+                    "T\u00f3picos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PostPage resource",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Publica\u00e7\u00f5es vis\u00edveis de uma hashtag, da mais recente para a mais antiga.",
+                "description": "Publica\u00e7\u00f5es vis\u00edveis de uma hashtag, da mais recente para a mais antiga.",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Valor de nextCursor da p\u00e1gina anterior.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": [],
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Itens por p\u00e1gina (1 a 50, padr\u00e3o 20).",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "PostPage identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
             }
         }
     },
@@ -12510,6 +13792,13 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "markUrl": {
+                        "description": "URL da marca (imagem de perfil) atual. Null usa as iniciais da comuna. Muda s\u00f3 quando a marca \u00e9 trocada.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -13083,7 +14372,10 @@
                         ]
                     },
                     "comuna": {
-                        "type": "object",
+                        "type": [
+                            "object",
+                            "null"
+                        ],
                         "additionalProperties": {
                             "type": "string"
                         }
@@ -13133,6 +14425,19 @@
                             "null"
                         ],
                         "format": "date-time"
+                    },
+                    "capacityMode": {
+                        "description": "\"spots\" (vagas) ou \"goal\" (meta m\u00ednima); nulo \u00e9 entrada livre.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "capacity": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -13220,6 +14525,23 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "capacityMode": {
+                        "maxLength": 10,
+                        "description": "\"spots\" (vagas) ou \"goal\" (meta m\u00ednima). Nulo \u00e9 entrada livre.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "capacity": {
+                        "minimum": 1,
+                        "maximum": 1000,
+                        "description": "Teto de vagas ou m\u00ednimo de confirma\u00e7\u00f5es; obrigat\u00f3rio quando capacityMode vem preenchido.",
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -13282,6 +14604,23 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "capacityMode": {
+                        "maxLength": 10,
+                        "description": "\"spots\" (vagas) ou \"goal\" (meta m\u00ednima). Nulo \u00e9 entrada livre.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "capacity": {
+                        "minimum": 1,
+                        "maximum": 1000,
+                        "description": "Teto de vagas ou m\u00ednimo de confirma\u00e7\u00f5es; obrigat\u00f3rio quando capacityMode vem preenchido.",
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -13338,6 +14677,44 @@
                     },
                     "past": {
                         "type": "boolean"
+                    },
+                    "address": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "endsAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "capacityMode": {
+                        "description": "\"spots\" (vagas) ou \"goal\" (meta m\u00ednima); nulo \u00e9 entrada livre.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "capacity": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "viewerAttendance": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "goingPreview": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuthorView"
+                        }
                     }
                 }
             },
@@ -13535,6 +14912,13 @@
                         "items": {
                             "$ref": "#/components/schemas/GamificationAchievementView"
                         }
+                    },
+                    "lastActivityOn": {
+                        "description": "Dia civil (America/Sao_Paulo) da \u00faltima participa\u00e7\u00e3o v\u00e1lida; null sem nenhuma.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -13548,6 +14932,9 @@
                         "type": "string"
                     },
                     "detail": {
+                        "type": "string"
+                    },
+                    "criterion": {
                         "type": "string"
                     },
                     "unlocked": {
@@ -13585,6 +14972,17 @@
                     },
                     "available": {
                         "type": "boolean"
+                    }
+                }
+            },
+            "HashtagView": {
+                "type": "object",
+                "properties": {
+                    "slug": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
                     }
                 }
             },
@@ -14902,6 +16300,15 @@
                         "items": {
                             "$ref": "#/components/schemas/PollOptionInput"
                         }
+                    },
+                    "durationDays": {
+                        "minimum": 1,
+                        "maximum": 30,
+                        "description": "Prazo opcional em dias, contado da publica\u00e7\u00e3o. Sem valor, a enquete n\u00e3o encerra.",
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -14962,6 +16369,12 @@
                         "items": {
                             "$ref": "#/components/schemas/PollOptionView"
                         }
+                    },
+                    "endsAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -14974,6 +16387,12 @@
                     },
                     "body": {
                         "type": "string"
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "createdAt": {
                         "type": "string",
@@ -14992,6 +16411,12 @@
                         }
                     },
                     "commentCount": {
+                        "type": "integer"
+                    },
+                    "supportCount": {
+                        "type": "integer"
+                    },
+                    "echoCount": {
                         "type": "integer"
                     },
                     "viewer": {
@@ -15051,6 +16476,24 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "topComment": {
+                        "description": "O coment\u00e1rio de topo mais apoiado, para a cita\u00e7\u00e3o do cart\u00e3o.",
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/TopCommentView"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "topics": {
+                        "description": "Assuntos oficiais; o primeiro tamb\u00e9m aparece em `topic`.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 }
             },
@@ -15119,6 +16562,14 @@
                             "null"
                         ]
                     },
+                    "topics": {
+                        "maxItems": 3,
+                        "description": "Assuntos opcionais; at\u00e9 tr\u00eas, todos oficiais.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
                     "documentId": {
                         "format": "uuid",
                         "externalDocs": {
@@ -15161,6 +16612,14 @@
                             "null"
                         ]
                     },
+                    "title": {
+                        "maxLength": 120,
+                        "description": "T\u00edtulo opcional: com ele, a publica\u00e7\u00e3o abre em manchete; sem ele, vale a descri\u00e7\u00e3o.",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "body": {
                         "maxLength": 1000,
                         "default": "",
@@ -15183,6 +16642,25 @@
                         "items": {
                             "$ref": "#/components/schemas/MentionInput"
                         }
+                    }
+                }
+            },
+            "Post.PostUpdateInput.jsonMergePatch": {
+                "type": "object",
+                "description": "Publica\u00e7\u00e3o como o app a exibe. Autoria, contagens e \"viewer\" s\u00e3o calculados no servidor;\nnada disso \u00e9 aceito do cliente.",
+                "additionalProperties": false,
+                "properties": {
+                    "body": {
+                        "maxLength": 1000,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "title": {
+                        "maxLength": 120,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -15264,7 +16742,10 @@
                         "items": {
                             "type": "object",
                             "additionalProperties": {
-                                "type": "string"
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
                             }
                         }
                     }
@@ -15631,28 +17112,149 @@
                         "enum": [
                             "post",
                             "comment",
-                            "profile"
+                            "profile",
+                            "comuna"
                         ],
                         "default": "",
                         "type": "string"
                     },
                     "targetId": {
-                        "format": "uuid",
-                        "externalDocs": {
-                            "url": "https://schema.org/identifier"
-                        },
+                        "maxLength": 80,
                         "default": "",
                         "type": "string"
                     },
-                    "reason": {
-                        "maxLength": 500,
+                    "reasonCode": {
+                        "enum": [
+                            "harassment",
+                            "hate",
+                            "threat",
+                            "spam",
+                            "fraud",
+                            "sexual",
+                            "doxxing",
+                            "illegal",
+                            "other"
+                        ],
+                        "default": "",
+                        "type": "string"
+                    },
+                    "description": {
+                        "maxLength": 800,
                         "default": "",
                         "type": "string"
                     }
                 },
                 "required": [
-                    "reason"
+                    "targetId"
                 ]
+            },
+            "ReportItem": {
+                "type": "object",
+                "description": "Den\u00fancia vis\u00edvel s\u00f3 para quem pode decidi-la. N\u00e3o inclui quem denunciou.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "targetType": {
+                        "type": "string"
+                    },
+                    "targetId": {
+                        "type": "string"
+                    },
+                    "reasonCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "reasonLabel": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "snapshot": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "escalated": {
+                        "type": "boolean"
+                    },
+                    "scope": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "targetAvailable": {
+                        "type": "boolean"
+                    },
+                    "targetLabel": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "comunaSlug": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "targetAuthor": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReportSubject"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "actions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "ReportItem.ReportDecision": {
+                "type": "object",
+                "description": "Den\u00fancia vis\u00edvel s\u00f3 para quem pode decidi-la. N\u00e3o inclui quem denunciou.",
+                "additionalProperties": false,
+                "properties": {
+                    "action": {
+                        "enum": [
+                            "claim",
+                            "dismiss",
+                            "remove",
+                            "remove_and_escalate",
+                            "escalate",
+                            "restore",
+                            "suspend",
+                            "reactivate",
+                            "suspend_comuna",
+                            "reactivate_comuna"
+                        ],
+                        "default": "",
+                        "type": "string"
+                    },
+                    "note": {
+                        "maxLength": 800,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
             },
             "ReportManagement.ReportDecisionInput.jsonMergePatch": {
                 "type": "object",
@@ -15683,6 +17285,37 @@
                             "string",
                             "null"
                         ]
+                    }
+                }
+            },
+            "ReportQueue": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ReportItem"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "ReportSubject": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "handle": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
                     }
                 }
             },
@@ -16082,6 +17715,23 @@
                     }
                 }
             },
+            "TopCommentView": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "supportCount": {
+                        "type": "integer"
+                    },
+                    "author": {
+                        "$ref": "#/components/schemas/AuthorView"
+                    }
+                }
+            },
             "Topic": {
                 "type": "object",
                 "description": "Assuntos oficiais (lista fixa, mantida pela equipe em App\\Enum\\Topic).",
@@ -16186,6 +17836,10 @@
         {
             "name": "Eventos",
             "description": "Atividade de uma comuna. startsAt \u00e9 um instante; timeZone \u00e9 o fuso em que o hor\u00e1rio foi anunciado.\nQuem exibe formata nesse fuso, n\u00e3o no fuso do aparelho de quem l\u00ea."
+        },
+        {
+            "name": "T\u00f3picos",
+            "description": "P\u00e1gina de publica\u00e7\u00f5es (feed ou comuna), da mais nova para a mais antiga."
         },
         {
             "name": "Sistema",

@@ -32,7 +32,11 @@ final readonly class AttendeePageProvider implements ProviderInterface
         $id = (string) ($uriVariables['id'] ?? '');
         $event = \Symfony\Component\Uid\Uuid::isValid($id) ? $this->events->find(\Symfony\Component\Uid\Uuid::fromString($id)) : null;
         $viewer = $this->currentUser->get();
-        if (!$event instanceof ComunaEvent || !$this->content->canReadComuna($event->getComuna(), $viewer)) {
+        if (!$event instanceof ComunaEvent) {
+            throw ApiProblem::notFound('Evento não encontrado.');
+        }
+        $comuna = $event->getComuna();
+        if (null !== $comuna && !$this->content->canReadComuna($comuna, $viewer)) {
             throw ApiProblem::notFound('Evento não encontrado.');
         }
         $request = $context['request'] ?? null;

@@ -10,6 +10,7 @@ use App\Entity\ComunaEvent;
 use App\Entity\EventAttendance;
 use App\Entity\User;
 use App\Enum\AttendanceStatus;
+use App\Enum\EventCapacityMode;
 use App\Enum\EventFormat;
 use App\Enum\NotificationType;
 use App\Gamification\GamificationAction;
@@ -38,21 +39,40 @@ final readonly class ComunaEvents
     ) {
     }
 
-    public function create(Comuna $comuna, User $actor, EventFormat $format, string $title, string $description, ?string $placeName, ?string $address, ?string $onlineUrl, string $timeZone, string $startsAt, ?string $endsAt): ComunaEvent
+    public function create(Comuna $comuna, User $actor, EventFormat $format, string $title, string $description, ?string $placeName, ?string $address, ?string $onlineUrl, string $timeZone, string $startsAt, ?string $endsAt, ?string $capacityMode = null, ?int $capacity = null): ComunaEvent
     {
         $this->assertOrganizer($comuna, $actor);
         [$place, $street, $url] = $this->fields($comuna, $format, $title, $description, $placeName, $address, $onlineUrl);
         [$start, $end] = EventSchedule::bounds($startsAt, $endsAt, $timeZone, $this->clock->now(), false);
-        $event = new ComunaEvent($comuna, $actor, $title, $description, $format, $place, $street, $url, $timeZone, $start, $end, $this->clock->now());
+        [$mode, $limit] = $this->resolveCapacity($capacityMode, $capacity);
+        $event = new ComunaEvent($comuna, $actor, $title, $description, $format, $place, $street, $url, $timeZone, $start, $end, $this->clock->now(), $mode, $limit);
         $this->em->persist($event);
 
         return $event;
     }
 
-    public function update(ComunaEvent $event, User $actor, EventFormat $format, string $title, string $description, ?string $placeName, ?string $address, ?string $onlineUrl, string $timeZone, string $startsAt, ?string $endsAt): ComunaEvent
+    /** Chamado no perfil: mesmo conteúdo de um evento, sem comuna. */
+    public function createForProfile(User $actor, EventFormat $format, string $title, string $description, ?string $placeName, ?string $address, ?string $onlineUrl, string $timeZone, string $startsAt, ?string $endsAt, ?string $capacityMode = null, ?int $capacity = null): ComunaEvent
+    {
+        if (!$actor->isActive()) {
+            throw ApiProblem::accountInactive();
+        }
+        if (!$actor->isEmailVerified()) {
+            throw ApiProblem::emailNotVerified();
+        }
+        [$place, $street, $url] = $this->fields(null, $format, $title, $description, $placeName, $address, $onlineUrl);
+        [$start, $end] = EventSchedule::bounds($startsAt, $endsAt, $timeZone, $this->clock->now(), false);
+        [$mode, $limit] = $this->resolveCapacity($capacityMode, $capacity);
+        $event = new ComunaEvent(null, $actor, $title, $description, $format, $place, $street, $url, $timeZone, $start, $end, $this->clock->now(), $mode, $limit);
+        $this->em->persist($event);
+
+        return $event;
+    }
+
+    public function update(ComunaEvent $event, User $actor, EventFormat $format, string $title, string $description, ?string $placeName, ?string $address, ?string $onlineUrl, string $timeZone, string $startsAt, ?string $endsAt, ?string $capacityMode = null, ?int $capacity = null): ComunaEvent
     {
         $this->em->lock($event, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
-        $this->assertOrganizer($event->getComuna(), $actor);
+        $this->assertOrganizer($event->getComuna(), $actor, $event->getOrganizer());
         if ($event->isCancelled()) {
             throw ApiProblem::conflict('/errors/event-cancelled', 'Este evento foi cancelado.');
         }
@@ -65,7 +85,8 @@ final readonly class ComunaEvents
         $time = $before[0] !== $start->getTimestamp() || $before[1] !== $end?->getTimestamp();
         $placeChanged = $before[2] !== $place || $before[3] !== $street;
         $linkChanged = $before[4] !== $url;
-        $event->revise($title, $description, $format, $place, $street, $url, $start, $end, $this->clock->now());
+        [$mode, $limit] = $this->resolveCapacity($capacityMode, $capacity, $event);
+        $event->revise($title, $description, $format, $place, $street, $url, $start, $end, $mode, $limit, $this->clock->now());
         $this->reminders->rescheduleAll($event);
         $type = self::changeType($time, $placeChanged, $linkChanged);
         if (null !== $type) {
@@ -78,7 +99,7 @@ final readonly class ComunaEvents
     public function cancel(ComunaEvent $event, User $actor): ComunaEvent
     {
         $this->em->lock($event, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE);
-        $this->assertOrganizer($event->getComuna(), $actor);
+        $this->assertOrganizer($event->getComuna(), $actor, $event->getOrganizer());
         if ($event->isCancelled()) {
             return $event;
         }
@@ -96,10 +117,11 @@ final readonly class ComunaEvents
         if (!$actor->isEmailVerified()) {
             throw ApiProblem::emailNotVerified();
         }
-        if ($event->getComuna()->isSuspended()) {
+        $comuna = $event->getComuna();
+        if (null !== $comuna && $comuna->isSuspended()) {
             throw ComunaModerationPolicy::suspended();
         }
-        if ($event->getComuna()->isArchived()) {
+        if (null !== $comuna && $comuna->isArchived()) {
             throw ComunaModerationPolicy::archived();
         }
         if ($event->isCancelled()) {
@@ -126,13 +148,49 @@ final readonly class ComunaEvents
         }
     }
 
-    private function assertOrganizer(Comuna $comuna, User $actor): void
+    /**
+     * Normaliza o tipo de capacidade do chamado. Sem modo, o chamado é de entrada livre
+     * e não guarda limite. Com modo, o limite é obrigatório e entre 1 e 1000 pessoas.
+     *
+     * @return array{0: ?EventCapacityMode, 1: ?int}
+     */
+    private function resolveCapacity(?string $mode, ?int $capacity, ?ComunaEvent $event = null): array
+    {
+        $mode = null === $mode ? null : trim($mode);
+        if (null === $mode || '' === $mode) {
+            return [null, null];
+        }
+        $parsed = EventCapacityMode::tryFrom($mode);
+        if (null === $parsed) {
+            throw ApiProblem::badRequest('/errors/event-capacity', 'Escolha entrada livre, vagas ou meta.');
+        }
+        if (null === $capacity || $capacity < ComunaEvent::CAPACITY_MIN || $capacity > ComunaEvent::CAPACITY_MAX) {
+            throw ApiProblem::badRequest('/errors/event-capacity', 'Informe entre 1 e 1000 pessoas.');
+        }
+        if (EventCapacityMode::Spots === $parsed && null !== $event) {
+            $going = $this->attendance->counts([$event], null)[$event->getId()->toRfc4122()]['going'];
+            if ($capacity < $going) {
+                throw ApiProblem::conflict('/errors/event-capacity', 'Já há mais gente confirmada do que esse limite.', 'Aumente o limite ou mantenha o que estava.');
+            }
+        }
+
+        return [$parsed, $capacity];
+    }
+
+    private function assertOrganizer(?Comuna $comuna, User $actor, ?User $organizer = null): void
     {
         if (!$actor->isActive()) {
             throw ApiProblem::accountInactive();
         }
         if (!$actor->isEmailVerified()) {
             throw ApiProblem::emailNotVerified();
+        }
+        if (null === $comuna) {
+            if (null === $organizer || !$organizer->getId()->equals($actor->getId())) {
+                throw ApiProblem::forbidden('/errors/not-the-organizer', 'Só quem criou este chamado pode editá-lo.');
+            }
+
+            return;
         }
         $this->moderation->assertNotArchived($comuna);
         $this->moderation->assertModerator($comuna, $actor);
@@ -143,13 +201,14 @@ final readonly class ComunaEvents
         if (!$actor->isActive()) {
             throw ApiProblem::accountInactive();
         }
-        if (!$this->content->canReadComuna($event->getComuna(), $actor)) {
+        $comuna = $event->getComuna();
+        if (null !== $comuna && !$this->content->canReadComuna($comuna, $actor)) {
             throw ApiProblem::notFound('Evento não encontrado.');
         }
     }
 
     /** @return array{0: ?string, 1: ?string, 2: ?string} */
-    private function fields(Comuna $comuna, EventFormat $format, string &$title, string &$description, ?string $placeName, ?string $address, ?string $onlineUrl): array
+    private function fields(?Comuna $comuna, EventFormat $format, string &$title, string &$description, ?string $placeName, ?string $address, ?string $onlineUrl): array
     {
         $title = TextNormalizer::normalize($title);
         $description = TextNormalizer::normalize($description);
@@ -215,6 +274,9 @@ final readonly class ComunaEvents
 
     private function notify(ComunaEvent $event, User $actor, NotificationType $type): void
     {
+        if (null === $event->getComuna()) {
+            return;
+        }
         foreach ($this->attendance->interestedUsers($event) as $user) {
             $this->notifications->eventNotice($event, $user, $actor, $type);
         }

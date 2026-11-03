@@ -43,6 +43,10 @@ class Post
     #[ORM\Column(length: 20, nullable: true, enumType: Topic::class)]
     private ?Topic $topic = null;
 
+    /** @var list<string> Assuntos oficiais; o primeiro também alimenta a descoberta. */
+    #[ORM\Column(type: Types::JSON, options: ['jsonb' => true, 'default' => '[]'])]
+    private array $topics = [];
+
     public function __construct(
         #[ORM\ManyToOne]
         #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -77,17 +81,35 @@ class Post
     #[ORM\OneToOne(mappedBy: 'post', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?Poll $poll = null;
 
-    public function setTopic(?Topic $topic): void
+    /** @param list<Topic> $topics */
+    public function setTopics(array $topics): void
     {
-        if (null !== $this->comuna && null !== $topic) {
+        if (null !== $this->comuna && [] !== $topics) {
             throw new \InvalidArgumentException('O assunto é herdado da comuna.');
         }
-        $this->topic = $topic;
+        $values = array_values(array_unique(array_map(static fn (Topic $topic): string => $topic->value, $topics)));
+        $this->topics = $values;
+        $this->topic = [] === $values ? null : Topic::from($values[0]);
+    }
+
+    public function setTopic(?Topic $topic): void
+    {
+        $this->setTopics(null === $topic ? [] : [$topic]);
+    }
+
+    /** @return list<string> */
+    public function getTopics(): array
+    {
+        if (null !== $this->comuna) {
+            return $this->comuna->getTopics();
+        }
+
+        return $this->topics;
     }
 
     public function getTopic(): ?string
     {
-        return null !== $this->comuna ? ($this->comuna->getTopics()[0] ?? null) : $this->topic?->value;
+        return $this->getTopics()[0] ?? null;
     }
 
     public function getId(): Uuid
@@ -113,7 +135,10 @@ class Post
     public function attachEvent(ComunaEvent $event): void
     {
         $comuna = $event->getComuna();
-        if (null === $this->comuna || !$this->comuna->getId()->equals($comuna->getId())) {
+        $sameScope = null === $comuna
+            ? null === $this->comuna
+            : null !== $this->comuna && $this->comuna->getId()->equals($comuna->getId());
+        if (!$sameScope) {
             throw new \InvalidArgumentException('O evento precisa ser da mesma comuna.');
         }
         $this->event = $event;
@@ -176,6 +201,13 @@ class Post
             $this->media->status = 'purge_pending';
             $this->media = null;
         }
+    }
+
+    /** Edição do texto e do título pela autoria; anexos e vínculos permanecem. */
+    public function edit(string $body, ?string $title): void
+    {
+        $this->body = $body;
+        $this->title = $title;
     }
 
     /**

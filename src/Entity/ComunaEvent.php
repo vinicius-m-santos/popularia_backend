@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\EventCapacityMode;
 use App\Enum\EventFormat;
 use App\Enum\EventStatus;
 use App\Repository\ComunaEventRepository;
@@ -26,6 +27,8 @@ class ComunaEvent
     public const int PLACE_MAX = 120;
     public const int ADDRESS_MAX = 240;
     public const int URL_MAX = 500;
+    public const int CAPACITY_MIN = 1;
+    public const int CAPACITY_MAX = 1000;
 
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME)]
@@ -39,8 +42,8 @@ class ComunaEvent
 
     public function __construct(
         #[ORM\ManyToOne]
-        #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-        private Comuna $comuna,
+        #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+        private ?Comuna $comuna,
         #[ORM\ManyToOne]
         #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
         private ?User $organizer,
@@ -64,6 +67,12 @@ class ComunaEvent
         private ?\DateTimeImmutable $endsAt,
         #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE)]
         private \DateTimeImmutable $createdAt,
+        /** Sem modo, o chamado é de entrada livre. */
+        #[ORM\Column(length: 10, nullable: true, enumType: EventCapacityMode::class)]
+        private ?EventCapacityMode $capacityMode = null,
+        /** Teto de vagas (spots) ou mínimo de confirmações (goal). */
+        #[ORM\Column(nullable: true)]
+        private ?int $capacity = null,
     ) {
         $this->id = Uuid::v7();
         $this->updatedAt = $createdAt;
@@ -84,6 +93,8 @@ class ComunaEvent
         ?string $onlineUrl,
         \DateTimeImmutable $startsAt,
         ?\DateTimeImmutable $endsAt,
+        ?EventCapacityMode $capacityMode,
+        ?int $capacity,
         \DateTimeImmutable $now,
     ): void {
         $this->title = $title;
@@ -94,6 +105,8 @@ class ComunaEvent
         $this->onlineUrl = $onlineUrl;
         $this->startsAt = $startsAt;
         $this->endsAt = $endsAt;
+        $this->capacityMode = $capacityMode;
+        $this->capacity = $capacity;
         $this->updatedAt = $now;
         ++$this->revision;
     }
@@ -111,7 +124,7 @@ class ComunaEvent
         return $this->id;
     }
 
-    public function getComuna(): Comuna
+    public function getComuna(): ?Comuna
     {
         return $this->comuna;
     }
@@ -164,6 +177,16 @@ class ComunaEvent
     public function getEndsAt(): ?\DateTimeImmutable
     {
         return $this->endsAt;
+    }
+
+    public function getCapacityMode(): ?EventCapacityMode
+    {
+        return $this->capacityMode;
+    }
+
+    public function getCapacity(): ?int
+    {
+        return $this->capacity;
     }
 
     public function getStatus(): EventStatus

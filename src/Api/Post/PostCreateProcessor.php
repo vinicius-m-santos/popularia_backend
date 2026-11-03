@@ -56,7 +56,10 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             if (null !== $data->comunaId) {
                 $comuna = $this->comunas->find(Uuid::fromString($data->comunaId)) ?? throw ApiProblem::notFound('Comuna não encontrada.');
             }
-            if (null !== $comuna && null !== $data->topic) {
+            $inputTopics = $data->topics ?? [];
+            $topics = [] === $inputTopics && null !== $data->topic ? [$data->topic] : $inputTopics;
+            $topics = array_values(array_unique($topics));
+            if (null !== $comuna && [] !== $topics) {
                 throw ApiProblem::badRequest('/errors/inherited-topic', 'O assunto é herdado da comuna.');
             }
             $this->policy->assertCanPostIn($comuna, $author);
@@ -75,7 +78,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             }
             $hashtags = $this->hashtagParser->extract($body);
             $post = new Post($author, $comuna, $body, $this->clock->now(), $title);
-            $post->setTopic(null === $data->topic ? null : Topic::from($data->topic));
+            $post->setTopics(array_map(static fn (string $topic): Topic => Topic::from($topic), $topics));
             if (null !== $data->documentId) {
                 $document = $this->library->find($data->documentId);
                 $this->em->refresh($document, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
@@ -102,7 +105,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             if (null !== $data->eventId) {
                 $this->attachEvent($post, $data->eventId, $author);
             }
-            $mentions = $this->mentions->attach($body, $data->mentions, $post);
+            $mentions = $this->mentions->attach($body, $data->mentions ?? [], $post);
             $this->em->persist($post);
             foreach ($mentions as $mention) {
                 $this->em->persist($mention);
@@ -122,7 +125,11 @@ final readonly class PostCreateProcessor implements ProcessorInterface
         }
         $event = $this->events->find(Uuid::fromString($eventId));
         $comuna = $post->getComuna();
-        if (!$event instanceof ComunaEvent || null === $comuna || !$event->getComuna()->getId()->equals($comuna->getId()) || !$this->policy->canReadComuna($comuna, $author)) {
+        $eventComuna = $event instanceof ComunaEvent ? $event->getComuna() : null;
+        $sameScope = $event instanceof ComunaEvent && (null === $eventComuna
+            ? null === $comuna && null !== $event->getOrganizer() && $event->getOrganizer()->getId()->equals($author->getId())
+            : null !== $comuna && $eventComuna->getId()->equals($comuna->getId()) && $this->policy->canReadComuna($comuna, $author));
+        if (!$sameScope) {
             throw ApiProblem::badRequest('/errors/event-link', 'Esse evento não pertence a esta comuna.');
         }
         if ($event->isCancelled()) {

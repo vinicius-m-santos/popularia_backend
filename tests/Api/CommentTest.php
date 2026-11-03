@@ -152,4 +152,34 @@ final class CommentTest extends ApiTestCase
         $this->assertStatus(200);
         self::assertSame($ana['id'], $withoutBlocked['topComment']['id']);
     }
+
+    public function testAuthorCanSoftDeleteOwnCommentAndOthersCannot(): void
+    {
+        $author = $this->createUser('camila');
+        $other = $this->createUser('outra');
+        $post = $this->createPost($author, null);
+        $authorToken = $this->login('camila@exemplo.org')['accessToken'];
+        $otherToken = $this->login('outra@exemplo.org')['accessToken'];
+        $uri = '/posts/'.$post->getId()->toRfc4122().'/comments';
+        $comment = $this->request('POST', $uri, ['body' => 'Comentário'], $authorToken);
+        $this->assertStatus(201);
+
+        $forbidden = $this->request('DELETE', '/comments/'.$comment['id'], token: $otherToken);
+        $this->assertStatus(403);
+        self::assertSame('/errors/not-the-author', $forbidden['type']);
+
+        $this->request('DELETE', '/comments/'.$comment['id'], token: $authorToken);
+        $this->assertStatus(204);
+        $page = $this->request('GET', $uri, token: $authorToken);
+        $saved = $page['items'][0];
+        self::assertSame('deleted', $saved['status']);
+        self::assertNull($saved['body']);
+        self::assertNull($saved['author']);
+        self::assertSame(0, $this->fresh(Post::class, $post->getId())->getCommentCount());
+
+        // Repetir a exclusão é idempotente.
+        $this->request('DELETE', '/comments/'.$comment['id'], token: $authorToken);
+        $this->assertStatus(204);
+        unset($other);
+    }
 }

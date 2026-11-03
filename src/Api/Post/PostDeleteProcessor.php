@@ -7,6 +7,8 @@ namespace App\Api\Post;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\ApiProblem;
+use App\Auth\AdminAudit;
+use App\Enum\AdminAuditAction;
 use App\Content\ComunaPins;
 use App\Content\ContentPolicy;
 use App\Hashtag\HashtagBinder;
@@ -24,6 +26,7 @@ final readonly class PostDeleteProcessor implements ProcessorInterface
         private ContentMentionRepository $mentions,
         private ComunaPins $pins,
         private HashtagBinder $hashtagBinder,
+        private AdminAudit $audit,
     ) {
     }
 
@@ -42,6 +45,7 @@ final readonly class PostDeleteProcessor implements ProcessorInterface
         $this->hashtagBinder->deleteForPost($post);
         $this->pins->release($post);
         $this->em->flush();
+        $this->audit->record($viewer, AdminAuditAction::DeletePost, $viewer->getId(), '', ['post_id' => $post->getId()->toRfc4122()]);
 
         return null;
     }

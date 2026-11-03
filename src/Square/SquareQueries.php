@@ -7,6 +7,7 @@ namespace App\Square;
 use App\Entity\Square;
 use App\Entity\SquareMessage;
 use App\Entity\User;
+use App\Media\StoredImageUrl;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
@@ -126,12 +127,17 @@ final readonly class SquareQueries
         return $result;
     }
 
-    /** @return list<array{id: string, handle: string, displayName: string}> */
+    /** @return list<array{id: string, handle: string, displayName: string, avatarUrl: ?string}> */
     public function presence(Square $square, User $viewer): array
     {
-        $rows = $this->em->getConnection()->fetchAllAssociative("SELECT u.id, u.handle, u.display_name FROM square_visit v JOIN app_user u ON u.id = v.user_id JOIN square s ON s.id = v.square_id JOIN comuna c ON c.id = s.comuna_id WHERE v.square_id = :square AND v.seen_at > :expires AND u.status = 'active' AND ".self::unblocked('u.id')." AND (c.visibility = 'public' OR EXISTS (SELECT 1 FROM comuna_membership pm WHERE pm.comuna_id = c.id AND pm.user_id = u.id)) ORDER BY v.seen_at DESC, u.id LIMIT 12", ['square' => $square->id->toRfc4122(), 'viewer' => $viewer->getId()->toRfc4122(), 'expires' => $this->clock->now()->modify('-90 seconds')->format('Y-m-d H:i:sP')]);
+        $rows = $this->em->getConnection()->fetchAllAssociative("SELECT u.id, u.handle, u.display_name, u.avatar_key FROM square_visit v JOIN app_user u ON u.id = v.user_id JOIN square s ON s.id = v.square_id JOIN comuna c ON c.id = s.comuna_id WHERE v.square_id = :square AND v.seen_at > :expires AND u.status = 'active' AND ".self::unblocked('u.id')." AND (c.visibility = 'public' OR EXISTS (SELECT 1 FROM comuna_membership pm WHERE pm.comuna_id = c.id AND pm.user_id = u.id)) ORDER BY v.seen_at DESC, u.id LIMIT 12", ['square' => $square->id->toRfc4122(), 'viewer' => $viewer->getId()->toRfc4122(), 'expires' => $this->clock->now()->modify('-90 seconds')->format('Y-m-d H:i:sP')]);
 
-        return array_map(static fn (array $r) => ['id' => (string) $r['id'], 'handle' => (string) $r['handle'], 'displayName' => (string) $r['display_name']], $rows);
+        return array_map(static fn (array $r) => [
+            'id' => (string) $r['id'],
+            'handle' => (string) $r['handle'],
+            'displayName' => (string) $r['display_name'],
+            'avatarUrl' => StoredImageUrl::avatarFor((string) $r['id'], null === $r['avatar_key'] ? null : (string) $r['avatar_key']),
+        ], $rows);
     }
 
     public function heartbeat(Square $square, User $viewer): void

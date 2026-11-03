@@ -95,7 +95,8 @@
             "@test",
             "@composer audit"
         ],
-        "openapi": "bin/console api:openapi:export --output=docs/openapi.json"
+        "openapi": "bin/console api:openapi:export --output=docs/openapi.json",
+        "test:coverage": "bin/phpunit --coverage-text --coverage-clover=var/coverage/clover.xml"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -121,10 +122,10 @@
     },
     "scripts-descriptions": {
         "test": "Testes automatizados (recria o banco de testes a partir das migrations).",
-        "stan": "Análise estática com PHPStan.",
-        "cs": "Confere o estilo de código sem alterar arquivos.",
-        "cs-fix": "Corrige o estilo de código.",
-        "check": "Estilo, análise estática, testes e auditoria de dependências.",
-        "openapi": "Exporta a especificação OpenAPI para docs/openapi.json."
+        "stan": "An\u00e1lise est\u00e1tica com PHPStan.",
+        "cs": "Confere o estilo de c\u00f3digo sem alterar arquivos.",
+        "cs-fix": "Corrige o estilo de c\u00f3digo.",
+        "check": "Estilo, an\u00e1lise est\u00e1tica, testes e auditoria de depend\u00eancias.",
+        "openapi": "Exporta a especifica\u00e7\u00e3o OpenAPI para docs/openapi.json."
     }
 }

@@ -1,0 +1,18 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["GUA3RMH4KC.com.popularia.mobile"],
+        "components": [
+          { "/": "/p/*", "comment": "publicação" },
+          { "/": "/u/*", "comment": "perfil" },
+          { "/": "/c/*", "comment": "comuna" },
+          { "/": "/d/*", "comment": "documento" },
+          { "/": "/e/*", "comment": "evento" },
+          { "/": "/t/*", "comment": "assunto" }
+        ]
+      }
+    ]
+  }
+}

@@ -117,6 +117,19 @@ class EventAttendanceRepository extends ServiceEntityRepository
         return array_map(static fn (EventAttendance $row): User => $row->getUser(), $rows);
     }
 
+    /**
+     * Até `$limit` pessoas que vão, para a prévia de rostos do cartão do feed.
+     *
+     * @return list<User>
+     */
+    public function goingPreview(ComunaEvent $event, ?User $viewer, int $limit = 3): array
+    {
+        return array_slice(array_map(
+            static fn (EventAttendance $row): User => $row->getUser(),
+            $this->findAttendeePage($event, AttendanceStatus::Going, $viewer, null, $limit),
+        ), 0, $limit);
+    }
+
     /** @return list<EventAttendance> */
     public function findAttendeePage(ComunaEvent $event, AttendanceStatus $status, ?User $viewer, ?Uuid $after, int $limit): array
     {

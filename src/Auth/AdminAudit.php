@@ -6,6 +6,7 @@ namespace App\Auth;
 
 use App\Entity\AdminAuditLog;
 use App\Entity\User;
+use App\Enum\AdminAuditAction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Uid\Uuid;
@@ -20,8 +21,9 @@ final class AdminAudit
     }
 
     /** @param array<string, scalar|null> $details */
-    public function record(?User $actor, string $action, ?Uuid $targetUserId, string $reason, array $details = []): void
+    public function record(?User $actor, string|AdminAuditAction $action, ?Uuid $targetUserId, string $reason, array $details = []): void
     {
+        $action = $action instanceof AdminAuditAction ? $action->value : $action;
         $this->em->persist(new AdminAuditLog(
             $actor,
             null === $actor ? 'console' : 'api',

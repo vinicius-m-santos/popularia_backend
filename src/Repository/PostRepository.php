@@ -124,6 +124,18 @@ class PostRepository extends ServiceEntityRepository
         $this->getEntityManager()->refresh($post);
     }
 
+    public function decrementCommentCount(Post $post): void
+    {
+        $this->createQueryBuilder('p')
+            ->update()
+            ->set('p.commentCount', 'CASE WHEN p.commentCount > 0 THEN p.commentCount - 1 ELSE 0 END')
+            ->where('p.id = :id')
+            ->setParameter('id', $post->getId(), 'uuid')
+            ->getQuery()
+            ->execute();
+        $this->getEntityManager()->refresh($post);
+    }
+
     /** @return list<Post> */
     public function findAuthorPage(User $author, ?User $viewer, ?Uuid $before, int $limit): array
     {

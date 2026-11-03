@@ -16,6 +16,11 @@ final class PostInput
     #[Assert\Choice(callback: [Topic::class, 'values'], message: 'Assunto desconhecido.')]
     public ?string $topic = null;
 
+    /** @var list<string> Assuntos opcionais; até três, todos oficiais. */
+    #[Assert\Count(max: 3, maxMessage: 'Escolha no máximo {{ limit }} assuntos.')]
+    #[Assert\All(constraints: [new Assert\Choice(callback: [Topic::class, 'values'], message: 'Assunto desconhecido.')])]
+    public array $topics = [];
+
     #[Assert\Uuid(message: 'Documento inválido.')]
     public ?string $documentId = null;
 

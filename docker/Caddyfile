@@ -35,6 +35,9 @@
 		max_size 1MB
 	}
 
+	@aasa path /.well-known/apple-app-site-association
+	header @aasa Content-Type application/json
+
 	header {
 		-Server
 		X-Content-Type-Options nosniff

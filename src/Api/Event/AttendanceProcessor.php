@@ -35,7 +35,11 @@ final readonly class AttendanceProcessor implements ProcessorInterface
             $id = (string) ($uriVariables['id'] ?? '');
             $event = Uuid::isValid($id) ? $this->events->find(Uuid::fromString($id)) : null;
             $actor = $this->currentUser->get();
-            if (!$event instanceof ComunaEvent || !$this->content->canReadComuna($event->getComuna(), $actor)) {
+            if (!$event instanceof ComunaEvent) {
+                throw ApiProblem::notFound('Evento não encontrado.');
+            }
+            $comuna = $event->getComuna();
+            if (null !== $comuna && !$this->content->canReadComuna($comuna, $actor)) {
                 throw ApiProblem::notFound('Evento não encontrado.');
             }
             $this->service->respond($event, $actor, AttendanceStatus::from($data->status));

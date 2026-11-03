@@ -394,6 +394,9 @@ final class DiscoveryTest extends ApiTestCase
         self::assertNotContains($private->id->toRfc4122(), $outsider);
         self::assertNotContains($removed->id->toRfc4122(), $outsider);
         self::assertSame([], $this->request('GET', '/search?type=documents&q='.rawurlencode('ata secreta'), token: $token)['documents']);
+        $topicDocuments = array_column($this->request('GET', '/search?type=documents&topic=trab', token: $token)['documents'], 'id');
+        self::assertContains($public->id->toRfc4122(), $topicDocuments);
+        self::assertNotContains($private->id->toRfc4122(), $topicDocuments);
 
         $ownerToken = $this->login('autoradoc@exemplo.org')['accessToken'];
         $own = array_column($this->request('GET', '/search?type=documents&q=tecnologia', token: $ownerToken)['documents'], 'id');

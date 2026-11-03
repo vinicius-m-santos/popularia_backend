@@ -40,18 +40,21 @@ final readonly class EventViews
         $now = $this->clock->now();
         $comunas = [];
         foreach ($events as $event) {
-            $comunas[$event->getComuna()->getId()->toRfc4122()] = $event->getComuna();
+            $comuna = $event->getComuna();
+            if (null !== $comuna) {
+                $comunas[$comuna->getId()->toRfc4122()] = $comuna;
+            }
         }
         $memberships = null === $viewer ? [] : $this->memberships->findForComunas($viewer, array_values($comunas));
 
         return array_map(function (ComunaEvent $event) use ($viewer, $counts, $mine, $now, $memberships): EventView {
             $id = $event->getId()->toRfc4122();
             $comuna = $event->getComuna();
-            $membership = $memberships[$comuna->getId()->toRfc4122()] ?? null;
+            $membership = null === $comuna ? null : ($memberships[$comuna->getId()->toRfc4122()] ?? null);
             $zone = EventSchedule::zone($event->getTimeZone());
             $past = EventSchedule::isPast($now, $event->getStartsAt(), $event->getEndsAt());
             $organizer = $event->getOrganizer();
-            $canRead = $this->content->canReadComuna($comuna, $viewer);
+            $canRead = null === $comuna || $this->content->canReadComuna($comuna, $viewer);
 
             return new EventView(
                 $id,
@@ -65,7 +68,7 @@ final readonly class EventViews
                 $event->getPlaceName(),
                 $event->getAddress(),
                 $event->getOnlineUrl(),
-                [
+                null === $comuna ? null : [
                     'id' => $comuna->getId()->toRfc4122(),
                     'slug' => $comuna->getSlug(),
                     'name' => $comuna->getName(),
@@ -76,23 +79,29 @@ final readonly class EventViews
                 $counts[$id]['going'],
                 $counts[$id]['maybe'],
                 $mine[$id]->value ?? null,
-                null !== $membership && $membership->getRole()->canModerate() && $comuna->isActive() && !$event->isCancelled(),
-                null !== $viewer && $viewer->isActive() && $viewer->isEmailVerified() && $canRead && !$past && !$event->isCancelled() && $comuna->isActive(),
+                null === $comuna
+                    ? null !== $viewer && null !== $organizer && $organizer->getId()->equals($viewer->getId()) && !$event->isCancelled()
+                    : null !== $membership && $membership->getRole()->canModerate() && $comuna->isActive() && !$event->isCancelled(),
+                null !== $viewer && $viewer->isActive() && $viewer->isEmailVerified() && $canRead && !$past && !$event->isCancelled() && (null === $comuna || $comuna->isActive()),
                 $past,
                 $event->getCreatedAt(),
                 $event->getUpdatedAt(),
                 $event->getCancelledAt(),
+                $event->getCapacityMode()?->value,
+                $event->getCapacity(),
             );
         }, $events);
     }
 
     public function summary(ComunaEvent $event, ?User $viewer): EventSummary
     {
-        $counts = $this->attendance->counts([$event], $viewer)[$event->getId()->toRfc4122()];
+        $id = $event->getId()->toRfc4122();
+        $counts = $this->attendance->counts([$event], $viewer)[$id];
+        $mine = $this->attendance->viewerStatuses([$event], $viewer)[$id] ?? null;
         $zone = EventSchedule::zone($event->getTimeZone());
 
         return new EventSummary(
-            $event->getId()->toRfc4122(),
+            $id,
             $event->getTitle(),
             $event->getFormat()->value,
             $event->getStatus()->value,
@@ -102,6 +111,15 @@ final readonly class EventViews
             $counts['going'],
             $counts['maybe'],
             EventSchedule::isPast($this->clock->now(), $event->getStartsAt(), $event->getEndsAt()),
+            $event->getAddress(),
+            $event->getEndsAt()?->setTimezone($zone),
+            $event->getCapacityMode()?->value,
+            $event->getCapacity(),
+            $mine?->value,
+            array_map(
+                static fn (User $user): AuthorView => AuthorView::fromUser($user),
+                $this->attendance->goingPreview($event, $viewer),
+            ),
         );
     }
 }

@@ -7,6 +7,7 @@ namespace App\Api\Post;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post as PostOperation;
 use ApiPlatform\Metadata\Put;
@@ -56,6 +57,14 @@ use App\Api\Profile\AuthorView;
                 summary: 'Remove uma publicação da comuna (moderação da comuna), com motivo.',
                 description: 'Só quem modera a comuna da publicação (403 /errors/not-comuna-moderator). Não vale para o próprio conteúdo nem para o do proprietário, salvo pelo próprio proprietário (403 /errors/cannot-moderate-content). Fica na auditoria.',
             ),
+        ),
+        new Patch(
+            uriTemplate: '/posts/{id}',
+            security: "is_granted('ROLE_USER')",
+            provider: PostProvider::class,
+            input: PostUpdateInput::class,
+            processor: PostUpdateProcessor::class,
+            openapi: new Operation(tags: ['Publicações'], summary: 'Edita o texto e o título da própria publicação.'),
         ),
         new Delete(
             uriTemplate: '/posts/{id}',
@@ -186,6 +195,8 @@ final readonly class PostView
         public ?EventSummary $event = null,
         /** O comentário de topo mais apoiado, para a citação do cartão. */
         public ?TopCommentView $topComment = null,
+        /** @var list<string> Assuntos oficiais; o primeiro também aparece em `topic`. */
+        public array $topics = [],
     ) {
     }
 }

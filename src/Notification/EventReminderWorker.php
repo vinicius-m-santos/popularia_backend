@@ -45,7 +45,8 @@ final readonly class EventReminderWorker
                 $user = $reminder->getUser();
                 $attendance = $this->em->getRepository(\App\Entity\EventAttendance::class)->findOneBy(['event' => $event, 'user' => $user]);
                 $interested = null !== $attendance && $attendance->getStatus()->wantsReminder();
-                $allowed = $user->isActive() && !$event->isCancelled() && !$event->getComuna()->isSuspended() && ($event->getComuna()->isPublic() || null !== $this->memberships->findMembership($event->getComuna(), $user));
+                $comuna = $event->getComuna();
+                $allowed = null !== $comuna && $user->isActive() && !$event->isCancelled() && !$comuna->isSuspended() && ($comuna->isPublic() || null !== $this->memberships->findMembership($comuna, $user));
                 if (!$interested || !$allowed) {
                     $this->em->remove($reminder);
                     $this->em->flush();

@@ -4,29 +4,22 @@ declare(strict_types=1);
 
 namespace App\Location;
 
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-
-/** Catálogo oficial do IBGE, cacheado para não transformar o cadastro em dependência de cada toque. */
-final readonly class LocationCatalog
+/**
+ * Catálogo oficial do IBGE embarcado no backend.
+ *
+ * A API do IBGE não é chamada em produção: o Railway não alcança
+ * servicodados.ibge.gov.br de forma confiável e o cadastro não pode depender
+ * desse tempo de rede. O arquivo resources/locations/br.json é gerado a partir
+ * dos endpoints públicos /estados e /estados/{id}/municipios (dados públicos).
+ */
+final class LocationCatalog
 {
-    private const string BASE_URL = 'https://servicodados.ibge.gov.br/api/v1/localidades';
-    private const int TTL = 604800;
-
-    public function __construct(private HttpClientInterface $http, private CacheInterface $cache)
-    {
-    }
+    private ?array $data = null;
 
     /** @return list<array{id: string, name: string, abbreviation: string}> */
     public function states(): array
     {
-        return $this->cache->get('locations.br.states.v1', function (ItemInterface $item): array {
-            $item->expiresAfter(self::TTL);
-            $rows = $this->http->request('GET', self::BASE_URL.'/estados?orderBy=nome', ['timeout' => 10])->toArray();
-
-            return array_values(array_map(static fn (array $row): array => ['id' => (string) $row['id'], 'name' => (string) $row['nome'], 'abbreviation' => (string) ($row['sigla'] ?? '')], $rows));
-        });
+        return $this->data()['states'];
     }
 
     /** @return list<array{id: string, name: string}> */
@@ -36,12 +29,7 @@ final readonly class LocationCatalog
             throw new \InvalidArgumentException('UF inválida.');
         }
 
-        return $this->cache->get('locations.br.state.'.$stateId.'.municipalities.v1', function (ItemInterface $item) use ($stateId): array {
-            $item->expiresAfter(self::TTL);
-            $rows = $this->http->request('GET', self::BASE_URL.'/estados/'.rawurlencode($stateId).'/municipios?orderBy=nome', ['timeout' => 10])->toArray();
-
-            return array_values(array_map(static fn (array $row): array => ['id' => (string) $row['id'], 'name' => (string) $row['nome']], $rows));
-        });
+        return $this->data()['municipalities'][$stateId] ?? [];
     }
 
     public function hasMunicipality(string $stateId, string $municipalityId): bool
@@ -53,5 +41,24 @@ final readonly class LocationCatalog
         }
 
         return false;
+    }
+
+    /** @return array{states: list<array{id: string, name: string, abbreviation: string}>, municipalities: array<string, list<array{id: string, name: string}>>} */
+    private function data(): array
+    {
+        if (null !== $this->data) {
+            return $this->data;
+        }
+
+        $path = \dirname(__DIR__, 2).'/resources/locations/br.json';
+        $raw = file_get_contents($path);
+        if (false === $raw) {
+            throw new \RuntimeException('Catálogo de localidades indisponível.');
+        }
+        /** @var array{states: list<array{id: string, name: string, abbreviation: string}>, municipalities: array<string, list<array{id: string, name: string}>>} $data */
+        $data = json_decode($raw, true, 512, \JSON_THROW_ON_ERROR);
+        $this->data = $data;
+
+        return $this->data;
     }
 }

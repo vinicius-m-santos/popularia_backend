@@ -51,6 +51,13 @@ jobs:
       - name: Instalar utilitários de PDF
         run: sudo apt-get update && sudo apt-get install -y qpdf
 
+      - name: Diagnóstico do PDF (temporário)
+        run: |
+          which -a qpdf
+          qpdf --version
+          sha256sum tests/Library/fixtures/valid.pdf
+          php -r 'require "vendor/autoload.php"; require "tests/Library/UploadTest.php"; $p = tempnam(sys_get_temp_dir(), "pdf-"); file_put_contents($p, App\Tests\Library\UploadTest::pdf()); echo "hash=", hash_file("sha256", $p), PHP_EOL; $cmd = ["timeout", "--signal=KILL", "20s", "prlimit", "--as=268435456", "--cpu=20", "--", "qpdf", "--check", $p]; $proc = proc_open($cmd, [0 => ["file", "/dev/null", "r"], 1 => ["pipe", "w"], 2 => ["pipe", "w"]], $pipes); echo "stdout=", stream_get_contents($pipes[1]), PHP_EOL; echo "stderr=", stream_get_contents($pipes[2]), PHP_EOL; echo "exit=", proc_close($proc), PHP_EOL;'
+
       - name: Verificar estilo de código
         run: composer cs
 

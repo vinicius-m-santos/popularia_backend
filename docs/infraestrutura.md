@@ -543,15 +543,24 @@ Atualizar `DEFAULT_URI` e `CORS_ALLOW_ORIGIN` com os domínios finais.
 Railway dashboard → "New Service" → "Database" → "Object Storage (S3)".
 Inserir as credenciais nas variáveis `LIBRARY_S3_*` do serviço backend.
 
-### 9. Configurar crons de manutenção
+### 9. Crons de manutenção
 
-Após o primeiro deploy, configurar no Railway as seguintes tarefas periódicas. Em desenvolvimento, o
-serviço `worker` do `docker compose` já roda `app:notifications:deliver --watch`:
+Em desenvolvimento, o serviço `worker` do `docker compose` roda
+`app:notifications:deliver --watch`. Em produção (04/11/2026), a entrega de push usa o serviço
+`notifications-worker`, com a mesma imagem do backend e a configuração `railway.worker.toml`:
 
 ```
-# A cada minuto — entrega de avisos (push) e consulta de recibos pendentes
-php bin/console app:notifications:deliver
+# A cada 5 minutos — entrega de avisos (push) e consulta de recibos pendentes
+php -d memory_limit=512M bin/console app:notifications:deliver --no-debug
+```
 
+A Railway tem granularidade mínima de 5 minutos para cron. O worker lê `APP_ENV=prod` e as
+variáveis de banco/segredo/Sentry por referência ao serviço `backend`; o log esperado a cada
+execução é `[OK] Notificações processadas: N; …`.
+
+Ainda precisam ser agendados no Railway (mesmo padrão de serviço cron com a imagem do backend):
+
+```
 # Diário — limpeza de dados de segurança expirados e cache acumulado
 php bin/console app:security:purge
 php bin/console cache:pool:prune
@@ -559,8 +568,6 @@ php bin/console cache:pool:prune
 # A cada semana (ou conforme necessidade) — limpeza de uploads da Biblioteca não finalizados
 php bin/console app:library:purge-uploads
 ```
-
-No Railway: "New Service" → "Cron Job" → usar o mesmo Docker image do backend.
 
 ### 10. Criar conta admin inicial em production
 

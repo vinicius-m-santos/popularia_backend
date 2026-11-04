@@ -227,14 +227,22 @@ permite inspecionar `status`, `attempts`, `error_code`, `ticket`, `available_at`
 
 Resultados finais de checks: ver `notificacoes-validacao.md`.
 
-## 11. Configuração externa restante
+## 11. Configuração externa
 
-Nenhum secret foi inventado. A configuração em código está pronta, mas não foi atestada por
-push real em dispositivos nesta execução.
+**Produção (04/11/2026):** backend e worker ativos.
 
-1. Backend: aplicar migration no ambiente, publicar a release e ativar o worker descrito acima.
+- Backend de produção atualizado (`113347d`; migration `Version20261115120000` aplicada).
+- Serviço `notifications-worker` no ambiente `production`, com a mesma imagem do backend,
+  `APP_ENV=prod` e `DATABASE_URL`/`APP_SECRET`/Sentry por referência ao serviço `backend`.
+  A configuração versionada é `railway.worker.toml`.
+- Comando: `php -d memory_limit=512M bin/console app:notifications:deliver --no-debug`.
+- Cron: `*/5 * * * *`. As primeiras execuções retornaram
+  `[OK] Notificações processadas: 0; envios tentados: 0; recibos consultados: 0`, confirmando
+  banco e fila vazia. O que ainda não foi atestado é **push real em aparelho**.
+
+1. Backend: se refizer o deploy, aplicar migration no ambiente e publicar a release.
    API e worker precisam usar o mesmo banco e mesmas variáveis. Permitir HTTPS de saída para
-   `https://exp.host/--/api/v2/push/`.
+   `https://exp.host/--/api/v2/push/`. O start do container já roda as migrations pendentes.
 2. Expo: confirmar acesso ao projeto EAS `6e964283-951f-4a16-bf99-5a4d5236a338` e suas credenciais.
    Se ativar a segurança de envio no Expo, configurar `EXPO_PUSH_ACCESS_TOKEN` somente no backend
    e no worker; o provider já aceita essa variável opcional. Nunca usar `EXPO_PUBLIC_` para ela.

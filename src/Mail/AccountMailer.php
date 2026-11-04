@@ -107,17 +107,27 @@ final class AccountMailer implements ResetInterface
 
     public function sendPasswordChanged(User $user): void
     {
-        $name = $user->getDisplayName();
+        $name = trim($user->getDisplayName());
+        $firstName = '' !== $name ? explode(' ', $name)[0] : $name;
         $this->queue(
             $user,
             'Sua senha da Popularia foi alterada',
             'emails/password_changed.html.twig',
-            ['name' => $name],
+            ['nome' => $firstName],
             <<<TXT
-            Olá, {$name}!
+            Oi, {$firstName}!
 
-            A senha da sua conta acabou de ser alterada e as outras sessões foram encerradas.
-            Se não foi você, use "Esqueci minha senha" no app agora mesmo.
+            A senha da sua conta na Popularia acabou de ser alterada. Por segurança, encerramos todas as outras sessões abertas.
+
+            NÃO FOI VOCÊ?
+            Abra o app agora e use "Esqueci minha senha" pra recuperar o acesso.
+            Se não conseguir entrar, escreva pra suporte@popularia.com.br.
+
+            Foi você? Então tá tudo certo, não precisa fazer nada.
+
+            --
+            Popularia · um lugar nosso
+            Suporte: suporte@popularia.com.br · https://popularia.com.br/suporte
             TXT,
         );
     }

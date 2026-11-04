@@ -149,6 +149,13 @@ final class MeTest extends ApiTestCase
 
         $this->request('POST', '/me/password', ['currentPassword' => self::PASSWORD, 'newPassword' => 'nova senha boa'], $phone['accessToken']);
         $this->assertStatus(204);
+        self::assertEmailCount(1);
+        $email = self::getMailerMessage();
+        self::assertNotNull($email);
+        self::assertEmailSubjectContains($email, 'Sua senha da Popularia foi alterada');
+        self::assertEmailHtmlBodyContains($email, 'SUA SENHA FOI ALTERADA.');
+        self::assertEmailHtmlBodyContains($email, 'Não foi você?');
+        self::assertEmailTextBodyContains($email, 'NÃO FOI VOCÊ?');
 
         $this->request('GET', '/me', token: $phone['accessToken']);
         $this->assertStatus(200);

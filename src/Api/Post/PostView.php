@@ -7,8 +7,8 @@ namespace App\Api\Post;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post as PostOperation;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
@@ -169,9 +169,9 @@ use App\Api\Profile\AuthorView;
 final readonly class PostView
 {
     /**
-     * @param array{id: string, slug: string, name: string, status: string}|null                                                 $comuna
+     * @param array{id: string, slug: string, name: string, status: string}|null                                                                                $comuna
      * @param array{isAuthor: bool, canComment: bool, canDelete: bool, canRemove: bool, saved: bool, canPin: bool, pinned: bool, supported: bool, echoed: bool} $viewer
-     * @param list<MentionView>                                                                                                  $mentions
+     * @param list<MentionView>                                                                                                                                 $mentions
      */
     public function __construct(
         #[ApiProperty(identifier: true)]

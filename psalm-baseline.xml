@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="7.0.2@5cd5e2ffff7497643dd51da31ae85bb5bc593090">
+  <file src="src/Api/Admin/EvidenceHoldCreateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): EvidenceHoldView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Admin/EvidenceHoldProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): array]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Admin/EvidenceHoldReleaseProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): EvidenceHoldView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Admin/SecurityEventProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): array]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/ApiProblem.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getDetail(): ?string]]></code>
+      <code><![CDATA[public function getHeaders(): array]]></code>
+      <code><![CDATA[public function getInstance(): ?string]]></code>
+      <code><![CDATA[public function getStatus(): int]]></code>
+      <code><![CDATA[public function getStatusCode(): int]]></code>
+      <code><![CDATA[public function getTitle(): string]]></code>
+      <code><![CDATA[public function getType(): string]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Auth/CompleteSocialSignupProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): SocialTokens]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Auth/LoginProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Tokens]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Auth/LogoutAllProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Auth/LogoutProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Auth/PasswordResetConfirmationProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Auth/PasswordResetRequestProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Accepted]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Auth/RegistrationProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Accepted]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Auth/SocialLoginProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): SocialAuthResult]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Auth/TokenRefreshProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Tokens]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Block/BlockItemProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): BlockView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Block/BlockProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Block/BlockProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): array]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Block/UnblockProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comment/CommentCreateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): CommentView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comment/CommentDeleteProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comment/CommentPageProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): CommentPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comment/CommentRemovalProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comment/CommentSupportProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): CommentView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ComunaArchiveProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ComunaView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ComunaCreateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ComunaView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ComunaDeleteProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ComunaMemberPageProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): ComunaMemberPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ComunaNameAvailabilityProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): ComunaNameAvailability]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ComunaPageProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): ComunaPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ComunaProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): ComunaView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ComunaQuotaProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): ComunaQuota]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ComunaUpdateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ComunaView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/JoinComunaProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): MembershipView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/JoinRequestDecisionProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): JoinRequestView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/JoinRequestPageProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): JoinRequestPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/JoinRequestProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?JoinRequestView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/LeaveComunaProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/MemberRemoveProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/ModeratorProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?ComunaMemberView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/MyComunasProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): ComunaPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/OwnershipTransferProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?OwnershipTransferView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/OwnershipTransferResponseProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): OwnershipTransferView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/PinnedPostProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?PostPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Comuna/PinnedPostsProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): PostPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Constraint/HandleRequirements.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function getConstraints(array $options): array]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Constraint/PasswordRequirements.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function getConstraints(array $options): array]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Discovery/DiscoveryProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): DiscoveryView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Event/AttendanceProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): EventView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Event/AttendeePageProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): AttendeePage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Event/ComunaEventsProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): EventPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Event/EventCancelProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): EventView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Event/EventCreateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): EventView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Event/EventProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): EventView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Event/EventUpdateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): EventView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Event/ProfileEventCreateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): EventView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Hashtag/HashtagPostsProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): PostPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Hashtag/HashtagViewProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): HashtagView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Health/HealthProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): Health]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Library/LibraryProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): DocumentView|CollectionView|null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Library/LibraryProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): DocumentView|DocumentPage|CollectionView|CollectionPage]]></code>
+    </MissingOverrideAttribute>
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$viewer]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Api/Library/ReportProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Library/ReportProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): ReportPage]]></code>
+    </MissingOverrideAttribute>
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$comuna]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Api/Me/AccountDeletionProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/AuthIdentitiesProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): AuthIdentitiesView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/AuthIdentityLinkProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): AuthIdentitiesView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/CompleteOnboardingProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Me]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/EmailVerificationProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/EmailVerificationResendProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Accepted]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/GamificationProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): GamificationView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/LegalAcceptanceProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Me]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/MeProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): Me]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/MeUpdateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Me]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/PasswordChangeProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/SessionProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): SessionView|array]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Me/SessionRevokeProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Moderation/ReportDecisionProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Moderation/ReportItemProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): ReportItem]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Moderation/ReportProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Moderation/ReportQueueProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): ReportQueue]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Notification/NotificationPageProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): NotificationPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Notification/NotificationPreferencesHandler.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): NotificationPreferences]]></code>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): NotificationPreferences]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Notification/NotificationProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): NotificationView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Notification/NotificationReadProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): NotificationView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Notification/PushDeviceProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?PushDeviceView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Notification/PushDeviceRevocationProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Notification/ReadAllProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): UnreadCount]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Notification/UnreadCountProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): UnreadCount]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/ComunaPostsProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): PostPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/FeedProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): PostPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/PollVoteProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): PostView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/PostCreateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): PostView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/PostDeleteProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/PostEchoProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): PostView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/PostProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): PostView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/PostRemovalProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/PostSupportProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): PostView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/PostUpdateProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): PostView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/ProfilePostsProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): PostPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/SavedPostProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Post/SavedPostProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): SavedPostPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Profile/FollowListProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): FollowListPage]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Profile/FollowProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?FollowView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Profile/FollowProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): FollowView]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Profile/FollowRequestHandler.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): FollowRequestPage]]></code>
+    </MissingOverrideAttribute>
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$viewer]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Api/Profile/HandleAvailabilityProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): HandleAvailability]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Profile/HandleSuggestionProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): HandleSuggestion]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Profile/PublicProfileProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): PublicProfile]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Square/SquareProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): MessageView|PresenceView|StickerPage|null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Square/SquareProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): SquareView|SquarePage|MessagePage|PresenceView|StickerPage|ReportPage]]></code>
+    </MissingOverrideAttribute>
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$comuna]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Api/Support/ContactMessageProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): null]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Topic/TopicProvider.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function provide(Operation $operation, array $uriVariables = [], array $context = []): array]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Api/Waitlist/WaitlistProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): WaitlistOutput]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Command/PurgeLibraryUploadsCommand.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function configure(): void]]></code>
+      <code><![CDATA[protected function execute(InputInterface $input, OutputInterface $output): int]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Command/PurgePostMediaCommand.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function execute(InputInterface $input, OutputInterface $output): int]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Content/ReportModeration.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$actor]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Discovery/DiscoveryQuery.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$viewer]]></code>
+      <code><![CDATA[$viewer]]></code>
+      <code><![CDATA[$viewer]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Entity/User.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[#[\Deprecated]]]></code>
+      <code><![CDATA[public function getPassword(): string]]></code>
+      <code><![CDATA[public function getRoles(): array]]></code>
+      <code><![CDATA[public function getUserIdentifier(): string]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Library/LocalFilesystemStorage.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function delete(string $key): void]]></code>
+      <code><![CDATA[public function put(string $key, string $path, string $checksum, string $contentType = 'application/pdf'): void]]></code>
+      <code><![CDATA[public function read(string $key): mixed]]></code>
+      <code><![CDATA[public function signedUrl(string $key, int $ttl, string $contentType = 'application/pdf', string $disposition = 'attachment; filename="documento.pdf"'): string]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Library/S3Storage.php">
+    <InvalidPassByReference>
+      <code><![CDATA[$this->request('DELETE', $key, hash('sha256', ''))]]></code>
+    </InvalidPassByReference>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function delete(string $key): void]]></code>
+      <code><![CDATA[public function put(string $key, string $path, string $checksum, string $contentType = 'application/pdf'): void]]></code>
+      <code><![CDATA[public function read(string $key): mixed]]></code>
+      <code><![CDATA[public function signedUrl(string $key, int $ttl, string $contentType = 'application/pdf', string $disposition = 'attachment; filename="documento.pdf"'): string]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Logging/LogContextProcessor.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function __invoke(LogRecord $record): LogRecord]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Mail/AccountMailer.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function reset(): void]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Repository/AccountTokenRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$before]]></code>
+      <code><![CDATA[$now]]></code>
+      <code><![CDATA[$purpose]]></code>
+      <code><![CDATA[$user]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/AuthSessionRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$before]]></code>
+      <code><![CDATA[$now]]></code>
+      <code><![CDATA[$user]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/CommentRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$post]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/ComunaEventRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$comuna]]></code>
+      <code><![CDATA[$cursorAt]]></code>
+      <code><![CDATA[$now]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/ComunaJoinRequestRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$comuna]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/ComunaMembershipRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$comuna]]></code>
+      <code><![CDATA[$comuna]]></code>
+      <code><![CDATA[$comuna]]></code>
+      <code><![CDATA[$owner]]></code>
+      <code><![CDATA[$user]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/ComunaPinnedPostRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$comuna]]></code>
+      <code><![CDATA[$comuna]]></code>
+      <code><![CDATA[$comuna]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/ComunaRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$comuna]]></code>
+      <code><![CDATA[$owner]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/ContentMentionRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$post]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/EventAttendanceRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$event]]></code>
+      <code><![CDATA[$event]]></code>
+      <code><![CDATA[$status]]></code>
+      <code><![CDATA[$viewer]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/NotificationRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$viewer]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/PendingSocialSignupRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$now]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/PollVoteRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$user]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/PostRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$author]]></code>
+      <code><![CDATA[$comuna]]></code>
+      <code><![CDATA[$hashtag]]></code>
+      <code><![CDATA[$viewer]]></code>
+      <code><![CDATA[$viewer]]></code>
+      <code><![CDATA[$viewer]]></code>
+      <code><![CDATA[$viewer]]></code>
+      <code><![CDATA[$viewer]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/RefreshTokenRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$now]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/SavedPostRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$viewer]]></code>
+      <code><![CDATA[$viewer]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/SecurityEventRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$before]]></code>
+      <code><![CDATA[$type]]></code>
+      <code><![CDATA[$user]]></code>
+      <code><![CDATA[$user]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/UserBlockRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$a]]></code>
+      <code><![CDATA[$b]]></code>
+      <code><![CDATA[$user]]></code>
+      <code><![CDATA[$viewer]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Repository/UserFollowRepository.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$subject]]></code>
+      <code><![CDATA[$viewer]]></code>
+      <code><![CDATA[$viewer]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+  <file src="src/Security/AccessTokenHandler.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getUserBadgeFrom(#[\SensitiveParameter] string $accessToken): UserBadge]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Security/ApiAuthenticationFailureHandler.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response]]></code>
+      <code><![CDATA[public function start(Request $request, ?AuthenticationException $authException = null): Response]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Security/CurrentSession.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function reset(): void]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Security/UserChecker.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function checkPostAuth(UserInterface $user): void]]></code>
+      <code><![CDATA[public function checkPreAuth(UserInterface $user): void]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="src/Social/AppleTokenValidator.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function validate(#[\SensitiveParameter] string $identityToken, #[\SensitiveParameter] ?string $rawNonce = null): ProviderClaims]]></code>
+    </MissingOverrideAttribute>
+    <ParamNameMismatch>
+      <code><![CDATA[$identityToken]]></code>
+      <code><![CDATA[$rawNonce]]></code>
+    </ParamNameMismatch>
+  </file>
+  <file src="src/Social/GoogleTokenValidator.php">
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function validate(#[\SensitiveParameter] string $idToken, #[\SensitiveParameter] ?string $nonce = null): ProviderClaims]]></code>
+    </MissingOverrideAttribute>
+    <ParamNameMismatch>
+      <code><![CDATA[$idToken]]></code>
+    </ParamNameMismatch>
+  </file>
+  <file src="src/Square/SquareQueries.php">
+    <QueryBuilderSetParameter>
+      <code><![CDATA[$square]]></code>
+      <code><![CDATA[$square]]></code>
+    </QueryBuilderSetParameter>
+  </file>
+</files>

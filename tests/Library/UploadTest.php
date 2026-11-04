@@ -45,25 +45,12 @@ final class UploadTest extends ApiTestCase
 
     public static function pdf(): string
     {
-        $objects = [
-            '<< /Type /Catalog /Pages 2 0 R >>',
-            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] /Resources << >> /Contents 4 0 R >>',
-            "<< /Length 0 >>\nstream\n\nendstream",
-        ];
-        $pdf = "%PDF-1.4\n";
-        $offsets = [0];
-        foreach ($objects as $index => $object) {
-            $offsets[] = strlen($pdf);
-            $pdf .= ($index + 1)." 0 obj\n$object\nendobj\n";
-        }
-        $xref = strlen($pdf);
-        $pdf .= "xref\n0 5\n0000000000 65535 f \n";
-        foreach (array_slice($offsets, 1) as $offset) {
-            $pdf .= sprintf("%010d 00000 n \n", $offset);
-        }
+        // Fixture normalizada pelo qpdf: o PDF mínimo montado à mão era aceito
+        // pelo qpdf 12.2 do container, mas rejeitado pelo 12.3.2 do runner.
+        $contents = file_get_contents(__DIR__.'/fixtures/valid.pdf');
+        \assert(is_string($contents));
 
-        return $pdf."trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n$xref\n%%EOF\n";
+        return $contents;
     }
 
     /** @return array<string, mixed> */
@@ -167,10 +154,17 @@ final class UploadTest extends ApiTestCase
     {
         [$token, $collection] = $this->prepare();
         $plain = $this->file();
-        $encryptedPath = tempnam(sys_get_temp_dir(), 'popularia-pdf-encrypted-');
-        self::assertIsString($encryptedPath);
+        $safeDir = \dirname(__DIR__, 2).'/var/tmp';
+        if (!is_dir($safeDir)) {
+            self::assertTrue(mkdir($safeDir, 0775, true));
+        }
+        $plainPath = $safeDir.'/plain-'.bin2hex(random_bytes(8)).'.pdf';
+        $encryptedPath = $safeDir.'/encrypted-'.bin2hex(random_bytes(8)).'.pdf';
+        self::assertTrue(copy($plain->getPathname(), $plainPath));
+        self::assertTrue(chmod($plainPath, 0644));
+        $this->paths[] = $plainPath;
         $this->paths[] = $encryptedPath;
-        $process = proc_open(['qpdf', '--encrypt', 'segredo', 'segredo', '256', '--', $plain->getPathname(), $encryptedPath], [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
+        $process = proc_open(['qpdf', '--encrypt', 'segredo', 'segredo', '256', '--', $plainPath, $encryptedPath], [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
         self::assertIsResource($process);
         self::assertSame(0, proc_close($process));
 

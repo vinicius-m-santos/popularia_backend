@@ -52,6 +52,7 @@ Detalhes no README do app.
 ```bash
 docker compose exec php composer test     # PHPUnit: recria o banco de testes só com as migrations
 docker compose exec php composer stan     # PHPStan nível 8 (com extensões Symfony, Doctrine e PHPUnit)
+docker compose exec php composer psalm    # Psalm nível 6 (baseline em psalm-baseline.xml)
 docker compose exec php composer cs       # estilo (PHP-CS-Fixer, regras @Symfony); cs-fix corrige
 docker compose exec php composer check    # tudo acima + composer audit
 ```

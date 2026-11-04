@@ -46,11 +46,19 @@ jobs:
       - name: Instalar dependências
         run: composer install --no-progress --no-scripts
 
+      # O PdfValidator usa qpdf para detectar corrupção e senha; o Dockerfile
+      # já instala o binário, mas o runner do GitHub Actions não o traz.
+      - name: Instalar utilitários de PDF
+        run: sudo apt-get update && sudo apt-get install -y qpdf
+
       - name: Verificar estilo de código
         run: composer cs
 
       - name: Análise estática (PHPStan)
         run: composer stan
+
+      - name: Análise estática (Psalm)
+        run: composer psalm
 
       - name: Testes
         env:

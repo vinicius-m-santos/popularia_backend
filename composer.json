@@ -23,9 +23,9 @@
         "symfony/console": "7.4.*",
         "symfony/dotenv": "7.4.*",
         "symfony/expression-language": "7.4.*",
-        "symfony/flex": "^2",
+        "symfony/flex": "^2.12",
         "symfony/framework-bundle": "7.4.*",
-        "symfony/http-client": "^7.0",
+        "symfony/http-client": "^7.4.23",
         "symfony/intl": "7.4.*",
         "symfony/mailer": "7.4.*",
         "symfony/monolog-bundle": "^4.1",
@@ -87,11 +87,13 @@
         ],
         "test": "bin/phpunit",
         "stan": "php -d memory_limit=1G vendor/bin/phpstan analyse --no-progress",
+        "psalm": "php -d memory_limit=1G vendor/bin/psalm --no-progress --no-diff --show-info=false",
         "cs": "php-cs-fixer fix --dry-run --diff",
         "cs-fix": "php-cs-fixer fix",
         "check": [
             "@cs",
             "@stan",
+            "@psalm",
             "@test",
             "@composer audit"
         ],
@@ -116,13 +118,15 @@
         "phpstan/phpstan-doctrine": "^2.0",
         "phpstan/phpstan-phpunit": "^2.1",
         "phpstan/phpstan-symfony": "^2.1",
-        "phpunit/phpunit": "^13.4",
+        "phpunit/phpunit": "^13.4.6",
         "symfony/browser-kit": "7.4.*",
-        "symfony/css-selector": "7.4.*"
+        "symfony/css-selector": "7.4.*",
+        "vimeo/psalm": "^7.0.2"
     },
     "scripts-descriptions": {
         "test": "Testes automatizados (recria o banco de testes a partir das migrations).",
         "stan": "An\u00e1lise est\u00e1tica com PHPStan.",
+        "psalm": "An\u00e1lise est\u00e1tica com Psalm (baseline em psalm-baseline.xml).",
         "cs": "Confere o estilo de c\u00f3digo sem alterar arquivos.",
         "cs-fix": "Corrige o estilo de c\u00f3digo.",
         "check": "Estilo, an\u00e1lise est\u00e1tica, testes e auditoria de depend\u00eancias.",

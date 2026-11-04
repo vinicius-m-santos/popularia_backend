@@ -64,9 +64,10 @@ final readonly class PreviewController
         // Never expose a PDF title, storage key, signed download URL or existence here.
         if ('e' === $type && Uuid::isValid($id)) {
             $event = $this->em->find(ComunaEvent::class, Uuid::fromString($id));
-            if ($event instanceof ComunaEvent && $event->getComuna()->isPublic() && $event->getComuna()->isActive()) {
+            $comuna = $event instanceof ComunaEvent ? $event->getComuna() : null;
+            if ($event instanceof ComunaEvent && null !== $comuna && $comuna->isPublic() && $comuna->isActive()) {
                 $public = true;
-                $title = $event->getTitle().' — '.$event->getComuna()->getName();
+                $title = $event->getTitle().' — '.$comuna->getName();
                 $when = EventSchedule::previewWhen($event->getStartsAt(), $event->getTimeZone());
                 $place = $event->getPlaceName();
                 $description = $when.(null !== $place && '' !== $place ? ' · '.$place : '');

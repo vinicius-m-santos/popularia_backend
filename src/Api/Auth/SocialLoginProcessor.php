@@ -119,6 +119,12 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
             throw ApiProblem::accountInactive();
         }
 
+        // Conta social ainda em onboarding precisa entrar para concluir o perfil e aceitar.
+        if (!$user->hasAcceptedLegal() && !$user->isPendingOnboarding()) {
+            $this->events->record(SecurityEventType::LoginFailed, $user, context: ['reason' => 'legal_not_accepted', 'method' => 'social']);
+            throw ApiProblem::forbidden('/errors/legal-acceptance-required', 'Aceite os Termos de Uso e as Regras da Comunidade para entrar.');
+        }
+
         $pair = $this->sessions->start($user, $this->normalizeDeviceLabel($deviceLabel));
         $this->events->record(SecurityEventType::LoginSucceeded, $user, $pair->session, ['method' => 'social']);
 

@@ -59,6 +59,11 @@ final readonly class LoginProcessor implements ProcessorInterface
             throw ApiProblem::accountInactive();
         }
 
+        if (!$user->hasAcceptedLegal()) {
+            $this->events->record(SecurityEventType::LoginFailed, $user, context: ['reason' => 'legal_not_accepted']);
+            throw ApiProblem::forbidden('/errors/legal-acceptance-required', 'Aceite os Termos de Uso e as Regras da Comunidade para entrar.');
+        }
+
         if ($this->passwordHasher->needsRehash($user)) {
             $user->setPasswordHash($this->passwordHasher->hashPassword($user, $data->password), $this->clock->now());
             $this->em->flush();

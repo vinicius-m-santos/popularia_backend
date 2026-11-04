@@ -272,6 +272,23 @@ final class SocialLoginTest extends ApiTestCase
         self::assertFalse($me['pendingOnboarding']);
     }
 
+    public function testCompleteOnboardingRequiresLegalAcceptance(): void
+    {
+        $social = $this->request('POST', '/auth/social', [
+            'provider' => 'google',
+            'idToken' => 'google_valid|g_sub_no_legal|nolegal@exemplo.org|1',
+        ]);
+        $token = (string) $social['accessToken'];
+
+        $body = $this->request('POST', '/me/complete-onboarding', [
+            'handle' => 'semaceite',
+            'displayName' => 'Sem Aceite',
+        ], token: $token);
+
+        $this->assertStatus(403);
+        self::assertSame('/errors/legal-acceptance-required', $body['type']);
+    }
+
     public function testCompleteOnboardingDuplicateHandleIsRejected(): void
     {
         $this->createUser('handleexist');

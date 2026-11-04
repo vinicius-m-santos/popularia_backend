@@ -21,28 +21,18 @@ final class LegalTest extends ApiTestCase
         }
     }
 
-    public function testLegalAcceptanceIsRecordedAndRequiredBeforeUgc(): void
+    public function testAccountWithoutLegalAcceptanceCannotLogIn(): void
     {
         $user = $this->createUser();
-        $this->createComuna('saida-sem-aceite', owner: $user);
-        $id = $user->getId()->toRfc4122();
-        $this->em()->getConnection()->executeStatement('UPDATE app_user SET legal_version = NULL, legal_accepted_at = NULL WHERE id = ?', [$id]);
-        $tokens = $this->login($user->getEmail());
-        $me = $this->request('GET', '/me', token: $tokens['accessToken']);
-        self::assertFalse($me['legalAccepted']);
-        $this->request('POST', '/comunas/saida-sem-aceite/archive', token: $tokens['accessToken']);
-        $this->assertStatus(200);
-        $this->request('PATCH', '/me', ['bio' => 'Não publicar sem aceite'], $tokens['accessToken']);
+        $this->em()->getConnection()->executeStatement('UPDATE app_user SET legal_version = NULL, legal_accepted_at = NULL WHERE id = ?', [$user->getId()->toRfc4122()]);
+        $this->em()->clear();
+
+        $body = $this->request('POST', '/auth/login', ['email' => $user->getEmail(), 'password' => self::PASSWORD]);
+
         $this->assertStatus(403);
-        $this->request('POST', '/posts', ['body' => 'Antes do aceite'], $tokens['accessToken']);
-        $this->assertStatus(403);
-        $this->request('POST', '/me/legal-acceptance', ['version' => 'old', 'accepted' => true], $tokens['accessToken']);
-        $this->assertStatus(422);
-        $me = $this->request('POST', '/me/legal-acceptance', ['version' => LegalDocuments::VERSION, 'accepted' => true], $tokens['accessToken']);
-        $this->assertStatus(201);
-        self::assertTrue($me['legalAccepted']);
-        self::assertNotNull($this->em()->getConnection()->fetchOne('SELECT legal_accepted_at FROM app_user WHERE id = ?', [$id]));
-        $this->request('POST', '/posts', ['body' => 'Depois do aceite'], $tokens['accessToken']);
-        $this->assertStatus(201);
+        self::assertSame('/errors/legal-acceptance-required', $body['type']);
+        self::assertSame(0, $this->em()->getRepository(\App\Entity\RefreshToken::class)->count([]));
+        self::assertSame(1, $this->em()->getRepository(\App\Entity\SecurityEvent::class)->count(['type' => \App\Enum\SecurityEventType::LoginFailed]));
     }
+
 }

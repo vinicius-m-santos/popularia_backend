@@ -38,6 +38,9 @@ final readonly class CompleteOnboardingProcessor implements ProcessorInterface
         if (!$user->isPendingOnboarding()) {
             throw ApiProblem::forbidden('/errors/onboarding-already-complete', 'O onboarding já foi concluído.');
         }
+        if (!$user->hasAcceptedLegal()) {
+            throw ApiProblem::forbidden('/errors/legal-acceptance-required', 'Aceite os Termos de Uso e as Regras da Comunidade antes de concluir o cadastro.');
+        }
         if ('BR' === strtoupper((string) ($data->countryCode ?? 'BR')) && (null !== $data->stateIbgeCode || null !== $data->municipalityIbgeCode) && (null === $data->stateIbgeCode || null === $data->municipalityIbgeCode || !$this->locations->hasMunicipality($data->stateIbgeCode, $data->municipalityIbgeCode))) {
             throw ApiProblem::badRequest('/errors/invalid-location', 'Escolha uma cidade válida para o estado selecionado.');
         }

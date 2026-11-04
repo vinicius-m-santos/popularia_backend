@@ -68,6 +68,8 @@ final readonly class RegistrationProcessor implements ProcessorInterface
 
         $user->updateProfile(null, $data->bio, $data->city, $data->interests, $now, null, $data->state, $data->country, $data->countryCode, $data->stateIbgeCode, $data->municipalityIbgeCode);
         $user->setPasswordHash($passwordHash, $now);
+        // O aceite é pré-requisito do app na etapa 1; a conta já nasce com ele registrado.
+        $user->acceptLegal($now);
         $this->em->persist($user);
         try {
             $this->em->flush();

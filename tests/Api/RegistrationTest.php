@@ -44,6 +44,7 @@ final class RegistrationTest extends ApiTestCase
         self::assertNotNull($user);
         self::assertSame('nova.pessoa', $user->getHandle());
         self::assertFalse($user->isEmailVerified());
+        self::assertTrue($user->hasAcceptedLegal());
         self::assertSame(['edu', 'livros'], $user->getInterests());
         self::assertSame('user', $user->getPlatformRole()->value);
         self::assertMatchesRegularExpression('/^\d{6}$/', $code);

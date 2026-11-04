@@ -46,7 +46,11 @@ COPY composer.json composer.lock symfony.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-progress
 
 COPY . .
-RUN rm -f .env.local .env.*.local \
+# O COPY preserva modos do host; arquivos 600 de ferramentas locais ficam legíveis
+# para o www-data. Sem isso, classes como TopCommentView/EventCapacityMode falham
+# no autoload apenas em produção.
+RUN chmod -R a+rX /app \
+    && rm -f .env.local .env.*.local \
     && chmod +x docker/start.sh \
     && composer dump-autoload --classmap-authoritative --no-dev \
     && composer dump-env prod \

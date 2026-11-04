@@ -41,6 +41,8 @@ final class SocialLoginTest extends ApiTestCase
         self::assertTrue($me['pendingOnboarding']);
         self::assertFalse($me['hasPassword']);
         self::assertSame('nova@exemplo.org', $me['email']);
+        self::assertMatchesRegularExpression(\App\Entity\User::HANDLE_PATTERN, $me['handle']);
+        self::assertDoesNotMatchRegularExpression('/^u[0-9a-f]{11}$/', $me['handle']);
     }
 
     public function testGoogleSecondLoginReturnsSameUser(): void

@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\ApiProblem;
 use App\Api\RequestContext;
+use App\Auth\HandleGenerator;
 use App\Auth\SecurityEventRecorder;
 use App\Auth\SessionManager;
 use App\Entity\User;
@@ -47,6 +48,7 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
         #[Autowire(service: 'App\Social\AppleTokenValidator')]
         private ProviderTokenValidatorInterface $appleValidator,
         private UserRepository $users,
+        private HandleGenerator $handles,
         private UserAuthIdentityRepository $identities,
         private SessionManager $sessions,
         private SecurityEventRecorder $events,
@@ -128,9 +130,8 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
     {
         $now = $this->clock->now();
 
-        // Gera handle temporário único derivado do UUID do usuário.
-        $tempUuid = \Symfony\Component\Uid\Uuid::v7();
-        $tempHandle = 'u'.substr(str_replace('-', '', $tempUuid->toRfc4122()), 0, 11);
+        // Handle temporário legível; o onboarding troca pelo escolhido pela pessoa.
+        $tempHandle = $this->handles->generate();
 
         // Nome inicial: do provider (se disponível) ou placeholder.
         $displayName = $this->extractDisplayName($data, $claims);

@@ -1,0 +1,18 @@
+# Configuração do serviço de cron que entrega as notificações push.
+#
+# A API usa railway.toml; este serviço usa o mesmo repositório e a mesma imagem
+# (Dockerfile, alvo prod), mas roda o comando de entrega uma vez por execução e
+# para. A Railway agenda a execução a cada 5 minutos.
+#
+# Configurado no serviço `notifications-worker` do ambiente `production` com
+# `railwayConfigFile = "railway.worker.toml"`. Ver docs/notificacoes.md.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+buildTarget = "prod"
+
+[deploy]
+startCommand = "php -d memory_limit=512M bin/console app:notifications:deliver --no-debug"
+cronSchedule = "*/5 * * * *"
+restartPolicyType = "NEVER"

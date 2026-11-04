@@ -68,16 +68,13 @@ final class PdfValidator
         if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
             throw ApiProblem::serviceUnavailable();
         }
-        $copy = tempnam($directory, 'pdf-');
-        if (false === $copy) {
-            throw ApiProblem::serviceUnavailable();
-        }
+        // O qpdf do runner roda em um domínio restrito que libera apenas
+        // caminhos com extensão .pdf; tempnam cria um nome sem extensão.
+        $copy = $directory.'/pdf-'.bin2hex(random_bytes(12)).'.pdf';
         if (!copy($path, $copy)) {
             @unlink($copy);
             throw ApiProblem::serviceUnavailable();
         }
-        // O qpdf do runner roda em um domínio restrito e só lê o arquivo se
-        // ele for legível por outros; tempnam cria 0600.
         if (!@chmod($copy, 0644)) {
             @unlink($copy);
             throw ApiProblem::serviceUnavailable();

@@ -158,13 +158,10 @@ final class UploadTest extends ApiTestCase
         if (!is_dir($safeDir)) {
             self::assertTrue(mkdir($safeDir, 0775, true));
         }
-        $plainPath = tempnam($safeDir, 'popularia-pdf-plain-');
-        $encryptedPath = tempnam($safeDir, 'popularia-pdf-encrypted-');
-        self::assertIsString($plainPath);
-        self::assertIsString($encryptedPath);
+        $plainPath = $safeDir.'/plain-'.bin2hex(random_bytes(8)).'.pdf';
+        $encryptedPath = $safeDir.'/encrypted-'.bin2hex(random_bytes(8)).'.pdf';
         self::assertTrue(copy($plain->getPathname(), $plainPath));
         self::assertTrue(chmod($plainPath, 0644));
-        self::assertTrue(chmod($encryptedPath, 0666));
         $this->paths[] = $plainPath;
         $this->paths[] = $encryptedPath;
         $process = proc_open(['qpdf', '--encrypt', 'segredo', 'segredo', '256', '--', $plainPath, $encryptedPath], [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);

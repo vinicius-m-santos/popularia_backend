@@ -60,18 +60,26 @@ final class AccountMailer implements ResetInterface
 
     public function sendAccountAlreadyExists(User $user): void
     {
-        $name = $user->getDisplayName();
+        $name = trim($user->getDisplayName());
+        $firstName = '' !== $name ? explode(' ', $name)[0] : $name;
         $this->queue(
             $user,
-            'Tentativa de cadastro com o seu e-mail',
+            'Você já tem conta na Popularia',
             'emails/account_already_exists.html.twig',
-            ['name' => $name],
+            ['nome' => $firstName],
             <<<TXT
-            Olá, {$name}!
+            Oi, {$firstName}!
 
-            Alguém tentou criar uma conta na Popularia com este e-mail, mas você já tem uma.
-            Se foi você, entre com sua senha ou use "Esqueci minha senha" no app.
-            Se não foi você, não precisa fazer nada: sua conta continua protegida.
+            Alguém tentou criar uma conta na Popularia com este e-mail, mas ele já está cadastrado. Nada foi alterado na sua conta.
+
+            FOI VOCÊ? Entre com sua senha no app. Esqueceu? Use "Esqueci minha senha".
+            NÃO FOI VOCÊ? Não precisa fazer nada. Sua conta continua protegida.
+
+            Por segurança, nunca compartilhe sua senha ou códigos com ninguém.
+
+            --
+            Popularia · um lugar nosso
+            Suporte: suporte@popularia.com.br · https://popularia.com.br/suporte
             TXT,
         );
     }

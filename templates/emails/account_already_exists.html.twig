@@ -1,19 +1,41 @@
-{% extends 'emails/base.html.twig' %}
-{% set subject = 'Tentativa de cadastro com o seu e-mail' %}
+{% extends 'emails/brand_base.html.twig' %}
+
+{% block subject %}Você já tem conta na Popularia{% endblock %}
+{% block preheader %}Alguém tentou criar uma conta com este e&#8209;mail, mas ele já está cadastrado.{% endblock %}
+{% block header_label %}CADASTRO{% endblock %}
+{% block footer_reason %}Você recebeu este e&#8209;mail porque este endereço foi usado num cadastro na Popularia.{% endblock %}
+
+{% block extra_styles %}
+<style>
+  @media only screen and (max-width:600px) {
+    .stack { display:block !important; width:auto !important; margin-bottom:12px !important; }
+    .gap { display:none !important; }
+  }
+</style>
+{% endblock %}
 
 {% block body %}
-<p style="margin:0 0 16px;font-size:16px;color:#1A1A1A;line-height:1.5">Olá, {{ name }}!</p>
-<p style="margin:0 0 24px;font-size:15px;color:#444444;line-height:1.6">
-  Alguém tentou criar uma nova conta na Popularia usando este endereço de e-mail, mas você já possui uma conta.
-</p>
-<p style="margin:0 0 16px;font-size:15px;color:#444444;line-height:1.6">
-  <strong>Se foi você:</strong> entre com sua senha no aplicativo ou use &ldquo;Esqueci minha senha&rdquo; para recuperar o acesso.
-</p>
-<p style="margin:0 0 24px;font-size:15px;color:#444444;line-height:1.6">
-  <strong>Se não foi você:</strong> nenhuma ação é necessária. Sua conta continua protegida e nenhuma alteração foi feita.
-</p>
-<hr style="border:none;border-top:1px solid #EEEEEE;margin:24px 0">
-<p style="margin:0;font-size:13px;color:#888888;line-height:1.5">
-  Por segurança, nunca compartilhe sua senha com ninguém.
-</p>
+<p style="margin:0 0 10px;font-family:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#A3261C;"><span style="color:#BF3326;">&#9632;</span>&nbsp;TENTATIVA DE CADASTRO</p>
+<h1 class="h1" style="margin:0 0 18px;font-family:Anton,Impact,'Arial Narrow Bold','Helvetica Neue',Arial,sans-serif;font-size:34px;line-height:36px;font-weight:400;text-transform:uppercase;color:#15120F;mso-line-height-rule:exactly;">VOCÊ JÁ TEM CONTA AQUI.</h1>
+<p style="margin:0 0 16px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#15120F;">Oi, {{ nome }}!</p>
+<p style="margin:0 0 18px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#15120F;">Alguém tentou criar uma conta na Popularia com este e&#8209;mail, mas ele já está cadastrado. Nada foi alterado na sua conta.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:6px 0 22px;border-collapse:collapse;">
+  <tr>
+    <td class="stack" width="48%" valign="top" style="width:48%;padding:16px;background-color:#F2EADB;border:2px solid #15120F;border-radius:6px;vertical-align:top;">
+      <p style="margin:0 0 6px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;line-height:22px;font-weight:800;color:#15120F;">Foi você?</p>
+      <p style="margin:0;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;line-height:23px;color:#15120F;">Entre com sua senha no app. Esqueceu? Use <strong style="font-weight:800;">&ldquo;Esqueci minha senha&rdquo;</strong>.</p>
+    </td>
+    <td class="gap" width="12" style="width:12px;font-size:0;line-height:0;">&nbsp;</td>
+    <td class="stack" width="48%" valign="top" style="width:48%;padding:16px;background-color:#F2EADB;border:2px solid #15120F;border-radius:6px;vertical-align:top;">
+      <p style="margin:0 0 6px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;line-height:22px;font-weight:800;color:#15120F;">Não foi você?</p>
+      <p style="margin:0;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;line-height:23px;color:#15120F;">Não precisa fazer nada. Sua conta continua protegida.</p>
+    </td>
+  </tr>
+</table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+  <tr>
+    <td style="height:20px;border-top:2px dashed #15120F;font-size:0;line-height:0;">&nbsp;</td>
+  </tr>
+</table>
+<p style="margin:0 0 16px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:#5E554A;">Por segurança, nunca compartilhe sua senha ou códigos com ninguém.</p>
 {% endblock %}

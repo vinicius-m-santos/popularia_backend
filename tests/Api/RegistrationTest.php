@@ -119,7 +119,10 @@ final class RegistrationTest extends ApiTestCase
         self::assertEmailCount(1);
         $email = self::getMailerMessage();
         self::assertNotNull($email);
-        self::assertEmailSubjectContains($email, 'Tentativa de cadastro');
+        self::assertEmailSubjectContains($email, 'Você já tem conta na Popularia');
+        self::assertEmailHtmlBodyContains($email, 'VOCÊ JÁ TEM CONTA AQUI.');
+        self::assertEmailHtmlBodyContains($email, 'Foi você?');
+        self::assertEmailTextBodyContains($email, 'NÃO FOI VOCÊ?');
         self::assertSame(1, $this->em()->getRepository(SecurityEvent::class)->count(['type' => SecurityEventType::RegistrationWithExistingEmail, 'user' => $existing->getId()]));
     }
 

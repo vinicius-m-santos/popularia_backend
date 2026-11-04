@@ -45,25 +45,12 @@ final class UploadTest extends ApiTestCase
 
     public static function pdf(): string
     {
-        $objects = [
-            '<< /Type /Catalog /Pages 2 0 R >>',
-            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] /Resources << >> /Contents 4 0 R >>',
-            "<< /Length 0 >>\nstream\n\nendstream",
-        ];
-        $pdf = "%PDF-1.4\n";
-        $offsets = [0];
-        foreach ($objects as $index => $object) {
-            $offsets[] = strlen($pdf);
-            $pdf .= ($index + 1)." 0 obj\n$object\nendobj\n";
-        }
-        $xref = strlen($pdf);
-        $pdf .= "xref\n0 5\n0000000000 65535 f \n";
-        foreach (array_slice($offsets, 1) as $offset) {
-            $pdf .= sprintf("%010d 00000 n \n", $offset);
-        }
+        // Fixture normalizada pelo qpdf: o PDF mínimo montado à mão era aceito
+        // pelo qpdf 12.2 do container, mas rejeitado pelo 12.3.2 do runner.
+        $contents = file_get_contents(__DIR__.'/fixtures/valid.pdf');
+        \assert(is_string($contents));
 
-        return $pdf."trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n$xref\n%%EOF\n";
+        return $contents;
     }
 
     /** @return array<string, mixed> */

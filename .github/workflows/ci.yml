@@ -51,25 +51,6 @@ jobs:
       - name: Instalar utilitários de PDF
         run: sudo apt-get update && sudo apt-get install -y qpdf
 
-      - name: Diagnóstico do PDF (temporário)
-        run: |
-          id
-          umask
-          ls -ln /usr/bin/qpdf
-          set +e
-          echo "--- workspace fixture ---"
-          qpdf --check tests/Library/fixtures/valid.pdf; echo "workspace-qpdf=$?"
-          mkdir -p var/tmp
-          cp tests/Library/fixtures/valid.pdf var/tmp/test.pdf
-          chmod 0644 var/tmp/test.pdf
-          echo "--- var/tmp copy ---"
-          qpdf --check var/tmp/test.pdf; echo "var-qpdf=$?"
-          php -r '$p = tempnam(sys_get_temp_dir(), "pdf-"); file_put_contents($p, file_get_contents("tests/Library/fixtures/valid.pdf")); file_put_contents("/tmp/php-pdf-path", $p); echo $p, PHP_EOL;'
-          p="$(cat /tmp/php-pdf-path)"
-          ls -ln "$p"
-          echo "--- /tmp copy ---"
-          qpdf --check "$p"; echo "php-temp-qpdf=$?"
-
       - name: Verificar estilo de código
         run: composer cs
 

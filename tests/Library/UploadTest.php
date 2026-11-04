@@ -154,10 +154,18 @@ final class UploadTest extends ApiTestCase
     {
         [$token, $collection] = $this->prepare();
         $plain = $this->file();
-        $encryptedPath = tempnam(sys_get_temp_dir(), 'popularia-pdf-encrypted-');
+        $safeDir = \dirname(__DIR__, 2).'/var/tmp';
+        if (!is_dir($safeDir)) {
+            self::assertTrue(mkdir($safeDir, 0775, true));
+        }
+        $plainPath = tempnam($safeDir, 'popularia-pdf-plain-');
+        $encryptedPath = tempnam($safeDir, 'popularia-pdf-encrypted-');
+        self::assertIsString($plainPath);
         self::assertIsString($encryptedPath);
+        self::assertTrue(copy($plain->getPathname(), $plainPath));
+        $this->paths[] = $plainPath;
         $this->paths[] = $encryptedPath;
-        $process = proc_open(['qpdf', '--encrypt', 'segredo', 'segredo', '256', '--', $plain->getPathname(), $encryptedPath], [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
+        $process = proc_open(['qpdf', '--encrypt', 'segredo', 'segredo', '256', '--', $plainPath, $encryptedPath], [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
         self::assertIsResource($process);
         self::assertSame(0, proc_close($process));
 

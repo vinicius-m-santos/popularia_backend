@@ -35,22 +35,49 @@ final class PdfValidator
         }
         // Um parser real valida a estrutura; magic bytes sozinhos não detectam corrupção.
         // A consulta separada evita apresentar um PDF protegido como se estivesse corrompido.
-        $password = $this->qpdf($path, '--requires-password');
-        if (0 === $password['exit']) {
-            throw new ApiProblem(422, '/errors/pdf-password-protected', 'Este PDF está protegido por senha. Remova a senha e tente novamente.');
+        //
+        // O qpdf do runner do GitHub Actions tem confinamento de caminho e nega
+        // arquivos em /tmp. Copiar para var/tmp mantém o binário trabalhando
+        // dentro do projeto, no CI e no container.
+        $safePath = $this->copyToSafePath($path);
+        try {
+            $password = $this->qpdf($safePath, '--requires-password');
+            if (0 === $password['exit']) {
+                throw new ApiProblem(422, '/errors/pdf-password-protected', 'Este PDF está protegido por senha. Remova a senha e tente novamente.');
+            }
+            $check = $this->qpdf($safePath, '--check');
+            // qpdf usa 3 para avisos recuperáveis. Esses PDFs continuam íntegros e podem ser lidos.
+            if (!in_array($check['exit'], [0, 3], true)) {
+                throw new ApiProblem(422, '/errors/pdf-corrupt', 'Este PDF está corrompido. Exporte uma nova cópia e tente novamente.');
+            }
+            $pageResult = $this->qpdf($safePath, '--show-npages');
+            $pages = (int) trim($pageResult['stdout']);
+            if (!in_array($pageResult['exit'], [0, 3], true) || $pages < 1) {
+                throw new ApiProblem(422, '/errors/pdf-unreadable', 'O PDF parece válido, mas não conseguimos interpretar suas páginas. Exporte-o novamente em um formato PDF padrão.');
+            }
+
+            return ['checksum' => hash_file('sha256', $safePath) ?: throw ApiProblem::serviceUnavailable(), 'byteSize' => $size, 'pageCount' => $pages];
+        } finally {
+            @unlink($safePath);
         }
-        $check = $this->qpdf($path, '--check');
-        // qpdf usa 3 para avisos recuperáveis. Esses PDFs continuam íntegros e podem ser lidos.
-        if (!in_array($check['exit'], [0, 3], true)) {
-            throw new ApiProblem(422, '/errors/pdf-corrupt', 'Este PDF está corrompido. Exporte uma nova cópia e tente novamente.');
+    }
+
+    private function copyToSafePath(string $path): string
+    {
+        $directory = \dirname(__DIR__, 2).'/var/tmp';
+        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+            throw ApiProblem::serviceUnavailable();
         }
-        $pageResult = $this->qpdf($path, '--show-npages');
-        $pages = (int) trim($pageResult['stdout']);
-        if (!in_array($pageResult['exit'], [0, 3], true) || $pages < 1) {
-            throw new ApiProblem(422, '/errors/pdf-unreadable', 'O PDF parece válido, mas não conseguimos interpretar suas páginas. Exporte-o novamente em um formato PDF padrão.');
+        $copy = tempnam($directory, 'pdf-');
+        if (false === $copy) {
+            throw ApiProblem::serviceUnavailable();
+        }
+        if (!copy($path, $copy)) {
+            @unlink($copy);
+            throw ApiProblem::serviceUnavailable();
         }
 
-        return ['checksum' => hash_file('sha256', $path) ?: throw ApiProblem::serviceUnavailable(), 'byteSize' => $size, 'pageCount' => $pages];
+        return $copy;
     }
 
     /** @return array{exit: int, stdout: string} */

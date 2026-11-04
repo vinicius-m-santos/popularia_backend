@@ -7,13 +7,13 @@ namespace App\Tests\Api;
 use App\Entity\LibraryCollection;
 use App\Entity\LibraryDocument;
 use App\Entity\LibraryFile;
+use App\Entity\PostMedia;
 use App\Enum\ComunaVisibility;
 use App\Enum\LibraryAccess;
 use App\Sharing\AssociationController;
 use App\Sharing\PublicLinks;
-use App\Tests\Library\MemoryStorage;
-use App\Entity\PostMedia;
 use App\Tests\ApiTestCase;
+use App\Tests\Library\MemoryStorage;
 use Symfony\Component\Uid\Uuid;
 
 final class SharingTest extends ApiTestCase
@@ -50,7 +50,7 @@ final class SharingTest extends ApiTestCase
         $user = $this->createUser();
         $token = $this->login('camila@exemplo.org')['accessToken'];
         $key = 'post-media/card.jpg';
-        $bytes = "jpeg-bytes-do-cartao";
+        $bytes = 'jpeg-bytes-do-cartao';
         MemoryStorage::$objects[$key] = $bytes;
         $media = new PostMedia($user, Uuid::v7()->toRfc4122(), $key, 'image', 'image/jpeg', hash('sha256', $bytes), strlen($bytes), 1200, 800, null, new \DateTimeImmutable());
         $media->status = 'ready';

@@ -14,6 +14,7 @@ namespace App\Location;
  */
 final class LocationCatalog
 {
+    /** @var array{states: list<array{id: string, name: string, abbreviation: string}>, municipalities: array<string, list<array{id: string, name: string}>>}|null */
     private ?array $data = null;
 
     /** @return list<array{id: string, name: string, abbreviation: string}> */

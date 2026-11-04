@@ -52,6 +52,9 @@ jobs:
       - name: Análise estática (PHPStan)
         run: composer stan
 
+      - name: Análise estática (Psalm)
+        run: composer psalm
+
       - name: Testes
         env:
           # A suíte usa o sufixo _test → banco efetivo: popularia_test

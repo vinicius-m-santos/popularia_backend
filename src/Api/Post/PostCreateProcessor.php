@@ -56,7 +56,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             if (null !== $data->comunaId) {
                 $comuna = $this->comunas->find(Uuid::fromString($data->comunaId)) ?? throw ApiProblem::notFound('Comuna não encontrada.');
             }
-            $inputTopics = $data->topics ?? [];
+            $inputTopics = $data->topics;
             $topics = [] === $inputTopics && null !== $data->topic ? [$data->topic] : $inputTopics;
             $topics = array_values(array_unique($topics));
             if (null !== $comuna && [] !== $topics) {
@@ -105,7 +105,7 @@ final readonly class PostCreateProcessor implements ProcessorInterface
             if (null !== $data->eventId) {
                 $this->attachEvent($post, $data->eventId, $author);
             }
-            $mentions = $this->mentions->attach($body, $data->mentions ?? [], $post);
+            $mentions = $this->mentions->attach($body, $data->mentions, $post);
             $this->em->persist($post);
             foreach ($mentions as $mention) {
                 $this->em->persist($mention);

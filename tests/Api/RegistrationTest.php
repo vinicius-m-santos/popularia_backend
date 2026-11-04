@@ -46,6 +46,7 @@ final class RegistrationTest extends ApiTestCase
         self::assertFalse($user->isEmailVerified());
         self::assertTrue($user->hasAcceptedLegal());
         $legal = $this->em()->getConnection()->fetchAssociative('SELECT legal_accepted_at, legal_terms_version, legal_rules_version, legal_privacy_version FROM app_user WHERE id = ?', [$user->getId()->toRfc4122()]);
+        self::assertIsArray($legal);
         self::assertNotNull($legal['legal_accepted_at']);
         self::assertSame(\App\Legal\LegalDocuments::TERMS_VERSION, $legal['legal_terms_version']);
         self::assertSame(\App\Legal\LegalDocuments::RULES_VERSION, $legal['legal_rules_version']);

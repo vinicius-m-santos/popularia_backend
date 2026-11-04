@@ -31,6 +31,13 @@ final class PasswordResetTest extends ApiTestCase
 
         $this->request('POST', '/auth/password-reset/request', ['email' => 'camila@exemplo.org']);
         $code = $this->lastCodeSentTo('camila@exemplo.org');
+        self::assertEmailCount(1);
+        $email = self::getMailerMessage();
+        self::assertNotNull($email);
+        self::assertEmailSubjectContains($email, 'Código pra criar uma nova senha: '.$code);
+        self::assertEmailHtmlBodyContains($email, 'BORA CRIAR UMA SENHA NOVA.');
+        self::assertEmailHtmlBodyContains($email, 'Não passe este código pra ninguém.');
+        self::assertEmailTextBodyContains($email, 'Vale por 30 minutos');
         $this->request('POST', '/auth/password-reset/confirm', ['email' => 'camila@exemplo.org', 'code' => $code, 'newPassword' => self::NEW_PASSWORD]);
         $this->assertStatus(204);
 
@@ -51,6 +58,13 @@ final class PasswordResetTest extends ApiTestCase
         $this->createUser('camila');
         $this->request('POST', '/auth/password-reset/request', ['email' => 'camila@exemplo.org']);
         $code = $this->lastCodeSentTo('camila@exemplo.org');
+        self::assertEmailCount(1);
+        $email = self::getMailerMessage();
+        self::assertNotNull($email);
+        self::assertEmailSubjectContains($email, 'Código pra criar uma nova senha: '.$code);
+        self::assertEmailHtmlBodyContains($email, 'BORA CRIAR UMA SENHA NOVA.');
+        self::assertEmailHtmlBodyContains($email, 'Não passe este código pra ninguém.');
+        self::assertEmailTextBodyContains($email, 'Vale por 30 minutos');
         $this->request('POST', '/auth/password-reset/confirm', ['email' => 'camila@exemplo.org', 'code' => $code, 'newPassword' => self::NEW_PASSWORD]);
         $this->assertStatus(204);
 

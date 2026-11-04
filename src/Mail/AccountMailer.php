@@ -78,21 +78,29 @@ final class AccountMailer implements ResetInterface
 
     public function sendPasswordResetCode(User $user, #[\SensitiveParameter] string $code): void
     {
-        $name = $user->getDisplayName();
+        $name = trim($user->getDisplayName());
+        $firstName = '' !== $name ? explode(' ', $name)[0] : $name;
         $this->queue(
             $user,
-            'Código para redefinir sua senha da Popularia',
+            'Código pra criar uma nova senha: '.$code,
             'emails/password_reset.html.twig',
-            ['name' => $name, 'code' => $code],
+            ['nome' => $firstName, 'codigo' => $code],
             <<<TXT
-            Olá, {$name}!
+            Oi, {$firstName}!
 
-            Seu código para criar uma nova senha é:
+            Recebemos um pedido pra criar uma nova senha na sua conta. Digite este código no app:
 
-                {$code}
+            {$code}
 
-            Ele vale por 30 minutos e só pode ser usado uma vez.
-            Se você não pediu isso, ignore esta mensagem: sua senha continua a mesma.
+            Vale por 30 minutos e só pode ser usado uma vez.
+
+            Não passe este código pra ninguém. A equipe da Popularia nunca pede código, senha ou token, nem por e-mail, nem por mensagem. Se alguém pedir, não é a gente.
+
+            Não pediu uma senha nova? Sua conta continua segura. É só ignorar este e-mail.
+
+            --
+            Popularia · um lugar nosso
+            Suporte: suporte@popularia.com.br · https://popularia.com.br/suporte
             TXT,
         );
     }

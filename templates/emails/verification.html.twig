@@ -1,77 +1,27 @@
-{% set subject = 'Seu código da Popularia: ' ~ codigo %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="color-scheme" content="light only">
-<meta name="supported-color-schemes" content="light only">
-<title>{{ subject }}</title>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
-<style>
-  @media only screen and (max-width:600px) {
-    .container { width:100% !important; max-width:100% !important; }
-    .px { padding-left:20px !important; padding-right:20px !important; }
-    .h1 { font-size:30px !important; line-height:32px !important; }
-  }
-</style>
-</head>
-<body style="margin:0;padding:0;background-color:#F2EADB;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;color:#F2EADB;">Digite este código no app pra terminar seu cadastro. Vale por 24 horas.</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0;padding:0;background-color:#F2EADB;border-collapse:collapse;">
+{% extends 'emails/brand_base.html.twig' %}
+
+{% block subject %}Seu código da Popularia: {{ codigo }}{% endblock %}
+{% block preheader %}Digite este código no app pra terminar seu cadastro. Vale por 24 horas.{% endblock %}
+{% block header_label %}CONFIRMAR E-MAIL{% endblock %}
+{% block footer_reason %}Você recebeu este e-mail porque este endereço foi usado num cadastro na Popularia.{% endblock %}
+
+{% block body %}
+<p style="margin:0 0 10px;font-family:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#A3261C;"><span style="color:#BF3326;">&#9632;</span>&nbsp;FALTA POUCO</p>
+<h1 class="h1" style="margin:0 0 18px;font-family:Anton,Impact,'Arial Narrow Bold','Helvetica Neue',Arial,sans-serif;font-size:34px;line-height:36px;font-weight:400;text-transform:uppercase;color:#15120F;mso-line-height-rule:exactly;">CONFIRMA QUE É VOCÊ?</h1>
+<p style="margin:0 0 16px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#15120F;">Oi, {{ nome }}!</p>
+<p style="margin:0 0 20px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#15120F;">Pra terminar seu cadastro na Popularia, digite este código no app:</p>
+<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:8px auto 10px;border:0;border-collapse:separate;border-spacing:0;">
   <tr>
-    <td align="center" style="padding:32px 12px 40px;background-color:#F2EADB;">
-      <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;max-width:560px;margin:0 auto;background-color:#FBF7EF;border:2px solid #15120F;border-right-width:5px;border-bottom-width:5px;border-radius:8px;border-collapse:separate;">
-        <tr>
-          <td class="px" bgcolor="#15120F" style="padding:20px 28px;background-color:#15120F;border-radius:6px 6px 0 0;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-              <tr>
-                <td align="left" valign="middle" style="padding:0;text-align:left;">
-                  <a href="https://popularia.com.br" target="_blank" style="text-decoration:none;border:0;display:inline-block;">
-                    <img src="https://api.popularia.com.br/email/popularia-logo.png" width="160" height="40" alt="Popularia" style="display:block;width:160px;height:40px;border:0;outline:none;text-decoration:none;">
-                  </a>
-                </td>
-                <td align="right" valign="middle" style="padding:0;font-family:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:11px;line-height:14px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#C9BFAE;white-space:nowrap;text-align:right;">CONFIRMAR E-MAIL</td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td class="px" bgcolor="#FBF7EF" style="padding:32px 28px 12px;background-color:#FBF7EF;">
-            <p style="margin:0 0 10px;font-family:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:12px;line-height:16px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#A3261C;"><span style="color:#BF3326;">&#9632;</span>&nbsp;FALTA POUCO</p>
-            <h1 class="h1" style="margin:0 0 18px;font-family:Anton,Impact,'Arial Narrow Bold','Helvetica Neue',Arial,sans-serif;font-size:34px;line-height:36px;font-weight:400;text-transform:uppercase;color:#15120F;mso-line-height-rule:exactly;">CONFIRMA QUE É VOCÊ?</h1>
-            <p style="margin:0 0 16px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#15120F;">Oi, {{ nome }}!</p>
-            <p style="margin:0 0 20px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#15120F;">Pra terminar seu cadastro na Popularia, digite este código no app:</p>
-            <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:8px auto 10px;border:0;border-collapse:separate;border-spacing:0;">
-              <tr>
-                <td bgcolor="#15120F" style="padding:16px 26px 16px 38px;background-color:#15120F;border:2px solid #15120F;border-radius:6px;text-align:center;mso-border-alt:2px solid #15120F;">
-                  <span style="font-family:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:38px;line-height:44px;font-weight:600;letter-spacing:12px;color:#F2EADB;white-space:nowrap;">{{ codigo }}</span>
-                </td>
-              </tr>
-            </table>
-            <p style="margin:0 0 24px;font-family:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:12px;line-height:18px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#5E554A;text-align:center;">VALE POR 24 HORAS <span style="color:#5E554A;">&middot;</span> USO ÚNICO</p>
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-              <tr>
-                <td style="height:20px;border-top:2px dashed #15120F;font-size:0;line-height:0;">&nbsp;</td>
-              </tr>
-            </table>
-            <p style="margin:0 0 16px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:#5E554A;">Não criou uma conta? Pode ignorar este e-mail: nenhuma conta foi ativada.</p>
-          </td>
-        </tr>
-      </table>
-      <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;max-width:560px;margin:0 auto;border-collapse:collapse;">
-        <tr>
-          <td style="padding:26px 20px 0;text-align:center;">
-            <img src="https://api.popularia.com.br/email/popularia-simbolo.png" width="32" height="30" alt="" style="display:block;width:32px;height:30px;margin:0 auto 10px;border:0;outline:none;text-decoration:none;">
-            <p style="margin:0 0 6px;font-family:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:11px;line-height:16px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#5E554A;">POPULARIA &middot; UM LUGAR NOSSO</p>
-            <p style="margin:0 0 8px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#5E554A;">Você recebeu este e-mail porque este endereço foi usado num cadastro na Popularia.</p>
-            <p style="margin:0;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#15120F;font-weight:700;"><a href="https://popularia.com.br/suporte" target="_blank" style="color:#15120F;text-decoration:underline;font-weight:700;">Suporte</a><span style="color:#5E554A;font-weight:400;">&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span><a href="https://popularia.com.br/privacidade" target="_blank" style="color:#15120F;text-decoration:underline;font-weight:700;">Privacidade</a><span style="color:#5E554A;font-weight:400;">&nbsp;&nbsp;&middot;&nbsp;&nbsp;</span><a href="mailto:suporte@popularia.com.br" style="color:#15120F;text-decoration:underline;font-weight:700;">suporte@popularia.com.br</a></p>
-          </td>
-        </tr>
-      </table>
+    <td bgcolor="#15120F" style="padding:16px 26px 16px 38px;background-color:#15120F;border:2px solid #15120F;border-radius:6px;text-align:center;mso-border-alt:2px solid #15120F;">
+      <span style="font-family:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:38px;line-height:44px;font-weight:600;letter-spacing:12px;color:#F2EADB;white-space:nowrap;">{{ codigo }}</span>
     </td>
   </tr>
 </table>
-</body>
-</html>
+<p style="margin:0 0 24px;font-family:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,'Courier New',monospace;font-size:12px;line-height:18px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#5E554A;text-align:center;">VALE POR 24 HORAS <span style="color:#5E554A;">&middot;</span> USO ÚNICO</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+  <tr>
+    <td style="height:20px;border-top:2px dashed #15120F;font-size:0;line-height:0;">&nbsp;</td>
+  </tr>
+</table>
+<p style="margin:0 0 16px;font-family:Archivo,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:#5E554A;">Não criou uma conta? Pode ignorar este e-mail: nenhuma conta foi ativada.</p>
+{% endblock %}

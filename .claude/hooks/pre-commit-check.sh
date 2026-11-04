@@ -43,6 +43,14 @@ run_check() {
   fi
 }
 
+if [ -n "${CI:-}" ]; then
+  # No GitHub Actions o PHP e o vendor já estão no runner; não há Docker.
+  run_check "PHP-CS-Fixer (composer cs)" composer cs
+  run_check "PHPStan (composer stan)" composer stan
+  run_check "Psalm (composer psalm)" composer psalm
+  exit 0
+fi
+
 if ! docker compose exec -T php php -v >/dev/null 2>&1; then
   echo "✖ O container PHP não está rodando. Suba com 'docker compose up -d php' e tente de novo." >&2
   exit 2

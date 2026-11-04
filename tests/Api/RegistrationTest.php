@@ -31,13 +31,22 @@ final class RegistrationTest extends ApiTestCase
         self::assertArrayHasKey('message', $body);
         self::assertSame(['message'], array_keys($body));
 
+        $code = $this->lastCodeSentTo('nova.pessoa@exemplo.org');
+        self::assertEmailCount(1);
+        $email = self::getMailerMessage();
+        self::assertNotNull($email);
+        self::assertEmailSubjectContains($email, 'Seu código da Popularia: '.$code);
+        self::assertEmailHtmlBodyContains($email, 'CONFIRMA QUE É VOCÊ?');
+        self::assertEmailHtmlBodyContains($email, 'Oi, Nova!');
+        self::assertEmailTextBodyContains($email, 'Pra terminar seu cadastro na Popularia');
+
         $user = $this->users()->findOneByEmail('nova.pessoa@exemplo.org');
         self::assertNotNull($user);
         self::assertSame('nova.pessoa', $user->getHandle());
         self::assertFalse($user->isEmailVerified());
         self::assertSame(['edu', 'livros'], $user->getInterests());
         self::assertSame('user', $user->getPlatformRole()->value);
-        self::assertMatchesRegularExpression('/^\d{6}$/', $this->lastCodeSentTo('nova.pessoa@exemplo.org'));
+        self::assertMatchesRegularExpression('/^\d{6}$/', $code);
     }
 
     public function testPasswordIsStoredOnlyAsHash(): void

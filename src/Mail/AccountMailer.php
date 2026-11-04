@@ -33,20 +33,27 @@ final class AccountMailer implements ResetInterface
 
     public function sendVerificationCode(User $user, #[\SensitiveParameter] string $code): void
     {
-        $name = $user->getDisplayName();
+        $name = trim($user->getDisplayName());
+        $firstName = '' !== $name ? explode(' ', $name)[0] : $name;
         $this->queue(
             $user,
-            'Seu código de confirmação da Popularia',
+            'Seu código da Popularia: '.$code,
             'emails/verification.html.twig',
-            ['name' => $name, 'code' => $code],
+            ['nome' => $firstName, 'codigo' => $code],
             <<<TXT
-            Olá, {$name}!
+            Oi, {$firstName}!
 
-            Seu código para confirmar o e-mail na Popularia é:
+            Pra terminar seu cadastro na Popularia, digite este código no app:
 
-                {$code}
+            {$code}
 
-            Ele vale por 24 horas. Se não foi você quem criou a conta, ignore esta mensagem.
+            Vale por 24 horas e só pode ser usado uma vez.
+
+            Não criou uma conta? Pode ignorar este e-mail: nenhuma conta foi ativada.
+
+            --
+            Popularia · um lugar nosso
+            Suporte: suporte@popularia.com.br · https://popularia.com.br/suporte
             TXT,
         );
     }

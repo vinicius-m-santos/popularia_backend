@@ -4,74 +4,113 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use App\Entity\UserAuthIdentity;
 use App\Enum\AccountStatus;
+use App\Legal\LegalDocuments;
 use App\Tests\ApiTestCase;
 
 /**
- * Testes do endpoint POST /auth/social.
- *
- * Usa os stubs FakeGoogleTokenValidator e FakeAppleTokenValidator (services_test.yaml).
- * Formato dos tokens stub:
- *   google_valid|<sub>|<email>|<email_verified 0|1>[|<name>]
- *   apple_valid|<sub>|<email>|<email_verified 0|1>
+ * Login social: conta existente autentica; conta nova vira cadastro pendente,
+ * sem User, e só é criada no completion com aceite legal.
  */
 final class SocialLoginTest extends ApiTestCase
 {
-    // --- Google ---
-
-    public function testGoogleFirstLoginCreatesUserAndSession(): void
-    {
+    /** @return array<string, mixed> */
+    private function pendingSocial(
+        string $sub = 'g_sub_001',
+        string $email = 'nova@exemplo.org',
+        int $verified = 1,
+        ?string $displayName = null,
+        string $provider = 'google',
+    ): array {
+        $token = $provider.'_valid|'.$sub.'|'.$email.'|'.$verified.($displayName ? '|'.$displayName : '');
         $body = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'google_valid|g_sub_001|nova@exemplo.org|1|Nova Pessoa',
+            'provider' => $provider,
+            'idToken' => $token,
+            'nonce' => 'nonce_'.$sub,
+            'displayName' => $displayName,
             'deviceLabel' => 'Android',
         ]);
-
         $this->assertStatus(200);
-        self::assertSame('Bearer', $body['tokenType']);
-        self::assertTrue($body['onboardingRequired']);
-        self::assertNotEmpty($body['accessToken']);
-        self::assertNotEmpty($body['refreshToken']);
 
-        // Me mostra email verificado e pendingOnboarding.
-        $me = $this->request('GET', '/me', token: (string) $body['accessToken']);
-        $this->assertStatus(200);
-        self::assertTrue($me['emailVerified']);
-        self::assertTrue($me['pendingOnboarding']);
-        self::assertFalse($me['hasPassword']);
-        self::assertSame('nova@exemplo.org', $me['email']);
-        self::assertMatchesRegularExpression(\App\Entity\User::HANDLE_PATTERN, $me['handle']);
-        self::assertDoesNotMatchRegularExpression('/^u[0-9a-f]{11}$/', $me['handle']);
+        return $body;
     }
 
-    public function testGoogleSecondLoginReturnsSameUser(): void
+    /**
+     * @param array<string, mixed> $pending
+     * @param array<string, mixed> $extra
+     *
+     * @return array<string, mixed>
+     */
+    private function completeSocial(array $pending, string $handle = 'pessoa.nova', string $name = 'Pessoa Nova', array $extra = []): array
     {
-        // Primeiro login.
-        $first = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'google_valid|g_sub_002|recorrente@exemplo.org|1',
-        ]);
+        $body = $this->request('POST', '/auth/social/complete', array_merge([
+            'pendingSignupToken' => $pending['pendingSignupToken'],
+            'handle' => $handle,
+            'displayName' => $name,
+            'countryCode' => 'BR',
+            'legalAccepted' => true,
+            'legalVersion' => LegalDocuments::VERSION,
+            'deviceLabel' => 'Android',
+        ], $extra));
         $this->assertStatus(200);
-        $firstMe = $this->request('GET', '/me', token: (string) $first['accessToken']);
-        $userId = $firstMe['id'];
 
-        // Segundo login com mesmo sub.
+        return $body;
+    }
+
+    public function testGoogleFirstLoginCreatesPendingSignupWithoutUser(): void
+    {
+        $pending = $this->pendingSocial(displayName: 'Nova Pessoa');
+
+        self::assertSame('pending_signup', $pending['status']);
+        self::assertNotEmpty($pending['pendingSignupToken']);
+        self::assertSame('google', $pending['provider']);
+        self::assertSame('nova@exemplo.org', $pending['email']);
+        self::assertSame('Nova Pessoa', $pending['displayName']);
+        self::assertNull($pending['accessToken'] ?? null);
+        self::assertSame(0, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM app_user WHERE email = ?', ['nova@exemplo.org']));
+        self::assertSame(1, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM pending_social_signup'));
+
+        $tokens = $this->completeSocial($pending, 'nova.pessoa', 'Nova Pessoa');
+        self::assertSame('Bearer', $tokens['tokenType']);
+        self::assertFalse($tokens['onboardingRequired']);
+        self::assertNotEmpty($tokens['accessToken']);
+
+        $me = $this->request('GET', '/me', token: (string) $tokens['accessToken']);
+        $this->assertStatus(200);
+        self::assertSame('nova@exemplo.org', $me['email']);
+        self::assertTrue($me['emailVerified']);
+        self::assertFalse($me['pendingOnboarding']);
+        self::assertFalse($me['hasPassword']);
+        self::assertTrue($me['legalAccepted']);
+        self::assertSame('nova.pessoa', $me['handle']);
+        $legal = $this->em()->getConnection()->fetchAssociative('SELECT legal_accepted_at, legal_terms_version, legal_rules_version, legal_privacy_version FROM app_user WHERE email = ?', ['nova@exemplo.org']);
+        self::assertIsArray($legal);
+        self::assertNotNull($legal['legal_accepted_at']);
+        self::assertSame(LegalDocuments::TERMS_VERSION, $legal['legal_terms_version']);
+        self::assertSame(LegalDocuments::RULES_VERSION, $legal['legal_rules_version']);
+        self::assertSame(LegalDocuments::PRIVACY_VERSION, $legal['legal_privacy_version']);
+        self::assertSame(0, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM pending_social_signup'));
+    }
+
+    public function testGoogleSecondLoginReturnsSameUserAfterCompletion(): void
+    {
+        $pending = $this->pendingSocial('g_sub_002', 'recorrente@exemplo.org');
+        $first = $this->completeSocial($pending, 'recorrente', 'Recorrente');
+        $firstMe = $this->request('GET', '/me', token: (string) $first['accessToken']);
+
         $second = $this->request('POST', '/auth/social', [
             'provider' => 'google',
             'idToken' => 'google_valid|g_sub_002|recorrente@exemplo.org|1',
         ]);
         $this->assertStatus(200);
+        self::assertSame('authenticated', $second['status']);
         $secondMe = $this->request('GET', '/me', token: (string) $second['accessToken']);
-        self::assertSame($userId, $secondMe['id'], 'Deve retornar o mesmo User no segundo login.');
+        self::assertSame($firstMe['id'], $secondMe['id']);
     }
 
     public function testGoogleInvalidTokenReturns401(): void
     {
-        $body = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'token_invalido',
-        ]);
+        $body = $this->request('POST', '/auth/social', ['provider' => 'google', 'idToken' => 'token_invalido']);
 
         $this->assertStatus(401);
         self::assertSame('/errors/invalid-social-token', $body['type']);
@@ -79,13 +118,9 @@ final class SocialLoginTest extends ApiTestCase
 
     public function testGoogleSuspendedAccountIsBlocked(): void
     {
-        // Cria e depois suspende a conta.
-        $first = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'google_valid|g_sub_003|suspensa@exemplo.org|1',
-        ]);
-        $this->assertStatus(200);
-        $me = $this->request('GET', '/me', token: (string) $first['accessToken']);
+        $pending = $this->pendingSocial('g_sub_003', 'suspensa@exemplo.org');
+        $tokens = $this->completeSocial($pending, 'suspensa', 'Suspensa');
+        $me = $this->request('GET', '/me', token: (string) $tokens['accessToken']);
 
         $user = $this->fresh(\App\Entity\User::class, $me['id']);
         $user->changeStatus(AccountStatus::Suspended, new \DateTimeImmutable());
@@ -101,10 +136,8 @@ final class SocialLoginTest extends ApiTestCase
 
     public function testGoogleEmailConflictWithExistingPasswordAccount(): void
     {
-        // Cria conta normal com email verificado.
-        $user = $this->createUser('conflito', 'conflito@exemplo.org', verified: true);
+        $this->createUser('conflito', 'conflito@exemplo.org', verified: true);
 
-        // Google tenta criar conta com mesmo email verificado.
         $body = $this->request('POST', '/auth/social', [
             'provider' => 'google',
             'idToken' => 'google_valid|g_sub_004|conflito@exemplo.org|1',
@@ -112,78 +145,55 @@ final class SocialLoginTest extends ApiTestCase
 
         $this->assertStatus(409);
         self::assertSame('/errors/account-email-conflict', $body['type']);
-
-        // Confirma que não criou novo User.
+        self::assertSame(0, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM pending_social_signup'));
         self::assertSame(1, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM app_user WHERE email = ?', ['conflito@exemplo.org']));
     }
 
     public function testGoogleEmailNotVerifiedDoesNotConflict(): void
     {
-        // Conta normal com mesmo email mas Google não confirma verificação.
         $this->createUser('naoconf', 'naoconf@exemplo.org', verified: true);
 
-        $body = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'google_valid|g_sub_005|naoconf@exemplo.org|0',
-        ]);
+        $pending = $this->pendingSocial('g_sub_005', 'naoconf@exemplo.org', verified: 0);
 
-        // e_mail não verificado pelo provider: não verifica conflito, cria nova conta.
-        $this->assertStatus(200);
+        self::assertSame('pending_signup', $pending['status']);
+        self::assertNull($pending['email']);
+        self::assertSame(0, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM pending_social_signup WHERE provider_email IS NOT NULL'));
     }
 
     // --- Apple ---
 
-    public function testAppleFirstLoginCreatesUser(): void
-    {
-        $body = $this->request('POST', '/auth/social', [
-            'provider' => 'apple',
-            'idToken' => 'apple_valid|a_sub_001|apple@exemplo.org|1',
-            'nonce' => 'raw_nonce_abc',
-            'displayName' => 'Pessoa Apple',
-        ]);
-
-        $this->assertStatus(200);
-        self::assertTrue($body['onboardingRequired']);
-        $me = $this->request('GET', '/me', token: (string) $body['accessToken']);
-        self::assertTrue($me['emailVerified']);
-        self::assertFalse($me['hasPassword']);
-    }
-
-    public function testAppleHideMyEmailCreatesUserWithRelayEmail(): void
+    public function testAppleFirstLoginCreatesPendingAndPreservesRelayEmail(): void
     {
         $relay = '1234abcd@privaterelay.appleid.com';
-        $body = $this->request('POST', '/auth/social', [
-            'provider' => 'apple',
-            'idToken' => 'apple_valid|a_sub_002|'.$relay.'|1',
-            'nonce' => 'raw_nonce_xyz',
-        ]);
+        $pending = $this->pendingSocial('a_sub_001', $relay, provider: 'apple', displayName: 'Pessoa Apple');
 
-        $this->assertStatus(200);
-        $me = $this->request('GET', '/me', token: (string) $body['accessToken']);
-        self::assertSame($relay, $me['email'], 'E-mail relay da Apple deve ser preservado como e-mail da conta.');
+        self::assertSame('pending_signup', $pending['status']);
+        self::assertSame('apple', $pending['provider']);
+        self::assertSame($relay, $pending['email']);
+        self::assertSame('Pessoa Apple', $pending['displayName']);
+
+        $tokens = $this->completeSocial($pending, 'pessoa.apple', 'Pessoa Apple');
+        $me = $this->request('GET', '/me', token: (string) $tokens['accessToken']);
+        self::assertSame($relay, $me['email']);
+        self::assertTrue($me['emailVerified']);
     }
 
     public function testAppleSecondLoginWithoutEmailReturnsSameUser(): void
     {
-        // Primeiro login Apple com email.
-        $first = $this->request('POST', '/auth/social', [
-            'provider' => 'apple',
-            'idToken' => 'apple_valid|a_sub_003|apple2@exemplo.org|1',
-            'nonce' => 'nonce1',
-        ]);
-        $this->assertStatus(200);
+        $pending = $this->pendingSocial('a_sub_003', 'apple2@exemplo.org', provider: 'apple');
+        $first = $this->completeSocial($pending, 'apple2', 'Apple Dois');
         $userId = $this->request('GET', '/me', token: (string) $first['accessToken'])['id'];
 
-        // Login seguinte: Apple não retorna email (field vazio).
         $second = $this->request('POST', '/auth/social', [
             'provider' => 'apple',
             'idToken' => 'apple_valid|a_sub_003||0',
             'nonce' => 'nonce2',
         ]);
-        $this->assertStatus(200);
-        $secondUserId = $this->request('GET', '/me', token: (string) $second['accessToken'])['id'];
 
-        self::assertSame($userId, $secondUserId, 'Mesmo User pelo sub, independente do email.');
+        $this->assertStatus(200);
+        self::assertSame('authenticated', $second['status']);
+        $secondUserId = $this->request('GET', '/me', token: (string) $second['accessToken'])['id'];
+        self::assertSame($userId, $secondUserId);
     }
 
     public function testAppleMissingNonceReturns401(): void
@@ -191,14 +201,13 @@ final class SocialLoginTest extends ApiTestCase
         $body = $this->request('POST', '/auth/social', [
             'provider' => 'apple',
             'idToken' => 'apple_valid|a_sub_004|x@exemplo.org|1',
-            // nonce ausente
         ]);
 
         $this->assertStatus(401);
         self::assertSame('/errors/invalid-social-token', $body['type']);
     }
 
-    // --- Account Linking ---
+    // --- Account linking ---
 
     public function testLinkGoogleToExistingPasswordAccount(): void
     {
@@ -212,21 +221,19 @@ final class SocialLoginTest extends ApiTestCase
 
         $this->assertStatus(200);
         self::assertCount(1, $body['identities']);
-        self::assertSame('google', $body['identities'][0]['provider']);
 
-        // Agora pode logar via Google e cair na mesma conta.
         $socialLogin = $this->request('POST', '/auth/social', [
             'provider' => 'google',
             'idToken' => 'google_valid|g_sub_link_001|maria@exemplo.org|1',
         ]);
         $this->assertStatus(200);
+        self::assertSame('authenticated', $socialLogin['status']);
         $linkedMe = $this->request('GET', '/me', token: (string) $socialLogin['accessToken']);
         self::assertSame($user->getId()->toRfc4122(), $linkedMe['id']);
     }
 
     public function testLinkGoogleAlreadyLinkedToAnotherUserReturns409(): void
     {
-        // Maria vincula Google.
         $maria = $this->createUser('maria2', 'maria2@exemplo.org');
         $mariaToken = $this->login('maria2@exemplo.org')['accessToken'];
         $this->request('POST', '/me/auth-identities', [
@@ -235,8 +242,7 @@ final class SocialLoginTest extends ApiTestCase
         ], token: $mariaToken);
         $this->assertStatus(200);
 
-        // João tenta vincular o mesmo Google sub.
-        $joao = $this->createUser('joao', 'joao@exemplo.org');
+        $this->createUser('joao', 'joao@exemplo.org');
         $joaoToken = $this->login('joao@exemplo.org')['accessToken'];
         $body = $this->request('POST', '/me/auth-identities', [
             'provider' => 'google',
@@ -247,106 +253,100 @@ final class SocialLoginTest extends ApiTestCase
         self::assertSame('/errors/identity-already-linked', $body['type']);
     }
 
-    // --- Onboarding ---
+    // --- Completion ---
 
-    public function testCompleteOnboardingSetHandleAndName(): void
+    public function testCompleteSocialSignupRequiresLegalAcceptance(): void
     {
-        $social = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'google_valid|g_sub_onboard|onboard@exemplo.org|1',
-        ]);
-        $this->assertStatus(200);
-        self::assertTrue($social['onboardingRequired']);
-        $token = (string) $social['accessToken'];
-        $this->request('POST', '/me/legal-acceptance', ['version' => \App\Legal\LegalDocuments::VERSION, 'accepted' => true], $token);
-        $this->assertStatus(201);
-
-        $me = $this->request('POST', '/me/complete-onboarding', [
-            'handle' => 'camilanova',
-            'displayName' => 'Camila Nova',
-        ], token: $token);
-
-        $this->assertStatus(200);
-        self::assertSame('camilanova', $me['handle']);
-        self::assertSame('Camila Nova', $me['displayName']);
-        self::assertFalse($me['pendingOnboarding']);
-    }
-
-    public function testCompleteOnboardingRequiresLegalAcceptance(): void
-    {
-        $social = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'google_valid|g_sub_no_legal|nolegal@exemplo.org|1',
-        ]);
-        $token = (string) $social['accessToken'];
-
-        $body = $this->request('POST', '/me/complete-onboarding', [
+        $pending = $this->pendingSocial('g_sub_no_legal', 'nolegal@exemplo.org');
+        $body = $this->request('POST', '/auth/social/complete', [
+            'pendingSignupToken' => $pending['pendingSignupToken'],
             'handle' => 'semaceite',
             'displayName' => 'Sem Aceite',
-        ], token: $token);
-
-        $this->assertStatus(403);
-        self::assertSame('/errors/legal-acceptance-required', $body['type']);
-    }
-
-    public function testCompleteOnboardingDuplicateHandleIsRejected(): void
-    {
-        $this->createUser('handleexist');
-
-        $social = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'google_valid|g_sub_dup_handle|dup@exemplo.org|1',
+            'legalAccepted' => false,
+            'legalVersion' => LegalDocuments::VERSION,
         ]);
-        $token = (string) $social['accessToken'];
-        $this->request('POST', '/me/legal-acceptance', ['version' => \App\Legal\LegalDocuments::VERSION, 'accepted' => true], $token);
-        $this->assertStatus(201);
-
-        $body = $this->request('POST', '/me/complete-onboarding', [
-            'handle' => 'handleexist',
-            'displayName' => 'Alguém',
-        ], token: $token);
 
         $this->assertStatus(422);
+        self::assertSame(0, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM app_user WHERE email = ?', ['nolegal@exemplo.org']));
+        self::assertSame(1, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM pending_social_signup'));
     }
 
-    public function testCompleteOnboardingAlreadyCompletedReturns403(): void
+    public function testCompleteSocialSignupDuplicateHandleIsRejected(): void
     {
-        $user = $this->createUser('jafeito');
-        $token = $this->login('jafeito@exemplo.org')['accessToken'];
+        $this->createUser('handleexist');
+        $pending = $this->pendingSocial('g_sub_dup_handle', 'dup@exemplo.org');
 
-        $body = $this->request('POST', '/me/complete-onboarding', [
-            'handle' => 'jafeito2',
-            'displayName' => 'Já Feito',
-        ], token: $token);
+        $body = $this->request('POST', '/auth/social/complete', [
+            'pendingSignupToken' => $pending['pendingSignupToken'],
+            'handle' => 'handleexist',
+            'displayName' => 'Alguém',
+            'legalAccepted' => true,
+            'legalVersion' => LegalDocuments::VERSION,
+        ]);
 
-        $this->assertStatus(403);
-        self::assertSame('/errors/onboarding-already-complete', $body['type']);
+        $this->assertStatus(422);
+        self::assertSame('handle', $body['violations'][0]['propertyPath']);
+        self::assertSame(0, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM app_user WHERE email = ?', ['dup@exemplo.org']));
     }
 
-    // --- Concorrência ---
-
-    public function testConcurrentSocialLoginCreatesSingleUser(): void
+    public function testCompleteSocialSignupExpiredTokenIsRejected(): void
     {
-        // Simula duas requests quase simultâneas: a segunda não encontra a identidade ainda.
-        $sub = 'g_sub_concurrent';
-        $first = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'google_valid|'.$sub.'|conc@exemplo.org|1',
+        $pending = $this->pendingSocial('g_sub_expired', 'expired@exemplo.org');
+        $this->em()->getConnection()->executeStatement('UPDATE pending_social_signup SET expires_at = ? WHERE token_hash = ?', [
+            (new \DateTimeImmutable('-1 minute'))->format('Y-m-d H:i:sP'),
+            hash('sha256', $pending['pendingSignupToken']),
         ]);
-        $this->assertStatus(200);
-        $firstUserId = $this->request('GET', '/me', token: (string) $first['accessToken'])['id'];
+        $this->em()->clear();
 
-        $second = $this->request('POST', '/auth/social', [
-            'provider' => 'google',
-            'idToken' => 'google_valid|'.$sub.'|conc@exemplo.org|1',
+        $body = $this->request('POST', '/auth/social/complete', [
+            'pendingSignupToken' => $pending['pendingSignupToken'],
+            'handle' => 'expirado',
+            'displayName' => 'Expirado',
+            'legalAccepted' => true,
+            'legalVersion' => LegalDocuments::VERSION,
         ]);
-        $this->assertStatus(200);
-        $secondUserId = $this->request('GET', '/me', token: (string) $second['accessToken'])['id'];
 
-        self::assertSame($firstUserId, $secondUserId);
-        self::assertSame(
-            1,
-            $this->em()->getRepository(UserAuthIdentity::class)->count(['provider' => 'google', 'providerSubject' => $sub]),
-        );
+        $this->assertStatus(400);
+        self::assertSame('/errors/pending-signup-expired', $body['type']);
+        self::assertSame(0, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM pending_social_signup'));
+    }
+
+    public function testCompleteSocialSignupTokenIsSingleUse(): void
+    {
+        $pending = $this->pendingSocial('g_sub_single', 'single@exemplo.org');
+        $this->completeSocial($pending, 'single', 'Single');
+
+        $body = $this->request('POST', '/auth/social/complete', [
+            'pendingSignupToken' => $pending['pendingSignupToken'],
+            'handle' => 'single2',
+            'displayName' => 'Single Dois',
+            'legalAccepted' => true,
+            'legalVersion' => LegalDocuments::VERSION,
+        ]);
+
+        $this->assertStatus(400);
+        self::assertSame('/errors/pending-signup-expired', $body['type']);
+    }
+
+    public function testConcurrentSocialLoginDoesNotCreateUserBeforeCompletion(): void
+    {
+        $first = $this->pendingSocial('g_sub_concurrent', 'conc@exemplo.org');
+        $second = $this->pendingSocial('g_sub_concurrent', 'conc@exemplo.org');
+
+        self::assertSame(1, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM pending_social_signup'));
+        self::assertSame(0, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM app_user WHERE email = ?', ['conc@exemplo.org']));
+
+        $this->completeSocial($second, 'conc', 'Concurrente');
+        self::assertSame(1, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM app_user WHERE email = ?', ['conc@exemplo.org']));
+        self::assertSame(0, $this->em()->getConnection()->fetchOne('SELECT COUNT(*) FROM pending_social_signup'));
+
+        $replay = $this->request('POST', '/auth/social/complete', [
+            'pendingSignupToken' => $first['pendingSignupToken'],
+            'handle' => 'conc2',
+            'displayName' => 'Concurrente',
+            'legalAccepted' => true,
+            'legalVersion' => LegalDocuments::VERSION,
+        ]);
+        $this->assertStatus(400);
     }
 }

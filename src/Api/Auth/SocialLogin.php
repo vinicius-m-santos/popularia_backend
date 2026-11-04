@@ -21,12 +21,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             uriTemplate: '/auth/social',
             status: 200,
-            output: SocialTokens::class,
+            output: SocialAuthResult::class,
             processor: SocialLoginProcessor::class,
             openapi: new Operation(
                 tags: ['Autenticação'],
-                summary: 'Autentica via Google ou Apple e cria uma sessão Popularia.',
-                description: 'O backend valida o identity token criptograficamente. Nunca aceita payload autodeclarado sem verificação. Retorna os tokens da sessão Popularia mais o flag `onboardingRequired` para novas contas.',
+                summary: 'Autentica via Google ou Apple ou inicia um cadastro pendente.',
+                description: 'O backend valida o identity token criptograficamente. Conta existente retorna tokens; conta nova retorna `status=pending_signup` com token temporário, e-mail e nome, sem criar User. O cadastro é concluído em /auth/social/complete.',
             ),
         ),
     ],

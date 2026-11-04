@@ -45,6 +45,11 @@ final class RegistrationTest extends ApiTestCase
         self::assertSame('nova.pessoa', $user->getHandle());
         self::assertFalse($user->isEmailVerified());
         self::assertTrue($user->hasAcceptedLegal());
+        $legal = $this->em()->getConnection()->fetchAssociative('SELECT legal_accepted_at, legal_terms_version, legal_rules_version, legal_privacy_version FROM app_user WHERE id = ?', [$user->getId()->toRfc4122()]);
+        self::assertNotNull($legal['legal_accepted_at']);
+        self::assertSame(\App\Legal\LegalDocuments::TERMS_VERSION, $legal['legal_terms_version']);
+        self::assertSame(\App\Legal\LegalDocuments::RULES_VERSION, $legal['legal_rules_version']);
+        self::assertSame(\App\Legal\LegalDocuments::PRIVACY_VERSION, $legal['legal_privacy_version']);
         self::assertSame(['edu', 'livros'], $user->getInterests());
         self::assertSame('user', $user->getPlatformRole()->value);
         self::assertMatchesRegularExpression('/^\d{6}$/', $code);

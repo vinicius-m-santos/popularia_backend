@@ -8,11 +8,12 @@ use App\Auth\TokenPair;
 
 /**
  * Resposta do social login: mesmos tokens da sessão Popularia normal, mais o
- * flag `onboardingRequired` para novas contas que ainda não escolheram handle e nome.
+ * flag `onboardingRequired` para contas sociais antigas que ainda não escolheram handle e nome.
  */
 final readonly class SocialTokens
 {
     public function __construct(
+        public string $status,
         public string $tokenType,
         public string $accessToken,
         public int $accessTokenExpiresIn,
@@ -27,6 +28,7 @@ final readonly class SocialTokens
     public static function fromPair(TokenPair $pair, bool $onboardingRequired): self
     {
         return new self(
+            'authenticated',
             'Bearer',
             $pair->accessToken,
             $pair->accessTokenExpiresIn,

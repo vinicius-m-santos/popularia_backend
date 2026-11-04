@@ -45,6 +45,7 @@ final class RateLimitGuard
             'comuna_join_request' => new Autowire(service: 'limiter.comuna_join_request'),
             'account_deletion' => new Autowire(service: 'limiter.account_deletion'),
             'social_auth' => new Autowire(service: 'limiter.social_auth'),
+            'social_signup_complete' => new Autowire(service: 'limiter.social_signup_complete'),
             'waitlist' => new Autowire(service: 'limiter.waitlist'),
         ])]
         private readonly ContainerInterface $limiters,

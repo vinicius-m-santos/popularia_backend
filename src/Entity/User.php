@@ -27,17 +27,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $legalVersion = null;
 
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $legalTermsVersion = null;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $legalRulesVersion = null;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $legalPrivacyVersion = null;
+
     #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $legalAcceptedAt = null;
 
     public function hasAcceptedLegal(): bool
     {
-        return \App\Legal\LegalDocuments::VERSION === $this->legalVersion && null !== $this->legalAcceptedAt;
+        return \App\Legal\LegalDocuments::VERSION === $this->legalVersion
+            && \App\Legal\LegalDocuments::TERMS_VERSION === $this->legalTermsVersion
+            && \App\Legal\LegalDocuments::RULES_VERSION === $this->legalRulesVersion
+            && \App\Legal\LegalDocuments::PRIVACY_VERSION === $this->legalPrivacyVersion
+            && null !== $this->legalAcceptedAt;
     }
 
     public function acceptLegal(\DateTimeImmutable $now): void
     {
         $this->legalVersion = \App\Legal\LegalDocuments::VERSION;
+        $this->legalTermsVersion = \App\Legal\LegalDocuments::TERMS_VERSION;
+        $this->legalRulesVersion = \App\Legal\LegalDocuments::RULES_VERSION;
+        $this->legalPrivacyVersion = \App\Legal\LegalDocuments::PRIVACY_VERSION;
         $this->legalAcceptedAt = $now;
     }
 
@@ -63,6 +79,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->platformRole = PlatformRole::User;
         $this->status = AccountStatus::Deleted;
         $this->legalVersion = null;
+        $this->legalTermsVersion = null;
+        $this->legalRulesVersion = null;
+        $this->legalPrivacyVersion = null;
         $this->legalAcceptedAt = null;
         $this->lastComunaCreatedAt = null;
         $this->avatarKey = null;

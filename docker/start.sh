@@ -11,5 +11,8 @@ export SERVER_NAME=":${PORT:-80}"
 echo "[start] Aplicando migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
+echo "[start] Limpando cadastros sociais pendentes expirados..."
+php bin/console app:pending-social:cleanup --no-interaction || true
+
 echo "[start] Iniciando FrankenPHP em ${SERVER_NAME}..."
 exec frankenphp run --config /etc/frankenphp/Caddyfile

@@ -34,5 +34,4 @@ final class LegalTest extends ApiTestCase
         self::assertSame(0, $this->em()->getRepository(\App\Entity\RefreshToken::class)->count([]));
         self::assertSame(1, $this->em()->getRepository(\App\Entity\SecurityEvent::class)->count(['type' => \App\Enum\SecurityEventType::LoginFailed]));
     }
-
 }

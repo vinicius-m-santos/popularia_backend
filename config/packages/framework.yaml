@@ -138,6 +138,11 @@ framework:
             limit: 20
             interval: '15 minutes'
             cache_pool: cache.rate_limiter
+        social_signup_complete:
+            policy: sliding_window
+            limit: 10
+            interval: '15 minutes'
+            cache_pool: cache.rate_limiter
         waitlist:
             policy: sliding_window
             limit: 5

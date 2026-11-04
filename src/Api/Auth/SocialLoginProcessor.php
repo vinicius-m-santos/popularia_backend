@@ -8,18 +8,18 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\ApiProblem;
 use App\Api\RequestContext;
-use App\Auth\HandleGenerator;
 use App\Auth\SecurityEventRecorder;
 use App\Auth\SessionManager;
+use App\Entity\PendingSocialSignup;
 use App\Entity\User;
 use App\Entity\UserAuthIdentity;
 use App\Enum\SecurityEventType;
+use App\Repository\PendingSocialSignupRepository;
 use App\Repository\UserAuthIdentityRepository;
 use App\Repository\UserRepository;
 use App\Security\RateLimitGuard;
 use App\Social\ProviderClaims;
 use App\Social\ProviderTokenValidatorInterface;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
@@ -34,11 +34,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * 3. Busca UserAuthIdentity por (provider, subject).
  *    a. Encontrou: loga o usuário existente.
  *    b. Não encontrou + e-mail verificado bate com conta existente: retorna 409 (linking necessário).
- *    c. Não encontrou: cria novo User + UserAuthIdentity.
- * 4. Verifica se a conta está ativa.
- * 5. Inicia sessão Popularia normal.
+ *    c. Não encontrou: cria um cadastro pendente, sem User nem sessão.
+ * 4. O app conclui o perfil e o aceite legal em /auth/social/complete.
  *
- * @implements ProcessorInterface<SocialLogin, SocialTokens>
+ * @implements ProcessorInterface<SocialLogin, SocialAuthResult>
  */
 final readonly class SocialLoginProcessor implements ProcessorInterface
 {
@@ -48,7 +47,7 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
         #[Autowire(service: 'App\Social\AppleTokenValidator')]
         private ProviderTokenValidatorInterface $appleValidator,
         private UserRepository $users,
-        private HandleGenerator $handles,
+        private PendingSocialSignupRepository $pendingSignups,
         private UserAuthIdentityRepository $identities,
         private SessionManager $sessions,
         private SecurityEventRecorder $events,
@@ -59,7 +58,7 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
     ) {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): SocialTokens
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): SocialAuthResult
     {
         $ip = RequestContext::clientIp($context);
         $this->rateLimit->consume('social_auth', $ip);
@@ -79,7 +78,7 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
         $identity = $this->identities->findByProviderSubject($data->provider, $claims->subject);
 
         if (null !== $identity) {
-            return $this->loginExisting($identity->getUser(), $data->deviceLabel, $context);
+            return SocialAuthResult::authenticated($this->loginExisting($identity->getUser(), $data->deviceLabel, $context));
         }
 
         // 3. Identidade não encontrada: verificar conflito de e-mail.
@@ -98,8 +97,8 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
             }
         }
 
-        // 4. Novo usuário: criar conta + identidade.
-        return $this->createAndLogin($data, $claims, $context);
+        // 4. Novo usuário: criar cadastro pendente, sem conta nem sessão.
+        return $this->createPendingSignup($data, $claims);
     }
 
     private function validateToken(SocialLogin $data): ProviderClaims
@@ -131,64 +130,37 @@ final readonly class SocialLoginProcessor implements ProcessorInterface
         return SocialTokens::fromPair($pair, $user->isPendingOnboarding());
     }
 
-    /** @param array<string, mixed> $context */
-    private function createAndLogin(SocialLogin $data, ProviderClaims $claims, array $context): SocialTokens
+    private function createPendingSignup(SocialLogin $data, ProviderClaims $claims): SocialAuthResult
     {
         $now = $this->clock->now();
+        $this->pendingSignups->deleteExpired($now);
 
-        // Handle temporário legível; o onboarding troca pelo escolhido pela pessoa.
-        $tempHandle = $this->handles->generate();
-
-        // Nome inicial: do provider (se disponível) ou placeholder.
-        $displayName = $this->extractDisplayName($data, $claims);
-
-        // Só usa o e-mail do provider se ele for verificado; caso contrário, endereço placeholder.
-        $verifiedEmail = ($claims->emailVerified && null !== $claims->email) ? $claims->email : null;
-        $userEmail = $verifiedEmail ?? $data->provider.'.'.substr($claims->subject, 0, 12).'@noreply.popularia.app';
-
-        $user = new User($userEmail, $tempHandle, $displayName, $now);
-        $user->markPendingOnboarding($now);
-
-        if (null !== $verifiedEmail) {
-            $user->markEmailVerified($now);
-        }
-
-        $identity = new UserAuthIdentity($user, $data->provider, $claims->subject, $claims->email, $now);
-        $this->em->persist($user);
-        $this->em->persist($identity);
-
-        try {
+        // Se a pessoa voltou antes de concluir, o token anterior deixa de valer.
+        $previous = $this->pendingSignups->findByProviderSubject($data->provider, $claims->subject);
+        if (null !== $previous) {
+            $this->em->remove($previous);
             $this->em->flush();
-        } catch (UniqueConstraintViolationException $e) {
-            // Corrida: outra requisição criou a mesma identidade agora.
-            if (str_contains($e->getMessage(), 'uniq_auth_identity_provider_subject')) {
-                $this->em->clear();
-                $found = $this->identities->findByProviderSubject($data->provider, $claims->subject);
-                if (null !== $found) {
-                    return $this->loginExisting($found->getUser(), $data->deviceLabel, $context);
-                }
-            }
-            throw $e;
         }
 
-        $pair = $this->sessions->start($user, $this->normalizeDeviceLabel($data->deviceLabel));
-        $this->events->record(SecurityEventType::AccountRegistered, $user, context: ['method' => 'social', 'provider' => $data->provider]);
-        $this->events->record(SecurityEventType::LoginSucceeded, $user, $pair->session, ['method' => 'social']);
+        $rawToken = bin2hex(random_bytes(32));
+        $providerEmail = ($claims->emailVerified && null !== $claims->email) ? $claims->email : null;
+        $displayName = null !== $data->displayName && '' !== trim($data->displayName)
+            ? trim($data->displayName)
+            : (null !== $claims->name && '' !== trim($claims->name) ? $claims->name : null);
 
-        return SocialTokens::fromPair($pair, true);
-    }
+        $pending = new PendingSocialSignup(
+            hash('sha256', $rawToken),
+            $data->provider,
+            $claims->subject,
+            $providerEmail,
+            $displayName,
+            $claims->emailVerified,
+            $now,
+        );
+        $this->em->persist($pending);
+        $this->em->flush();
 
-    private function extractDisplayName(SocialLogin $data, ProviderClaims $claims): string
-    {
-        // O mobile pode enviar o nome da primeira autorização Apple.
-        if (null !== $data->displayName && '' !== trim($data->displayName)) {
-            return trim($data->displayName);
-        }
-        if (null !== $claims->name && '' !== $claims->name) {
-            return $claims->name;
-        }
-
-        return 'Novo usuário';
+        return SocialAuthResult::pending($pending, $rawToken);
     }
 
     private function normalizeDeviceLabel(?string $label): ?string

@@ -76,6 +76,12 @@ final class PdfValidator
             @unlink($copy);
             throw ApiProblem::serviceUnavailable();
         }
+        // O qpdf do runner roda em um domínio restrito e só lê o arquivo se
+        // ele for legível por outros; tempnam cria 0600.
+        if (!@chmod($copy, 0644)) {
+            @unlink($copy);
+            throw ApiProblem::serviceUnavailable();
+        }
 
         return $copy;
     }
@@ -92,15 +98,12 @@ final class PdfValidator
             throw ApiProblem::serviceUnavailable();
         }
         $stdout = (string) stream_get_contents($pipes[1]);
-        $stderr = (string) stream_get_contents($pipes[2]);
+        stream_get_contents($pipes[2]);
         fclose($pipes[1]);
         fclose($pipes[2]);
         $exit = proc_close($process);
         if (in_array($exit, [124, 127], true)) {
             throw ApiProblem::serviceUnavailable();
-        }
-        if (!in_array($exit, [0, 3], true) && 'test' === ($_SERVER['APP_ENV'] ?? '')) {
-            error_log(sprintf('qpdf %s exit=%d path=%s stderr=%s', $operation, $exit, $path, trim($stderr)));
         }
 
         return ['exit' => $exit, 'stdout' => $stdout];

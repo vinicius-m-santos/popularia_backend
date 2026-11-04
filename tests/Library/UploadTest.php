@@ -163,9 +163,11 @@ final class UploadTest extends ApiTestCase
         self::assertIsString($plainPath);
         self::assertIsString($encryptedPath);
         self::assertTrue(copy($plain->getPathname(), $plainPath));
+        self::assertTrue(chmod($plainPath, 0644));
+        self::assertTrue(chmod($encryptedPath, 0666));
         $this->paths[] = $plainPath;
         $this->paths[] = $encryptedPath;
-        $process = proc_open(['qpdf', '--encrypt', 'segredo', 'segredo', '256', '--', $plainPath, $encryptedPath], [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/stderr', 'w']], $pipes);
+        $process = proc_open(['qpdf', '--encrypt', 'segredo', 'segredo', '256', '--', $plainPath, $encryptedPath], [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
         self::assertIsResource($process);
         self::assertSame(0, proc_close($process));
 

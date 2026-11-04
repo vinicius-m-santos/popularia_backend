@@ -1,0 +1,28 @@
+name: claude-plan-opencode
+description: Claude plans, OpenCode implements, Codex reviews, and Git validates the patch.
+steps:
+  - id: plan
+    name: Plan with Claude
+    runner: claude
+    prompt: >-
+      Analyze {{task}}. Inspect the repository, identify risks and affected contracts,
+      and record a concise implementation plan in the run handoff. Do not edit files.
+  - id: implement
+    name: Implement with OpenCode
+    runner: opencode
+    model: deepseek/deepseek-flash
+    prompt: >-
+      Implement {{task}}. Read the previous step's handoff and verify its assumptions
+      against the repository. Keep changes scoped, run relevant tests, and do not merge.
+  - id: review
+    name: Review with Codex
+    runner: codex
+    prompt: >-
+      Review the implementation for {{task}}. Inspect the complete diff, fix only
+      concrete correctness, security, or test issues, and do not merge.
+  - id: patch-integrity
+    name: Validate patch integrity
+    command: git diff --check
+    onFail:
+      retry: review
+      max: 1

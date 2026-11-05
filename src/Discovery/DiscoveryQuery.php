@@ -24,7 +24,7 @@ final readonly class DiscoveryQuery
     }
 
     /**
-     * @return list<Comuna>|list<Post>|list<User>
+     * @return list<Comuna>|list<Post>|list<User>|list<ComunaEvent>
      */
     public function find(string $kind, User $viewer, string $query, ?string $topic, ?string $cursor, int $limit, bool $recommend = false, bool $recent = false): array
     {
@@ -55,6 +55,13 @@ final readonly class DiscoveryQuery
                 $params['interests'] = json_encode($viewer->getInterests(), \JSON_THROW_ON_ERROR);
             }
             $class = Comuna::class;
+        } elseif ('events' === $kind) {
+            $from = 'comuna_event x JOIN comuna c ON c.id = x.comuna_id';
+            $where = "c.status = 'active' AND (c.visibility = 'public' OR $member)";
+            if (null !== $topic) {
+                $where .= ' AND c.topics->>0 = :topic';
+            }
+            $class = ComunaEvent::class;
         } else {
             $from = 'post x JOIN app_user a ON a.id = x.author_id LEFT JOIN comuna c ON c.id = x.comuna_id';
             $where = "x.status = 'published' AND a.status = 'active' AND ".$blocked('a.id')
@@ -112,14 +119,20 @@ final readonly class DiscoveryQuery
         } elseif (Comuna::class === $class) {
             $qb->addSelect('owner', 'rules')->leftJoin('e.owner', 'owner')->leftJoin('e.rules', 'rules')
                 ->andWhere("e.status = 'active'");
+        } elseif (ComunaEvent::class === $class) {
+            $memberOf = sprintf('SELECT IDENTITY(hm.comuna) FROM %s hm WHERE IDENTITY(hm.user) = :hydrateViewer', ComunaMembership::class);
+            $qb->addSelect('comuna', 'organizer')->join('e.comuna', 'comuna')->leftJoin('e.organizer', 'organizer')
+                ->andWhere("comuna.status = 'active'")
+                ->andWhere("comuna.visibility = 'public' OR comuna.id IN ($memberOf)")
+                ->setParameter('hydrateViewer', $viewer->getId(), 'uuid');
         } else {
             $qb->andWhere("e.status = 'active'");
             UserBlockRepository::excludeBlocked($qb, 'e', $viewer);
         }
-        /** @var list<Comuna>|list<Post>|list<User> $entities */
+        /** @var list<Comuna>|list<Post>|list<User>|list<ComunaEvent> $entities */
         $entities = $qb->getQuery()->getResult();
         $positions = array_flip($ids);
-        usort($entities, static fn (Comuna|Post|User $a, Comuna|Post|User $b): int => $positions[$a->getId()->toRfc4122()] <=> $positions[$b->getId()->toRfc4122()]);
+        usort($entities, static fn (Comuna|Post|User|ComunaEvent $a, Comuna|Post|User|ComunaEvent $b): int => $positions[$a->getId()->toRfc4122()] <=> $positions[$b->getId()->toRfc4122()]);
 
         return $entities;
     }

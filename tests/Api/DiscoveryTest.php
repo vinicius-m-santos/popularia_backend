@@ -331,6 +331,47 @@ final class DiscoveryTest extends ApiTestCase
         self::assertLessThan(6, $pages);
     }
 
+    public function testEventsCategoryWithoutTermListsVisibleEventsAndPages(): void
+    {
+        $this->createUser('viewer');
+        $owner = $this->createUser('owner');
+        $public = $this->createComuna('hortas-busca', owner: $owner);
+        $this->createComuna('sala-fechada', ComunaVisibility::Private, $owner);
+        $ownerToken = $this->login('owner@exemplo.org')['accessToken'];
+        $first = $this->request('POST', '/comunas/hortas-busca/events', $this->eventBody('+6 days', override: ['title' => 'Feira de sementes']), $ownerToken);
+        $this->assertStatus(201);
+        $second = $this->request('POST', '/comunas/hortas-busca/events', $this->eventBody('+3 days', override: ['title' => 'Mutirao da horta']), $ownerToken);
+        $this->assertStatus(201);
+        $secret = $this->request('POST', '/comunas/sala-fechada/events', $this->eventBody('+4 days', override: ['title' => 'Assembleia secreta']), $ownerToken);
+        $this->assertStatus(201);
+        $token = $this->login('viewer@exemplo.org')['accessToken'];
+
+        // "Eventos" em Explorar abre a categoria sem termo; aqui a API lista, não busca.
+        $this->createPost($owner, $public);
+        $page = $this->request('GET', '/search?type=events&limit=1', token: $token);
+        $this->assertStatus(200);
+        self::assertCount(1, $page['events']);
+        self::assertNotSame($secret['id'], $page['events'][0]['id']);
+        $cursor = $page['next']['events'];
+        self::assertIsString($cursor);
+        self::assertTrue(\Symfony\Component\Uid\Uuid::isValid($cursor));
+
+        $next = $this->request('GET', '/search?type=events&limit=1&cursor='.$cursor, token: $token);
+        $this->assertStatus(200);
+        self::assertCount(1, $next['events']);
+        self::assertNull($next['next']['events']);
+        self::assertSame(
+            [$second['id'], $first['id']],
+            array_merge(array_column($page['events'], 'id'), array_column($next['events'], 'id')),
+        );
+
+        // Na página de assunto, a categoria mantém o filtro de assunto principal da comuna.
+        $byTopic = $this->request('GET', '/search?type=events&topic=comun', token: $token);
+        $this->assertStatus(200);
+        self::assertSame([$second['id'], $first['id']], array_column($byTopic['events'], 'id'));
+        self::assertSame([], $this->request('GET', '/search?type=events&topic=tec', token: $token)['events']);
+    }
+
     public function testEventsRespectPrivacyPlaceAndUpcomingOrder(): void
     {
         $viewer = $this->createUser('viewer');
